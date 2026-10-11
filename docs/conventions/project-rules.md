@@ -49,8 +49,10 @@ lib/
 │   ├── di.dart               # get_it 등록
 │   └── router.dart           # go_router 라우트
 ├── core/                     # 여러 기능이 같이 쓰는 코드
+│   ├── design_system.dart    # 디자인 시스템 한 번에 import
 │   ├── robot/                # RobotController 추상화와 구현
-│   └── theme/
+│   ├── theme/                # 디자인 토큰과 테마
+│   └── widgets/              # 공통 위젯 (Gm 접두사)
 └── features/                 # 기능별 폴더
     └── <기능>/
         ├── data/
@@ -71,6 +73,11 @@ docs/                         # 문서
 - Bloc 파일은 `xxx_bloc.dart`, `xxx_event.dart`, `xxx_state.dart`로 나누고, 상태 비교에는 equatable을 씁니다.
 - 코드 안 주석과 사용자에게 보이는 문구는 한국어, 식별자는 영어로 씁니다.
 - 매직 넘버(재시도 횟수, 대기 시간 등)는 이름 있는 상수로 둡니다.
+
+## 화면 규칙
+
+- 색, 글자 크기, 간격은 [디자인 시스템](../design-system.md)의 토큰과 테마로만 씁니다. 화면에 `Color(0x...)`, `fontSize` 숫자를 직접 쓰지 않습니다.
+- 방문객 화면의 누르는 요소는 최소 64dp입니다.
 
 ## 플랫폼 채널 규칙
 
