@@ -12,7 +12,7 @@ Notion "G-Mate > v1"의 작업 기록·이슈 DB로 옮기기 전에 임시로 �
 | 작업 | 분야 | 완료일 | 내용 | Notion |
 | --- | --- | --- | --- | --- |
 | 저장소 연결 | 공통 | 2026-10-11 | GitHub G-Mate/G-Mate-App 저장소를 프로젝트에 연결 (빈 저장소에서 시작) | |
-| Git 컨벤션 문서 작성 | 공통 | 2026-10-11 | GitHub Flow, 브랜치 이름, Conventional Commits(한국어 제목), PR·Squash merge 규칙을 [git.md](conventions/git.md)에 정리. 커밋 템플릿 `.gitmessage`, PR 템플릿 추가 | |
+| Git 컨벤션 문서 작성 | 공통 | 2026-10-11 | GitHub Flow, 이슈 번호를 붙인 브랜치 이름(`feat/12-place-list-screen`), Conventional Commits(한국어 제목), PR·Squash merge 규칙을 [git.md](conventions/git.md)에 정리. 커밋 템플릿 `.gitmessage`, PR 템플릿 추가 | |
 | 프로젝트 규칙 문서 작성 | 공통 | 2026-10-11 | 아키텍처, 폴더 구조, 코드 스타일, 플랫폼 채널, 테스트, 기록 규칙을 [project-rules.md](conventions/project-rules.md)에 정리 | |
 | Flutter 프로젝트 생성 | 공통 | 2026-10-11 | Flutter 3.47.7로 Android 전용 프로젝트 생성 (패키지 `com.gmate.g_mate`). flutter_bloc, equatable, get_it, go_router 추가 | |
 | 앱 기본 구조 세팅 | 화면(UI) | 2026-10-11 | `app/`(DI·라우터·테마) + `core/` + `features/` 구조, 홈(대기) 화면과 로봇 준비 상태 표시 | |

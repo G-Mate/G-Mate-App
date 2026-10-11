@@ -9,24 +9,31 @@ GitHub Flow를 씁니다. `main` 하나를 기준으로 두고, 모든 작업은
 - `main`: 항상 빌드되는 상태를 유지합니다. 직접 push하지 않고 PR로만 합칩니다.
 - 작업 브랜치: `main`에서 만들고, 합친 뒤에는 삭제합니다.
 
+### 이슈 먼저
+
+모든 작업은 GitHub 이슈에서 시작합니다. 이슈를 먼저 만들고, 그 번호로 브랜치를 만듭니다.
+
+- 이슈 제목은 무엇을 할지 한 줄로 씁니다. 예: `장소 목록 화면 만들기`
+- 이슈 하나 = 브랜치 하나 = PR 하나가 기본입니다.
+
 ### 브랜치 이름
 
 ```
-<타입>/<짧은-설명>
+<타입>/<이슈 번호>-<짧은-설명>
 ```
 
 - 타입은 아래 커밋 타입과 같은 목록을 씁니다 (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `build`, `ci`, `style`, `perf`).
+- 이슈 번호는 `#` 없이 숫자만 씁니다.
 - 설명은 영어 소문자와 하이픈(kebab-case)으로, 3~5단어 안쪽으로 씁니다.
-- 이슈·작업 번호 같은 ID는 붙이지 않습니다.
 
 예시
 
 ```
-feat/place-list-screen
-feat/temi-bridge-goto
-fix/tour-abort-retry
-docs/git-convention
-chore/project-setup
+feat/12-place-list-screen
+feat/15-temi-bridge-goto
+fix/21-tour-abort-retry
+docs/3-git-convention
+chore/1-project-setup
 ```
 
 ## 커밋 메시지
@@ -104,6 +111,7 @@ docs: Git 컨벤션 문서 추가
 
 - 한 커밋에는 한 가지 목적만 담습니다. 포맷 변경과 기능 변경을 섞지 않습니다.
 - 커밋마다 빌드가 깨지지 않게 합니다.
+- 커밋 꼬리말에 관련 이슈를 `Refs: #12`처럼 적을 수 있습니다 (선택).
 - 커밋 템플릿: `git config commit.template .gitmessage` 로 저장소의 [.gitmessage](../../.gitmessage)를 쓸 수 있습니다.
 
 ## Pull Request
@@ -111,6 +119,7 @@ docs: Git 컨벤션 문서 추가
 - 제목은 커밋 메시지 제목과 같은 형식(`<타입>(<범위>): <제목>`)으로 씁니다.
 - 본문은 [PR 템플릿](../../.github/pull_request_template.md)을 채웁니다.
 - 하나의 PR은 하나의 기능·수정만 다룹니다. 크면 나눕니다.
+- 본문에 `Closes #<이슈 번호>`를 적어 머지되면 이슈가 자동으로 닫히게 합니다.
 - 머지 전 확인: `flutter analyze` 경고 없음, `flutter test` 통과, 작업 기록([docs/worklog.md](../worklog.md)) 갱신.
 - 머지 방식은 **Squash and merge**입니다. 합쳐진 커밋 제목은 PR 제목을 그대로 씁니다.
 - 머지 후 작업 브랜치는 삭제합니다.
