@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:g_mate/core/robot/fake_robot_controller.dart';
+import 'package:g_mate/core/theme/app_theme.dart';
 import 'package:g_mate/features/home/presentation/bloc/robot_status_cubit.dart';
 import 'package:g_mate/features/home/presentation/home_page.dart';
 
@@ -12,6 +13,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        theme: AppTheme.light(),
         home: BlocProvider(
           create: (_) => RobotStatusCubit(robot)..start(),
           child: const HomePage(),
