@@ -1,7 +1,7 @@
 # 디자인 시스템
 
 temi 머리 태블릿(가로 10인치대)을 허리 높이에서 서서 보고 누르는 키오스크 화면 기준입니다.
-방향은 **파랑 계열 색 + 모던한 UI**입니다. 테두리 대신 옅은 그림자와 연한 면 색으로 영역을 나누고, 모서리를 크게 둥글립니다.
+방향은 **파랑 계열 색 + 모던한 UI**입니다. 색은 학교 로고의 남색(#003366)을 참고해 더 맑은 톤으로 새로 골랐습니다. 테두리 대신 옅은 그림자와 연한 면 색으로 영역을 나누고, 모서리를 크게 둥글립니다.
 학교 로고와 글꼴은 아직 정해지지 않았습니다. 색을 조정할 때는 `app_colors.dart`만 바꾸면 됩니다.
 
 ## 쓰는 법
@@ -11,6 +11,7 @@ import 'package:g_mate/core/design_system.dart';
 ```
 
 - 테마는 `AppTheme.light()`로 `lib/app/app.dart`에서 이미 적용되어 있습니다.
+- 브랜드 남색은 `context.colors.tertiary`로 꺼냅니다.
 - 색은 `context.colors`(Material `ColorScheme`)와 `context.appColors`(성공·주의·위험 같은 의미 색)로 꺼냅니다. 화면에서 `Color(0x...)`를 직접 쓰지 않습니다.
 - 글자는 `context.textStyles.titleLarge`처럼 테마 스타일을 씁니다. `fontSize`를 직접 쓰지 않습니다.
 - 간격·크기는 `AppSpacing`, `AppRadius`, `AppSize` 상수를 씁니다.
@@ -20,7 +21,7 @@ import 'package:g_mate/core/design_system.dart';
 
 | 파일 | 내용 |
 | --- | --- |
-| `lib/core/theme/app_colors.dart` | 브랜드(파랑 `#2563EB`, 하늘색 `#0EA5E9`), 푸른빛 회색 배경·표면, 글자색, 성공·주의·위험 |
+| `lib/core/theme/app_colors.dart` | 브랜드(남색 `#0B2A5B`, 파랑 `#2257D6`, 밝은 파랑 `#3D8FE6`), 푸른빛 회색 배경·표면, 글자색, 성공·주의·위험 |
 | `lib/core/theme/app_typography.dart` | 글자 크기 체계. 본문 22, 버튼 26, 화면 제목 34, 환영 문구 44~64 |
 | `lib/core/theme/app_dimens.dart` | 간격(4dp 단위), 모서리, 버튼 높이(88/64/48), 아이콘 크기, 애니메이션 시간, 그림자 |
 | `lib/core/theme/app_semantic_colors.dart` | `ColorScheme`에 없는 의미 색 (`ThemeExtension`) |

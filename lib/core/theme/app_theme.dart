@@ -17,6 +17,8 @@ abstract final class AppTheme {
     onSecondary: Colors.white,
     secondaryContainer: AppColors.secondaryContainer,
     onSecondaryContainer: AppColors.onSecondaryContainer,
+    tertiary: AppColors.navy,
+    onTertiary: Colors.white,
     error: AppColors.danger,
     onError: Colors.white,
     errorContainer: AppColors.dangerContainer,

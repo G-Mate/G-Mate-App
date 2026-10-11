@@ -17,7 +17,7 @@ class HomePage extends StatelessWidget {
         children: [
           Text(
             'G-Mate',
-            style: text.titleLarge?.copyWith(color: context.colors.primary),
+            style: text.titleLarge?.copyWith(color: context.colors.tertiary),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text('무엇을 도와드릴까요?', style: text.displaySmall),

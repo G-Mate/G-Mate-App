@@ -61,6 +61,7 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
               spacing: AppSpacing.md,
               runSpacing: AppSpacing.md,
               children: [
+                swatch('navy', colors.tertiary),
                 swatch('primary', colors.primary),
                 swatch('container', colors.primaryContainer),
                 swatch('secondary', colors.secondary),
