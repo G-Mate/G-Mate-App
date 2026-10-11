@@ -58,12 +58,18 @@ class GmStatusBanner extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border(left: BorderSide(color: fg, width: 6)),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
         ),
         child: Row(
           children: [
-            Icon(icon ?? defaultIcon, color: fg, size: AppSize.iconMd),
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.xs),
+              decoration: BoxDecoration(
+                color: context.colors.surface,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon ?? defaultIcon, color: fg, size: AppSize.iconSm),
+            ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Text(

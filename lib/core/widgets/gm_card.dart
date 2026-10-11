@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_semantic_colors.dart';
 import '../theme/app_tokens.dart';
 
-/// 흰 바탕 + 얇은 테두리 카드. [onTap]이 있으면 누를 수 있다.
+/// 흰 바탕 + 옅은 그림자 카드. [onTap]이 있으면 누를 수 있다.
 class GmCard extends StatelessWidget {
   const GmCard({
     super.key,
@@ -27,9 +27,10 @@ class GmCard extends StatelessWidget {
         color: selected ? colors.primaryContainer : colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
-          color: selected ? colors.primary : colors.outlineVariant,
-          width: selected ? 3 : 1,
+          color: selected ? colors.primary : Colors.transparent,
+          width: 2,
         ),
+        boxShadow: AppShadow.soft,
       ),
       child: Material(
         type: MaterialType.transparency,
@@ -92,14 +93,10 @@ class GmMenuTile extends StatelessWidget {
                 width: AppSize.iconXl + AppSpacing.lg,
                 height: AppSize.iconXl + AppSpacing.lg,
                 decoration: BoxDecoration(
-                  color: color,
+                  color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
-                child: Icon(
-                  icon,
-                  size: AppSize.iconXl * 0.7,
-                  color: Colors.white,
-                ),
+                child: Icon(icon, size: AppSize.iconXl * 0.7, color: color),
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(title, style: text.headlineMedium),

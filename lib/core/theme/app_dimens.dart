@@ -1,3 +1,7 @@
+import 'package:flutter/painting.dart';
+
+import 'app_colors.dart';
+
 /// 간격 (4dp 단위).
 abstract final class AppSpacing {
   static const double xxs = 4;
@@ -42,4 +46,23 @@ abstract final class AppDuration {
   static const fast = Duration(milliseconds: 120);
   static const normal = Duration(milliseconds: 200);
   static const slow = Duration(milliseconds: 320);
+}
+
+/// 그림자. 테두리 대신 옅은 그림자로 면을 나눈다.
+abstract final class AppShadow {
+  static final soft = [
+    BoxShadow(
+      color: AppColors.shadow.withValues(alpha: 0.06),
+      blurRadius: 24,
+      offset: const Offset(0, 8),
+    ),
+  ];
+
+  static final raised = [
+    BoxShadow(
+      color: AppColors.shadow.withValues(alpha: 0.12),
+      blurRadius: 32,
+      offset: const Offset(0, 12),
+    ),
+  ];
 }
