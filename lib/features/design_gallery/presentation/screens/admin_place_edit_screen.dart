@@ -23,7 +23,10 @@ class _AdminPlaceEditScreenState extends State<AdminPlaceEditScreen> {
   late int _floor = _place.floor;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      GmDenseTheme(child: Builder(builder: _build));
+
+  Widget _build(BuildContext context) {
     final semantic = context.appColors;
     final text = context.textStyles;
 
@@ -40,10 +43,16 @@ class _AdminPlaceEditScreenState extends State<AdminPlaceEditScreen> {
         ),
         GmButton(
           label: '취소',
+          size: GmButtonSize.small,
           variant: GmButtonVariant.outline,
           onPressed: () {},
         ),
-        GmButton(label: '저장', icon: Icons.check_rounded, onPressed: () {}),
+        GmButton(
+          label: '저장',
+          icon: Icons.check_rounded,
+          size: GmButtonSize.small,
+          onPressed: () {},
+        ),
       ],
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,7 +113,7 @@ class _AdminPlaceEditScreenState extends State<AdminPlaceEditScreen> {
               ),
             ),
           ),
-          const SizedBox(width: AppSpacing.lg),
+          const SizedBox(width: AppSpacing.md),
           // 오른쪽: 로봇이 읽을 멘트
           Expanded(
             flex: 6,
@@ -153,7 +162,7 @@ class _Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: context.colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -189,7 +198,7 @@ class _Field extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = context.textStyles;
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -201,7 +210,6 @@ class _Field extends StatelessWidget {
             Text(
               hint!,
               style: text.bodySmall?.copyWith(
-                fontSize: 16,
                 color: context.appColors.textSecondary,
               ),
             ),
@@ -230,7 +238,7 @@ class _SpeechField extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = context.textStyles;
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -241,7 +249,6 @@ class _SpeechField extends StatelessWidget {
               Text(
                 hint,
                 style: text.bodySmall?.copyWith(
-                  fontSize: 16,
                   color: context.appColors.textSecondary,
                 ),
               ),

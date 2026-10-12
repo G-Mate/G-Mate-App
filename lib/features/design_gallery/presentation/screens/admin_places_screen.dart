@@ -9,7 +9,10 @@ class AdminPlacesScreen extends StatelessWidget {
   const AdminPlacesScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      GmDenseTheme(child: Builder(builder: _build));
+
+  Widget _build(BuildContext context) {
     final colors = context.colors;
     final text = context.textStyles;
     final semantic = context.appColors;
@@ -19,9 +22,15 @@ class AdminPlacesScreen extends StatelessWidget {
       title: '장소 관리',
       onBack: () => Navigator.of(context).maybePop(),
       actions: [
+        TextButton.icon(
+          onPressed: () => context.push('/design-gallery/admin-tts'),
+          icon: const Icon(Icons.record_voice_over_outlined),
+          label: const Text('음성 설정'),
+        ),
         GmButton(
           label: '현재 위치 저장',
           icon: Icons.add_location_alt_outlined,
+          size: GmButtonSize.small,
           onPressed: () {},
         ),
       ],

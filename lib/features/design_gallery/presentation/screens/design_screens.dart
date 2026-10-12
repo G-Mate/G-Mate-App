@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'admin_pin_screen.dart';
 import 'admin_place_edit_screen.dart';
 import 'admin_places_screen.dart';
+import 'admin_tts_screen.dart';
 import 'arrival_screen.dart';
 import 'guiding_screen.dart';
 import 'place_confirm_screen.dart';
@@ -28,4 +29,5 @@ const designScreens = [
   DesignScreen('admin-pin', '관리 모드 PIN', AdminPinScreen()),
   DesignScreen('admin-places', '장소 관리', AdminPlacesScreen()),
   DesignScreen('admin-place-edit', '장소 편집', AdminPlaceEditScreen()),
+  DesignScreen('admin-tts', '음성 설정', AdminTtsScreen()),
 ];

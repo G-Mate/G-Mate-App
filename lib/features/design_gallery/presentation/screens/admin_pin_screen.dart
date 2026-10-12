@@ -7,7 +7,7 @@ class AdminPinScreen extends StatelessWidget {
   const AdminPinScreen({super.key});
 
   static const _pinLength = 4;
-  static const _keyWidth = 128.0;
+  static const _keyWidth = 104.0;
   static const _keypadWidth = _keyWidth * 3 + AppSpacing.md * 2;
 
   static const _keys = [
@@ -50,12 +50,15 @@ class AdminPinScreen extends StatelessWidget {
             children: [
               // 입력 칸: 카드 4개. 입력한 칸은 점, 다음 칸은 파랑 테두리.
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   for (var i = 0; i < _pinLength; i++)
                     Container(
-                      width: 88,
-                      height: 104,
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.xs,
+                      ),
+                      width: 60,
+                      height: 72,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: colors.surface,
@@ -67,8 +70,8 @@ class AdminPinScreen extends StatelessWidget {
                       ),
                       child: i < entered
                           ? Container(
-                              width: 18,
-                              height: 18,
+                              width: 12,
+                              height: 12,
                               decoration: const BoxDecoration(
                                 color: AppColors.navy,
                                 shape: BoxShape.circle,
@@ -78,7 +81,7 @@ class AdminPinScreen extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.xxl),
+              const SizedBox(height: AppSpacing.xl),
               for (var row = 0; row < 4; row++) ...[
                 if (row > 0) const SizedBox(height: AppSpacing.sm),
                 Row(
@@ -87,7 +90,7 @@ class AdminPinScreen extends StatelessWidget {
                     for (final k in _keys.sublist(row * 3, row * 3 + 3))
                       SizedBox(
                         width: _keyWidth,
-                        height: 76,
+                        height: 68,
                         child: k.isEmpty
                             ? null
                             : TextButton(

@@ -196,4 +196,41 @@ abstract final class AppTheme {
       ),
     );
   }
+
+  /// 관리 모드처럼 가까이서 조작하는 화면용 촘촘한 테마.
+  ///
+  /// 방문객 화면보다 글자를 한 단계 줄이고 입력창·칩 여백을 좁힌다.
+  /// 누르는 요소는 최소 [AppSize.buttonSmall](48dp)를 지킨다.
+  static ThemeData dense(ThemeData base) {
+    final textTheme = base.textTheme.apply(fontSizeFactor: 0.8);
+    return base.copyWith(
+      textTheme: textTheme,
+      visualDensity: VisualDensity.compact,
+      inputDecorationTheme: base.inputDecorationTheme.copyWith(
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        hintStyle: textTheme.bodyMedium?.copyWith(
+          color: AppColors.textDisabled,
+        ),
+      ),
+      chipTheme: base.chipTheme.copyWith(
+        labelStyle: textTheme.labelMedium,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xs,
+          vertical: AppSpacing.xxs,
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: base.textButtonTheme.style?.copyWith(
+          minimumSize: const WidgetStatePropertyAll(
+            Size(AppSize.buttonSmall, AppSize.buttonSmall),
+          ),
+          textStyle: WidgetStatePropertyAll(textTheme.labelSmall),
+        ),
+      ),
+    );
+  }
 }

@@ -9,6 +9,7 @@ export 'theme/app_tokens.dart';
 export 'widgets/gm_button.dart';
 export 'widgets/gm_card.dart';
 export 'widgets/gm_chip.dart';
+export 'widgets/gm_dense_theme.dart';
 export 'widgets/gm_empty_state.dart';
 export 'widgets/gm_hero_panel.dart';
 export 'widgets/gm_scaffold.dart';
