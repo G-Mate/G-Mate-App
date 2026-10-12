@@ -10,6 +10,7 @@ export 'widgets/gm_button.dart';
 export 'widgets/gm_card.dart';
 export 'widgets/gm_chip.dart';
 export 'widgets/gm_empty_state.dart';
+export 'widgets/gm_heading.dart';
 export 'widgets/gm_scaffold.dart';
 export 'widgets/gm_status_banner.dart';
 export 'widgets/gm_tabs.dart';

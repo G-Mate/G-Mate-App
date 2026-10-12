@@ -21,13 +21,17 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
     final colors = context.colors;
     final semantic = context.appColors;
 
+    var sectionIndex = 0;
     Widget section(String title, Widget child) => Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: text.titleLarge),
-          const SizedBox(height: AppSpacing.md),
+          GmSectionHeader(
+            index: (++sectionIndex).toString().padLeft(2, '0'),
+            title: title,
+          ),
+          const SizedBox(height: AppSpacing.lg),
           child,
         ],
       ),
@@ -50,6 +54,7 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
     );
 
     return GmScaffold(
+      eyebrow: 'G-MATE',
       title: '디자인 시스템',
       onBack: Navigator.of(context).canPop()
           ? () => Navigator.of(context).pop()
@@ -184,6 +189,14 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
                     onSelected: (_) => setState(() => _category = c),
                   ),
               ],
+            ),
+          ),
+          section(
+            '화면 제목',
+            const GmPageHeading(
+              eyebrow: 'STEP 1',
+              title: '어디로 갈까요?',
+              subtitle: '장소를 고르면 로봇이 앞장서서 안내해요',
             ),
           ),
           section(

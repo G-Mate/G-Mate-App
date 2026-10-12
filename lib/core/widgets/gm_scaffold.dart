@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_semantic_colors.dart';
 import '../theme/app_tokens.dart';
+import 'gm_heading.dart';
 
 /// 키오스크 화면 공통 틀: 상단 제목줄(뒤로 가기, 제목, 오른쪽 동작) + 여백이 잡힌 본문
 /// + 선택적인 하단 버튼 영역.
@@ -10,6 +11,7 @@ class GmScaffold extends StatelessWidget {
     super.key,
     required this.body,
     this.title,
+    this.eyebrow,
     this.onBack,
     this.actions = const [],
     this.bottomBar,
@@ -18,6 +20,9 @@ class GmScaffold extends StatelessWidget {
 
   final Widget body;
   final String? title;
+
+  /// 제목 위 작은 머리말 (예: '길 찾기', 'STEP 1').
+  final String? eyebrow;
 
   /// null이 아니면 왼쪽에 큰 뒤로 가기 버튼을 보여 준다.
   final VoidCallback? onBack;
@@ -46,8 +51,10 @@ class GmScaffold extends StatelessWidget {
                   AppSpacing.screenHorizontal,
                   AppSpacing.xs,
                 ),
-                child: SizedBox(
-                  height: AppSize.buttonLarge,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: AppSize.buttonLarge,
+                  ),
                   child: Row(
                     children: [
                       if (onBack != null)
@@ -62,10 +69,21 @@ class GmScaffold extends StatelessWidget {
                       const SizedBox(width: AppSpacing.xs),
                       if (title != null)
                         Expanded(
-                          child: Text(
-                            title!,
-                            style: context.textStyles.headlineMedium,
-                            overflow: TextOverflow.ellipsis,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (eyebrow != null) ...[
+                                GmEyebrow(eyebrow!),
+                                const SizedBox(height: AppSpacing.xs),
+                              ],
+                              Text(
+                                title!,
+                                style: context.textStyles.headlineLarge
+                                    ?.copyWith(fontWeight: FontWeight.w800),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
                         )
                       else

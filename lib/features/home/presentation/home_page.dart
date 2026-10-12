@@ -10,7 +10,6 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = context.textStyles;
     return GmScaffold(
       body: Stack(
         clipBehavior: Clip.none,
@@ -23,15 +22,11 @@ class HomePage extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'G-MATE',
-                style: text.labelMedium?.copyWith(
-                  color: context.colors.primary,
-                  letterSpacing: 3,
-                ),
+              const GmPageHeading(
+                eyebrow: 'G-MATE',
+                title: '무엇을 도와드릴까요?',
+                subtitle: '원하는 메뉴를 눌러 주세요',
               ),
-              const SizedBox(height: AppSpacing.xs),
-              Text('무엇을 도와드릴까요?', style: text.displaySmall),
               const SizedBox(height: AppSpacing.xl),
               const Expanded(
                 child: Row(

@@ -45,6 +45,8 @@ class GmCard extends StatelessWidget {
 
 /// 홈 화면의 큰 메뉴 타일 ([길 찾기], [학교 투어]).
 ///
+/// 왼쪽 위에 아이콘을 아주 크고 흐리게 깔아 배경처럼 쓰고, 제목은 크게,
+/// 설명은 작게 두어 크기 대비로 디자인 포인트를 준다.
 /// [emphasized]면 파랑 면에 흰 글자로 화면의 주 메뉴임을 드러낸다.
 class GmMenuTile extends StatelessWidget {
   const GmMenuTile({
@@ -64,6 +66,8 @@ class GmMenuTile extends StatelessWidget {
   /// null이면 아직 쓸 수 없는 메뉴로 보고 '준비 중'으로 표시한다.
   final VoidCallback? onTap;
 
+  static const _maxIconSize = 260.0;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -74,9 +78,12 @@ class GmMenuTile extends StatelessWidget {
     final bg = emphasized ? colors.primary : colors.surface;
     final fg = emphasized ? colors.onPrimary : colors.onSurface;
     final sub = emphasized
-        ? colors.onPrimary.withValues(alpha: 0.75)
+        ? colors.onPrimary.withValues(alpha: 0.72)
         : semantic.textSecondary;
     final accent = emphasized ? colors.onPrimary : colors.primary;
+    final ghost = emphasized
+        ? colors.onPrimary.withValues(alpha: 0.12)
+        : colors.primary.withValues(alpha: 0.07);
 
     return Semantics(
       button: true,
@@ -86,45 +93,80 @@ class GmMenuTile extends StatelessWidget {
       child: Material(
         color: bg,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.xl),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(icon, size: AppSize.iconLg, color: accent),
-                const Spacer(),
-                Text(title, style: text.headlineLarge?.copyWith(color: fg)),
-                if (description != null) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    description!,
-                    style: text.bodyMedium?.copyWith(color: sub),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // 타일이 낮으면 배경 아이콘이 제목을 덮지 않도록 줄인다.
+              final iconSize = constraints.maxHeight.isFinite
+                  ? (constraints.maxHeight * 0.6).clamp(160.0, _maxIconSize)
+                  : _maxIconSize;
+              return Stack(
+                children: [
+                  Positioned(
+                    top: -iconSize * 0.18,
+                    left: -iconSize * 0.14,
+                    child: Icon(icon, size: iconSize, color: ghost),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Spacer(),
+                        Text(
+                          title,
+                          style: text.displayMedium?.copyWith(
+                            color: fg,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        if (description != null) ...[
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            description!,
+                            style: text.bodySmall?.copyWith(color: sub),
+                          ),
+                        ],
+                        const SizedBox(height: AppSpacing.xl),
+                        Row(
+                          children: [
+                            Text(
+                              enabled ? '시작하기' : '준비 중',
+                              style: text.labelSmall?.copyWith(
+                                color: accent,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const Spacer(),
+                            Container(
+                              width: AppSize.touchTargetMin,
+                              height: AppSize.touchTargetMin,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: emphasized
+                                    ? colors.onPrimary
+                                    : colors.primary,
+                              ),
+                              child: Icon(
+                                Icons.arrow_forward_rounded,
+                                size: AppSize.iconMd,
+                                color: emphasized
+                                    ? colors.primary
+                                    : colors.onPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
-                const SizedBox(height: AppSpacing.lg),
-                Container(height: 1, color: sub.withValues(alpha: 0.3)),
-                const SizedBox(height: AppSpacing.md),
-                Row(
-                  children: [
-                    Text(
-                      enabled ? '시작하기' : '준비 중',
-                      style: text.labelMedium?.copyWith(color: accent),
-                    ),
-                    const Spacer(),
-                    Icon(
-                      Icons.arrow_forward_rounded,
-                      size: AppSize.iconMd,
-                      color: accent,
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
