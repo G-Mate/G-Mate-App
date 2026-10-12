@@ -19,7 +19,7 @@ Notion "G-Mate > v1"의 작업 기록·이슈 DB로 옮기기 전에 임시로 �
 | RobotController 추상화 | 로봇 연동 | 2026-10-11 | `RobotController` 인터페이스, 로봇 이벤트 타입, `FakeRobotController`(이동·TTS 시뮬레이션), 채널 기반 `TemiRobotController`. 단위 테스트 6개 통과 | |
 | Kotlin temi 브리지 뼈대 | 로봇 연동 | 2026-10-11 | `gmate/robot` MethodChannel, `gmate/robot/events` EventChannel을 여는 `TemiBridge`. temi SDK 의존성은 아직 없음 | |
 | 디자인 시스템 적용 | 화면(UI) | 2026-10-11 | 색·글자·간격 토큰과 `AppTheme`, 공통 위젯 9종(`GmScaffold`, `GmHeroPanel`, `GmButton`, `GmMenuTile`, `GmCard`, `GmChoiceChip`, `GmStatusBanner`, `GmStatusIndicator`, `GmEmptyState`), 미리보기 화면(`/design-gallery`) 추가. 홈 화면을 남색 패널(인사말·로봇 상태) + 메뉴 카드 두 개로 구성. 스타일은 남색 면 하나와 파랑 강조 하나만 쓰는 절제된 모던, 글꼴은 Pretendard. 정리는 [design-system.md](design-system.md) | |
-| 화면 시안 디자인 | 화면(UI) | 2026-10-12 | 장소 선택, 장소 확인, 이동 중, 도착·설명, 관리 모드 PIN, 장소 관리 화면 시안을 `/design-gallery`에 추가. 공통 위젯 `GmSplitLayout`, `GmHeroBackButton`, `GmPlaceCard` 추가 | |
+| 화면 시안 디자인 | 화면(UI) | 2026-10-12 | 장소 선택, 장소 확인, 이동 중, 도착·설명, 관리 모드 PIN, 장소 관리, 장소 편집(설명 수정) 화면 시안을 `/design-gallery`에 추가. 공통 위젯 `GmSplitLayout`, `GmHeroBackButton`, `GmPlaceCard` 추가 | |
 
 ## 트러블슈팅
 
