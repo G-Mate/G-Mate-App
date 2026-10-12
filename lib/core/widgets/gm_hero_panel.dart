@@ -13,6 +13,7 @@ class GmHeroPanel extends StatelessWidget {
     this.overline,
     this.subtitle,
     this.footer,
+    this.top,
   });
 
   final String title;
@@ -23,6 +24,10 @@ class GmHeroPanel extends StatelessWidget {
 
   /// 패널 맨 아래에 둘 위젯 (예: 로봇 상태 표시).
   final Widget? footer;
+
+  /// 패널 맨 위에 둘 위젯. 없으면 G-MATE 글자를 보여 준다
+  /// (예: [GmHeroBackButton]).
+  final Widget? top;
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +45,14 @@ class GmHeroPanel extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'G-MATE',
-              style: text.labelSmall?.copyWith(
-                color: Colors.white,
-                letterSpacing: 2,
-              ),
-            ),
+            top ??
+                Text(
+                  'G-MATE',
+                  style: text.labelSmall?.copyWith(
+                    color: Colors.white,
+                    letterSpacing: 2,
+                  ),
+                ),
             const Spacer(),
             if (overline != null) ...[
               Text(
@@ -70,6 +76,68 @@ class GmHeroPanel extends StatelessWidget {
             ?footer,
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 남색 패널 위에 두는 뒤로 가기 버튼 (흰 아이콘 + 글자).
+class GmHeroBackButton extends StatelessWidget {
+  const GmHeroBackButton({super.key, required this.onPressed, this.label});
+
+  final VoidCallback onPressed;
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton.icon(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+        textStyle: Theme.of(context).textTheme.labelMedium,
+      ),
+      icon: const Icon(Icons.arrow_back_rounded, size: AppSize.iconMd),
+      label: Text(label ?? '뒤로'),
+    );
+  }
+}
+
+/// 왼쪽 남색 패널 + 오른쪽 본문으로 나뉜 화면 틀.
+///
+/// 홈, 장소 확인, 도착 화면처럼 화면의 주제를 크게 보여 줄 때 쓴다.
+class GmSplitLayout extends StatelessWidget {
+  const GmSplitLayout({
+    super.key,
+    required this.hero,
+    required this.child,
+    this.heroFlex = 5,
+    this.childFlex = 7,
+  });
+
+  final Widget hero;
+  final Widget child;
+  final int heroFlex;
+  final int childFlex;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(flex: heroFlex, child: hero),
+          Expanded(
+            flex: childFlex,
+            child: SafeArea(
+              left: false,
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.xxl),
+                child: child,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

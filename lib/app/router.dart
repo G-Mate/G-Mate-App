@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/robot/robot_controller.dart';
 import '../features/design_gallery/presentation/design_gallery_page.dart';
+import '../features/design_gallery/presentation/screens/design_screens.dart';
 import '../features/home/presentation/bloc/robot_status_cubit.dart';
 import '../features/home/presentation/home_page.dart';
 import 'di.dart';
@@ -27,6 +28,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.designGallery,
       builder: (context, state) => const DesignGalleryPage(),
+      routes: [
+        for (final screen in designScreens)
+          GoRoute(path: screen.path, builder: (context, state) => screen.page),
+      ],
     ),
   ],
 );

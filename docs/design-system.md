@@ -41,7 +41,9 @@ import 'package:g_mate/core/design_system.dart';
 | `GmScaffold` | 화면 틀. 뒤로 가기·작은 머리말·제목·오른쪽 동작, 여백 잡힌 본문, 하단 고정 버튼 줄 |
 | `GmButton` | 버튼. `primary`/`secondary`/`outline`/`danger`, 크기 `large`/`medium`/`small`, 아이콘, `loading` |
 | `GmMenuTile` | 홈 화면의 큰 메뉴 카드. 옅은 큰 배경 아이콘 + 큰 제목 + 작은 설명 + 화살표 |
-| `GmHeroPanel` | 화면 한쪽을 채우는 남색 패널. 머리말·큰 제목·부제·하단 위젯 |
+| `GmHeroPanel` | 화면 한쪽을 채우는 남색 패널. 머리말·큰 제목·부제·하단 위젯. 맨 위에는 `GmHeroBackButton`을 둘 수 있음 |
+| `GmSplitLayout` | 왼쪽 남색 패널 + 오른쪽 본문 화면 틀 (홈, 장소 확인, 도착, PIN) |
+| `GmPlaceCard` | 장소 카드: 사진(없으면 옅은 아이콘) + 이름 + 층·분류 |
 | `GmCard` | 흰 카드. 누를 수 있고 `selected` 표시 지원 (장소 카드 등) |
 | `GmChoiceChip` | 카테고리 필터 |
 | `GmStatusBanner` | 로봇 상태·안내 메시지 띠. `info`/`success`/`warning`/`danger` |
@@ -50,3 +52,16 @@ import 'package:g_mate/core/design_system.dart';
 
 새 공통 위젯은 `lib/core/widgets/`에 `gm_` 접두사로 만들고 `lib/core/design_system.dart`에서 export 합니다.
 기능 하나에서만 쓰는 위젯은 그 기능의 `presentation/widgets/`에 둡니다.
+
+## 화면 시안
+
+`/design-gallery` 맨 위의 버튼으로 열 수 있습니다. 예시 데이터로 그린 화면이고, 실제 기능을 만들 때 레이아웃을 가져간 뒤 시안은 지웁니다.
+
+| 화면 | 구성 |
+| --- | --- |
+| 장소 선택 | 머리말 + 제목, 오른쪽 위 검색창, 분류 칩, 장소 카드 3열 |
+| 장소 확인 | 왼쪽 남색 패널(층·분류, 장소 이름), 오른쪽 사진·설명·[다른 곳 고르기] [안내 시작] |
+| 이동 중 | 화면 전체 남색, 큰 안내 문구와 흰 진행 막대, 오른쪽 아래 [안내 중지] |
+| 도착·설명 | 왼쪽 남색 패널(도착한 장소), 오른쪽 문장 진행(2 / 4)과 지금 읽는 문장을 자막처럼 크게 |
+| 관리 모드 PIN | 왼쪽 남색 패널, 오른쪽 입력 점 4개와 큰 숫자 키패드 |
+| 장소 관리 | 장소 목록(아이콘, 이름, 층·분류·temi 키, 로봇 저장 상태), 줄마다 [미리 듣기] [이동 테스트] |

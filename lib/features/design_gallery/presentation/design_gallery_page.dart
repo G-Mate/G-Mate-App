@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/design_system.dart';
+import 'screens/design_screens.dart';
 
 /// 디자인 시스템 미리보기 화면. 개발 중 토큰과 공통 위젯을 한눈에 확인할 때 쓴다.
 class DesignGalleryPage extends StatefulWidget {
@@ -76,6 +78,22 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
           : null,
       body: ListView(
         children: [
+          section(
+            '화면 시안',
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: [
+                for (final screen in designScreens)
+                  GmButton(
+                    label: screen.title,
+                    variant: GmButtonVariant.outline,
+                    onPressed: () =>
+                        context.push('/design-gallery/${screen.path}'),
+                  ),
+              ],
+            ),
+          ),
           section(
             '색',
             Wrap(

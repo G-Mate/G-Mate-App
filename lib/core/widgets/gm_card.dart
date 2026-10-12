@@ -135,3 +135,95 @@ class GmMenuTile extends StatelessWidget {
     );
   }
 }
+
+/// 장소 카드: 사진 영역 + 이름 + 층·분류.
+///
+/// 사진이 없으면 [icon]을 옅게 그린 회색 면을 대신 보여 준다.
+class GmPlaceCard extends StatelessWidget {
+  const GmPlaceCard({
+    super.key,
+    required this.name,
+    required this.meta,
+    required this.icon,
+    this.image,
+    this.onTap,
+    this.selected = false,
+    this.fillHeight = false,
+  });
+
+  final String name;
+
+  /// 이름 아래 작은 글자 (예: '3층 · 교실').
+  final String meta;
+  final IconData icon;
+  final ImageProvider? image;
+  final VoidCallback? onTap;
+  final bool selected;
+
+  /// true면 부모가 정한 높이를 채운다 (그리드 칸 안에서 쓸 때).
+  final bool fillHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final text = context.textStyles;
+    final Widget photo = SizedBox(
+      width: double.infinity,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        child: image != null
+            ? Image(image: image!, fit: BoxFit.cover)
+            : ColoredBox(
+                color: colors.surfaceContainer,
+                child: Icon(
+                  icon,
+                  size: AppSize.iconXl,
+                  color: colors.primary.withValues(alpha: 0.18),
+                ),
+              ),
+      ),
+    );
+    return Semantics(
+      button: true,
+      label: '$name, $meta',
+      excludeSemantics: true,
+      child: GmCard(
+        onTap: onTap,
+        selected: selected,
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 그리드 칸처럼 높이가 정해져 있으면 사진이 남은 높이를 채우고,
+            // 아니면 16:10 비율로 그린다.
+            if (fillHeight)
+              Expanded(child: photo)
+            else
+              AspectRatio(aspectRatio: 16 / 10, child: photo),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.xs,
+                AppSpacing.md,
+                AppSpacing.xs,
+                AppSpacing.xs,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name, style: text.titleLarge),
+                  const SizedBox(height: AppSpacing.xxs),
+                  Text(
+                    meta,
+                    style: text.bodySmall?.copyWith(
+                      color: context.appColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
