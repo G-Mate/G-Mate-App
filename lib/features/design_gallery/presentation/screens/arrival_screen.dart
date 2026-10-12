@@ -13,6 +13,9 @@ class ArrivalScreen extends StatelessWidget {
     final text = context.textStyles;
     final colors = context.colors;
     final semantic = context.appColors;
+    // 시안용: 본 설명 4줄 중 2번째 줄을 읽는 중.
+    const lines = sampleDescriptionLines;
+    const current = 1;
 
     return GmSplitLayout(
       hero: GmHeroPanel(
@@ -31,11 +34,11 @@ class ArrivalScreen extends StatelessWidget {
           Row(
             children: [
               Text(
-                '2',
+                '${current + 1}',
                 style: text.titleMedium?.copyWith(color: colors.primary),
               ),
               Text(
-                ' / 4',
+                ' / ${lines.length}',
                 style: text.titleMedium?.copyWith(color: semantic.textDisabled),
               ),
               const SizedBox(width: AppSpacing.md),
@@ -43,7 +46,7 @@ class ArrivalScreen extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(2),
                   child: LinearProgressIndicator(
-                    value: 2 / 4,
+                    value: (current + 1) / lines.length,
                     minHeight: 4,
                     backgroundColor: colors.outlineVariant,
                   ),
@@ -52,13 +55,13 @@ class ArrivalScreen extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          Text(
-            '실험 도구와 안전 장비가\n갖춰진 교실입니다.',
+          _KeepAllText(
+            lines[current],
             style: text.headlineLarge?.copyWith(height: 1.4),
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            '물리, 화학, 생명과학 수업이 이곳에서 열려요.',
+            lines[current + 1],
             style: text.bodyMedium?.copyWith(color: semantic.textDisabled),
           ),
           const Spacer(),
@@ -89,6 +92,25 @@ class ArrivalScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// 한국어 문장을 단어(띄어쓰기) 단위로만 줄바꿈한다.
+///
+/// Flutter 기본 줄바꿈은 글자 단위라 '교실입니/다.'처럼 단어 중간이 끊긴다.
+class _KeepAllText extends StatelessWidget {
+  const _KeepAllText(this.text, {this.style});
+
+  final String text;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      children: [
+        for (final word in text.split(' ')) Text('$word ', style: style),
+      ],
     );
   }
 }

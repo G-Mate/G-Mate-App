@@ -21,9 +21,11 @@ Notion "G-Mate > v1"의 작업 기록·이슈 DB로 옮기기 전에 임시로 �
 | 디자인 시스템 적용 | 화면(UI) | 2026-10-11 | 색·글자·간격 토큰과 `AppTheme`, 공통 위젯 9종(`GmScaffold`, `GmHeroPanel`, `GmButton`, `GmMenuTile`, `GmCard`, `GmChoiceChip`, `GmStatusBanner`, `GmStatusIndicator`, `GmEmptyState`), 미리보기 화면(`/design-gallery`) 추가. 홈 화면을 남색 패널(인사말·로봇 상태) + 메뉴 카드 두 개로 구성. 스타일은 남색 면 하나와 파랑 강조 하나만 쓰는 절제된 모던, 글꼴은 Pretendard. 정리는 [design-system.md](design-system.md) | |
 | 화면 시안 디자인 | 화면(UI) | 2026-10-12 | 장소 선택, 장소 확인, 이동 중, 도착·설명, 관리 모드 PIN, 장소 관리, 장소 편집(설명 수정) 화면 시안을 `/design-gallery`에 추가. 공통 위젯 `GmSplitLayout`, `GmHeroBackButton`, `GmPlaceCard` 추가 | |
 | 관리 모드 화면 크기 조정, 음성 설정 시안 | 화면(UI) | 2026-10-12 | PIN 입력 칸을 작게 줄이고, 관리 모드 화면에 촘촘한 테마(`GmDenseTheme`)를 적용. 음성 설정(목소리, 속도, 높낮이, 음량, 미리 듣기) 화면 시안 추가 | |
+| 본 설명 줄 단위 편집 | 화면(UI) | 2026-10-12 | 장소 편집의 본 설명을 줄마다 입력하게 바꾸고(한 줄 = 도착 화면 한 페이지), 도착 화면이 같은 줄 목록으로 페이지 번호를 보여 주도록 맞춤 | |
 
 ## 트러블슈팅
 
 | 이슈 | 분야 | 발생일 | 상태 | 원인과 해결 | Notion |
 | --- | --- | --- | --- | --- | --- |
 | Claude 세션에서 저장소 push 거부 | 공통 | 2026-10-11 | 진행 중 | G-Mate 조직에 Claude GitHub 앱이 설치되지 않아 push 권한 없음. 조직 owner가 앱을 설치해야 함 | |
+| 큰 자막 글씨가 단어 중간에서 줄바꿈됨 | 화면(UI) | 2026-10-12 | 해결 | Flutter 기본 줄바꿈이 한글을 글자 단위로 끊어 '교실입니/다.'처럼 보임. 띄어쓰기 단위로 나눠 `Wrap`으로 그리도록 바꿈(도착 화면) | |

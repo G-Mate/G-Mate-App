@@ -120,7 +120,7 @@ class _AdminPlaceEditScreenState extends State<AdminPlaceEditScreen> {
             child: _Section(
               title: '안내 멘트',
               trailing: Text(
-                '본 설명은 문장 단위로 나눠 읽어요',
+                '본 설명은 한 줄이 한 화면이에요',
                 style: text.bodySmall?.copyWith(color: semantic.textSecondary),
               ),
               child: ListView(
@@ -135,11 +135,10 @@ class _AdminPlaceEditScreenState extends State<AdminPlaceEditScreen> {
                     hint: '도착하자마자',
                     initialValue: '과학실에 도착했어요.',
                   ),
-                  _SpeechField(
+                  const _LinesField(
                     label: '본 설명',
-                    hint: '도착 후 자막과 함께 읽어요',
-                    initialValue: sampleDescription,
-                    maxLines: 5,
+                    hint: '도착 후 한 줄씩 넘기며 읽어요',
+                    initialLines: sampleDescriptionLines,
                   ),
                 ],
               ),
@@ -226,13 +225,11 @@ class _SpeechField extends StatelessWidget {
     required this.label,
     required this.hint,
     required this.initialValue,
-    this.maxLines = 2,
   });
 
   final String label;
   final String hint;
   final String initialValue;
-  final int maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -265,9 +262,124 @@ class _SpeechField extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           TextFormField(
             initialValue: initialValue,
-            minLines: maxLines,
-            maxLines: maxLines,
+            minLines: 2,
+            maxLines: 2,
             style: text.bodyMedium,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 본 설명 입력: 한 줄이 도착 화면의 한 페이지가 된다.
+///
+/// 줄마다 번호를 붙여 몇 페이지로 나뉘는지 바로 보이게 한다.
+class _LinesField extends StatefulWidget {
+  const _LinesField({
+    required this.label,
+    required this.hint,
+    required this.initialLines,
+  });
+
+  final String label;
+  final String hint;
+  final List<String> initialLines;
+
+  @override
+  State<_LinesField> createState() => _LinesFieldState();
+}
+
+class _LinesFieldState extends State<_LinesField> {
+  late final List<String> _lines = [...widget.initialLines];
+
+  // 줄을 지워도 다른 줄의 입력 상태가 섞이지 않도록 줄마다 고유 번호를 둔다.
+  late final List<int> _ids = [for (var i = 0; i < _lines.length; i++) i];
+  late int _nextId = _lines.length;
+
+  void _remove(int i) => setState(() {
+    _lines.removeAt(i);
+    _ids.removeAt(i);
+  });
+
+  void _add() => setState(() {
+    _lines.add('');
+    _ids.add(_nextId++);
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final text = context.textStyles;
+    final semantic = context.appColors;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(widget.label, style: text.labelSmall),
+              const SizedBox(width: AppSpacing.sm),
+              Text(
+                '${widget.hint} · ${_lines.length}화면',
+                style: text.bodySmall?.copyWith(color: semantic.textSecondary),
+              ),
+              const Spacer(),
+              GmButton(
+                label: '미리 듣기',
+                icon: Icons.volume_up_outlined,
+                size: GmButtonSize.small,
+                variant: GmButtonVariant.secondary,
+                onPressed: () {},
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          for (var i = 0; i < _lines.length; i++)
+            Padding(
+              key: ValueKey(_ids[i]),
+              padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: AppSpacing.xl,
+                    child: Text(
+                      '${i + 1}',
+                      style: text.labelSmall?.copyWith(
+                        color: semantic.textDisabled,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                      initialValue: _lines[i],
+                      style: text.bodyMedium,
+                      onChanged: (v) => _lines[i] = v,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: '이 줄 지우기',
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size.square(AppSize.buttonSmall),
+                    ),
+                    onPressed: _lines.length > 1 ? () => _remove(i) : null,
+                    icon: Icon(
+                      Icons.close_rounded,
+                      size: AppSize.iconSm,
+                      color: semantic.textDisabled,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.only(left: AppSpacing.lg),
+            child: TextButton.icon(
+              onPressed: _add,
+              icon: const Icon(Icons.add_rounded, size: AppSize.iconSm),
+              label: const Text('줄 추가'),
+            ),
           ),
         ],
       ),
