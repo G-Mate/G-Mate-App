@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_semantic_colors.dart';
 import '../theme/app_tokens.dart';
-import 'gm_heading.dart';
 
 /// 키오스크 화면 공통 틀: 상단 제목줄(뒤로 가기, 제목, 오른쪽 동작) + 여백이 잡힌 본문
 /// + 선택적인 하단 버튼 영역.
@@ -73,14 +72,17 @@ class GmScaffold extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              if (eyebrow != null) ...[
-                                GmEyebrow(eyebrow!),
-                                const SizedBox(height: AppSpacing.xs),
-                              ],
+                              if (eyebrow != null)
+                                Text(
+                                  eyebrow!,
+                                  style: context.textStyles.labelSmall
+                                      ?.copyWith(
+                                        color: context.appColors.textSecondary,
+                                      ),
+                                ),
                               Text(
                                 title!,
-                                style: context.textStyles.headlineLarge
-                                    ?.copyWith(fontWeight: FontWeight.w800),
+                                style: context.textStyles.headlineMedium,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],

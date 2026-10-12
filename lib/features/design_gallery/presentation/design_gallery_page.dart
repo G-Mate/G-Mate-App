@@ -13,7 +13,6 @@ class DesignGalleryPage extends StatefulWidget {
 class _DesignGalleryPageState extends State<DesignGalleryPage> {
   static const _categories = ['전체', '교실', '행정실', '편의시설'];
   String _category = _categories.first;
-  int _tab = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -21,23 +20,22 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
     final colors = context.colors;
     final semantic = context.appColors;
 
-    var sectionIndex = 0;
     Widget section(String title, Widget child) => Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GmSectionHeader(
-            index: (++sectionIndex).toString().padLeft(2, '0'),
-            title: title,
+          Text(
+            title,
+            style: text.titleSmall?.copyWith(color: semantic.textSecondary),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.md),
           child,
         ],
       ),
     );
 
-    Widget swatch(String name, Color color, {Color? border}) => Column(
+    Widget swatch(String name, Color color) => Column(
       children: [
         Container(
           width: 96,
@@ -45,7 +43,7 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(AppRadius.sm),
-            border: Border.all(color: border ?? color),
+            border: Border.all(color: colors.outlineVariant),
           ),
         ),
         const SizedBox(height: AppSpacing.xxs),
@@ -53,8 +51,25 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
       ],
     );
 
+    Widget placeCard(String name, String info, {bool selected = false}) =>
+        GmCard(
+          selected: selected,
+          onTap: () {},
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: text.titleLarge),
+              const SizedBox(height: AppSpacing.xxs),
+              Text(
+                info,
+                style: text.bodySmall?.copyWith(color: semantic.textSecondary),
+              ),
+            ],
+          ),
+        );
+
     return GmScaffold(
-      eyebrow: 'G-MATE',
+      eyebrow: '개발용',
       title: '디자인 시스템',
       onBack: Navigator.of(context).canPop()
           ? () => Navigator.of(context).pop()
@@ -67,20 +82,11 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
               spacing: AppSpacing.md,
               runSpacing: AppSpacing.md,
               children: [
-                swatch('navy', colors.tertiary),
+                swatch('navy', AppColors.navy),
                 swatch('primary', colors.primary),
                 swatch('container', colors.primaryContainer),
-                swatch('secondary', colors.secondary),
-                swatch(
-                  'background',
-                  AppColors.background,
-                  border: colors.outlineVariant,
-                ),
-                swatch(
-                  'surface',
-                  colors.surface,
-                  border: colors.outlineVariant,
-                ),
+                swatch('background', AppColors.background),
+                swatch('surface', colors.surface),
                 swatch('success', semantic.success),
                 swatch('warning', semantic.warning),
                 swatch('danger', semantic.danger),
@@ -92,15 +98,15 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('안녕하세요, G-Mate예요', style: text.displaySmall),
-                Text('과학실로 안내할게요', style: text.headlineMedium),
-                Text('3층 · 교실', style: text.titleMedium),
+                Text('무엇을 도와드릴까요?', style: text.displaySmall),
+                Text('과학실로 안내할게요', style: text.headlineLarge),
+                Text('과학실', style: text.titleLarge),
                 Text(
                   '실험 도구와 안전 장비가 갖춰진 교실입니다. 도착하면 설명을 들려 드려요.',
                   style: text.bodyLarge,
                 ),
                 Text(
-                  '관리 모드 보조 설명',
+                  '3층 · 교실',
                   style: text.bodySmall?.copyWith(
                     color: semantic.textSecondary,
                   ),
@@ -109,30 +115,59 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
             ),
           ),
           section(
-            '메뉴 타일',
-            SizedBox(
-              height: 340,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: GmMenuTile(
-                      emphasized: true,
-                      icon: Icons.near_me_rounded,
-                      title: '길 찾기',
-                      description: '가고 싶은 곳까지 데려다 드려요',
-                      onTap: () {},
-                    ),
+            '히어로 패널 + 메뉴 카드',
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              child: SizedBox(
+                height: 420,
+                child: ColoredBox(
+                  color: AppColors.background,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Expanded(
+                        flex: 5,
+                        child: GmHeroPanel(
+                          overline: '광주소프트웨어마이스터고등학교',
+                          title: '무엇을\n도와드릴까요?',
+                          footer: GmStatusIndicator(
+                            label: '로봇 준비 완료',
+                            type: GmStatusType.success,
+                            onDark: true,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 7,
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppSpacing.lg),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                child: GmMenuTile(
+                                  icon: Icons.near_me_outlined,
+                                  title: '길 찾기',
+                                  description: '가고 싶은 곳까지 데려다 드려요',
+                                  onTap: () {},
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.md),
+                              Expanded(
+                                child: GmMenuTile(
+                                  icon: Icons.flag_outlined,
+                                  title: '학교 투어',
+                                  description: '코스를 따라 학교를 둘러봐요',
+                                  onTap: () {},
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: AppSpacing.lg),
-                  Expanded(
-                    child: GmMenuTile(
-                      icon: Icons.tour_rounded,
-                      title: '학교 투어',
-                      description: '코스를 따라 학교를 둘러봐요',
-                      onTap: () {},
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -157,7 +192,7 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
                 ),
                 GmButton(
                   label: '처음으로',
-                  icon: Icons.home_rounded,
+                  icon: Icons.home_outlined,
                   variant: GmButtonVariant.outline,
                   onPressed: () {},
                 ),
@@ -192,50 +227,13 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
             ),
           ),
           section(
-            '화면 제목',
-            const GmPageHeading(
-              eyebrow: 'STEP 1',
-              title: '어디로 갈까요?',
-              subtitle: '장소를 고르면 로봇이 앞장서서 안내해요',
-            ),
-          ),
-          section(
-            '밑줄 탭',
-            GmTabs(
-              labels: const ['1층', '2층', '3층'],
-              selectedIndex: _tab,
-              onSelected: (i) => setState(() => _tab = i),
-            ),
-          ),
-          section(
-            '워터마크',
-            const SizedBox(
-              height: 160,
-              child: ClipRect(
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: -20,
-                      left: 0,
-                      child: GmWatermark('GSM', fontSize: 200),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          section(
-            '상태 띠',
+            '상태',
             const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 GmStatusBanner(
                   message: '과학실로 안내 중입니다',
                   icon: Icons.directions_walk_rounded,
-                ),
-                SizedBox(height: AppSpacing.sm),
-                GmStatusBanner(
-                  message: '과학실에 도착했어요',
-                  type: GmStatusType.success,
                 ),
                 SizedBox(height: AppSpacing.sm),
                 GmStatusBanner(
@@ -247,6 +245,11 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
                   message: '이동하지 못했어요. 관리자에게 알려 주세요',
                   type: GmStatusType.danger,
                 ),
+                SizedBox(height: AppSpacing.lg),
+                GmStatusIndicator(
+                  label: '로봇 준비 완료',
+                  type: GmStatusType.success,
+                ),
               ],
             ),
           ),
@@ -255,44 +258,9 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: GmCard(
-                    onTap: () {},
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('과학실', style: text.titleLarge),
-                        const SizedBox(height: AppSpacing.xxs),
-                        Text(
-                          '3층 · 교실',
-                          style: text.bodyMedium?.copyWith(
-                            color: semantic.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                Expanded(child: placeCard('과학실', '3층 · 교실')),
                 const SizedBox(width: AppSpacing.lg),
-                Expanded(
-                  child: GmCard(
-                    selected: true,
-                    onTap: () {},
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('도서관', style: text.titleLarge),
-                        const SizedBox(height: AppSpacing.xxs),
-                        Text(
-                          '2층 · 편의시설',
-                          style: text.bodyMedium?.copyWith(
-                            color: semantic.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                Expanded(child: placeCard('도서관', '2층 · 편의시설', selected: true)),
                 const SizedBox(width: AppSpacing.lg),
                 const Expanded(
                   child: GmCard(

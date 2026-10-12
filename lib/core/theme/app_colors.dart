@@ -5,32 +5,33 @@ import 'package:flutter/material.dart';
 /// 화면에서는 이 값을 직접 쓰지 말고 `Theme.of(context).colorScheme` 또는
 /// `context.appColors`(의미 색)를 통해 꺼내 쓴다.
 abstract final class AppColors {
-  // 브랜드: 선명한 파랑 하나를 포인트로 쓰고 나머지는 차분한 회색으로 둔다.
-  // 학교 로고의 남색(#003366)은 [navy]로 남겨 진한 글자·면에 쓴다.
-  static const navy = Color(0xFF14254A);
+  // 브랜드: 남색 면 하나와 파랑 포인트 하나만 쓴다.
+  /// 학교 로고(#003366)에서 가져온 짙은 남색. 화면의 큰 면(히어로 패널)에 쓴다.
+  static const navy = Color(0xFF13213F);
+  static const navyLight = Color(0xFF1C2F57);
 
-  static const primary = Color(0xFF3B5BDB);
-  static const primaryDark = Color(0xFF2F4AC0);
-  static const primaryContainer = Color(0xFFE8EDFD);
-  static const onPrimaryContainer = Color(0xFF1C2F80);
+  /// 남색 면 위의 보조 글자색.
+  static const onNavyMuted = Color(0xFF9DAACB);
 
-  static const secondary = Color(0xFF6E8BF0);
-  static const secondaryContainer = Color(0xFFEEF2FE);
-  static const onSecondaryContainer = Color(0xFF23367F);
+  static const primary = Color(0xFF3360E0);
+  static const primaryDark = Color(0xFF274CB8);
+  static const primaryContainer = Color(0xFFEBF0FD);
+  static const onPrimaryContainer = Color(0xFF1B3577);
 
-  // 중립: 푸른빛이 아주 옅게 도는 회색
-  static const background = Color(0xFFEEF1F6);
+  static const secondary = primary;
+  static const secondaryContainer = primaryContainer;
+  static const onSecondaryContainer = onPrimaryContainer;
+
+  // 중립
+  static const background = Color(0xFFF4F5F8);
   static const surface = Color(0xFFFFFFFF);
-  static const surfaceVariant = Color(0xFFF4F6FA);
-  static const outline = Color(0xFFE2E6ED);
-  static const outlineStrong = Color(0xFFA9B0BF);
+  static const surfaceVariant = Color(0xFFF0F2F6);
+  static const outline = Color(0xFFE4E7EC);
+  static const outlineStrong = Color(0xFFB4BAC6);
 
-  static const textPrimary = Color(0xFF2A3142);
-  static const textSecondary = Color(0xFF6B7489);
-  static const textDisabled = Color(0xFFA9B0BF);
-
-  /// 배경에 크게 깔아 두는 장식 글자(워터마크) 색.
-  static const watermark = Color(0xFFE3E8F1);
+  static const textPrimary = Color(0xFF161C2B);
+  static const textSecondary = Color(0xFF6A7182);
+  static const textDisabled = Color(0xFFADB3BF);
 
   // 의미 색 (로봇 상태, 안내 배너)
   static const success = Color(0xFF16A34A);

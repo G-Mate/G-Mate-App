@@ -66,3 +66,50 @@ class GmStatusBanner extends StatelessWidget {
     );
   }
 }
+
+/// 점 하나와 짧은 글자로 된 작은 상태 표시 (예: 로봇 준비 완료).
+///
+/// [onDark]가 true면 남색 패널 위에 놓을 때의 글자색을 쓴다.
+class GmStatusIndicator extends StatelessWidget {
+  const GmStatusIndicator({
+    super.key,
+    required this.label,
+    this.type = GmStatusType.info,
+    this.onDark = false,
+  });
+
+  final String label;
+  final GmStatusType type;
+  final bool onDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.appColors;
+    final dot = switch (type) {
+      GmStatusType.info => s.info,
+      GmStatusType.success => s.success,
+      GmStatusType.warning => s.warning,
+      GmStatusType.danger => s.danger,
+    };
+    return Semantics(
+      liveRegion: true,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            label,
+            style: context.textStyles.bodySmall?.copyWith(
+              color: onDark ? AppColors.onNavyMuted : s.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

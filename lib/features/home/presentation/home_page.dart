@@ -5,56 +5,53 @@ import '../../../core/design_system.dart';
 import 'bloc/robot_status_cubit.dart';
 
 /// 안내 모드 홈(대기) 화면.
+///
+/// 왼쪽 남색 패널에 인사말과 로봇 상태, 오른쪽에 메뉴 카드 두 개를 둔다.
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GmScaffold(
-      body: Stack(
-        clipBehavior: Clip.none,
+    return const GmScaffold(
+      padded: false,
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Positioned(
-            top: -AppSpacing.xxl,
-            right: -AppSpacing.xl,
-            child: GmWatermark('GSM'),
+          Expanded(
+            flex: 5,
+            child: GmHeroPanel(
+              overline: '광주소프트웨어마이스터고등학교',
+              title: '무엇을\n도와드릴까요?',
+              subtitle: '원하는 메뉴를 눌러 주세요',
+              footer: _RobotStatus(),
+            ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const GmPageHeading(
-                eyebrow: 'G-MATE',
-                title: '무엇을 도와드릴까요?',
-                subtitle: '원하는 메뉴를 눌러 주세요',
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              const Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // 길 찾기·투어 화면이 생기면 onTap을 연결한다.
-                    Expanded(
-                      child: GmMenuTile(
-                        emphasized: true,
-                        icon: Icons.near_me_rounded,
-                        title: '길 찾기',
-                        description: '가고 싶은 곳까지 데려다 드려요',
-                      ),
+          Expanded(
+            flex: 7,
+            child: Padding(
+              padding: EdgeInsets.all(AppSpacing.xxl),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // 길 찾기·투어 화면이 생기면 onTap을 연결한다.
+                  Expanded(
+                    child: GmMenuTile(
+                      icon: Icons.near_me_outlined,
+                      title: '길 찾기',
+                      description: '가고 싶은 곳까지 데려다 드려요',
                     ),
-                    SizedBox(width: AppSpacing.lg),
-                    Expanded(
-                      child: GmMenuTile(
-                        icon: Icons.tour_rounded,
-                        title: '학교 투어',
-                        description: '코스를 따라 학교를 둘러봐요',
-                      ),
+                  ),
+                  SizedBox(height: AppSpacing.lg),
+                  Expanded(
+                    child: GmMenuTile(
+                      icon: Icons.flag_outlined,
+                      title: '학교 투어',
+                      description: '코스를 따라 학교를 둘러봐요',
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: AppSpacing.lg),
-              const _RobotStatusBanner(),
-            ],
+            ),
           ),
         ],
       ),
@@ -62,8 +59,8 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class _RobotStatusBanner extends StatelessWidget {
-  const _RobotStatusBanner();
+class _RobotStatus extends StatelessWidget {
+  const _RobotStatus();
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +74,7 @@ class _RobotStatusBanner extends StatelessWidget {
           RobotStatusState(isReady: true) => ('로봇 준비 완료', GmStatusType.success),
           _ => ('로봇 연결 안 됨', GmStatusType.danger),
         };
-        return GmStatusBanner(message: label, type: type);
+        return GmStatusIndicator(label: label, type: type, onDark: true);
       },
     );
   }
