@@ -12,3 +12,5 @@ export 'widgets/gm_chip.dart';
 export 'widgets/gm_empty_state.dart';
 export 'widgets/gm_scaffold.dart';
 export 'widgets/gm_status_banner.dart';
+export 'widgets/gm_tabs.dart';
+export 'widgets/gm_watermark.dart';

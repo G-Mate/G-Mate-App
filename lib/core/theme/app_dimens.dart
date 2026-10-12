@@ -20,9 +20,9 @@ abstract final class AppSpacing {
 
 /// 모서리 둥글기.
 abstract final class AppRadius {
-  static const double sm = 12;
-  static const double md = 20;
-  static const double lg = 28;
+  static const double sm = 8;
+  static const double md = 12;
+  static const double lg = 16;
   static const double full = 999;
 }
 
@@ -48,21 +48,14 @@ abstract final class AppDuration {
   static const slow = Duration(milliseconds: 320);
 }
 
-/// 그림자. 테두리 대신 옅은 그림자로 면을 나눈다.
+/// 그림자. 기본은 테두리로 면을 나누고, 떠 있어야 하는 요소(하단 버튼 줄,
+/// 다이얼로그)에만 옅게 쓴다.
 abstract final class AppShadow {
-  static final soft = [
-    BoxShadow(
-      color: AppColors.shadow.withValues(alpha: 0.06),
-      blurRadius: 24,
-      offset: const Offset(0, 8),
-    ),
-  ];
-
   static final raised = [
     BoxShadow(
-      color: AppColors.shadow.withValues(alpha: 0.12),
-      blurRadius: 32,
-      offset: const Offset(0, 12),
+      color: AppColors.shadow.withValues(alpha: 0.08),
+      blurRadius: 24,
+      offset: const Offset(0, -4),
     ),
   ];
 }

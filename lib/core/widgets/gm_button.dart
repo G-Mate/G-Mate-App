@@ -7,7 +7,7 @@ enum GmButtonVariant {
   /// 화면의 주 행동 ([안내 시작], [다음]).
   primary,
 
-  /// 보조 행동 ([다시 듣기]).
+  /// 보조 행동 ([다시 듣기]). 회색 면.
   secondary,
 
   /// 테두리만 있는 버튼 ([처음으로]).
@@ -84,8 +84,8 @@ class GmButton extends StatelessWidget {
         BorderSide.none,
       ),
       GmButtonVariant.secondary => (
-        colors.primaryContainer,
-        colors.onPrimaryContainer,
+        colors.surfaceContainer,
+        colors.onSurface,
         BorderSide.none,
       ),
       GmButtonVariant.outline => (

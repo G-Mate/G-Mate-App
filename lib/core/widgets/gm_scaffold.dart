@@ -103,7 +103,9 @@ class GmScaffold extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: context.colors.surface,
-                  boxShadow: AppShadow.soft,
+                  border: Border(
+                    top: BorderSide(color: context.colors.outlineVariant),
+                  ),
                 ),
                 child: bottomBar,
               ),

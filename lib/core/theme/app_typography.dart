@@ -38,27 +38,32 @@ abstract final class AppTypography {
           fontSize: 40,
           fontWeight: FontWeight.w700,
           height: 1.25,
+          letterSpacing: -0.6,
         ),
         headlineMedium: TextStyle(
           fontSize: 34,
           fontWeight: FontWeight.w700,
           height: 1.3,
+          letterSpacing: -0.5,
         ),
         headlineSmall: TextStyle(
           fontSize: 30,
           fontWeight: FontWeight.w600,
           height: 1.3,
+          letterSpacing: -0.4,
         ),
         // 카드 제목, 섹션 제목
         titleLarge: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.w600,
           height: _height,
+          letterSpacing: -0.3,
         ),
         titleMedium: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.w600,
           height: _height,
+          letterSpacing: -0.2,
         ),
         titleSmall: TextStyle(
           fontSize: 20,

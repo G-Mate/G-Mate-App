@@ -12,41 +12,55 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = context.textStyles;
     return GmScaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: Stack(
+        clipBehavior: Clip.none,
         children: [
-          Text(
-            'G-Mate',
-            style: text.titleLarge?.copyWith(color: context.colors.tertiary),
+          const Positioned(
+            top: -AppSpacing.xxl,
+            right: -AppSpacing.xl,
+            child: GmWatermark('GSM'),
           ),
-          const SizedBox(height: AppSpacing.xs),
-          Text('무엇을 도와드릴까요?', style: text.displaySmall),
-          const SizedBox(height: AppSpacing.xl),
-          const Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // 길 찾기·투어 화면이 생기면 onTap을 연결한다.
-                Expanded(
-                  child: GmMenuTile(
-                    icon: Icons.near_me_rounded,
-                    title: '길 찾기',
-                    description: '가고 싶은 곳까지 데려다 드려요',
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'G-MATE',
+                style: text.labelMedium?.copyWith(
+                  color: context.colors.primary,
+                  letterSpacing: 3,
                 ),
-                SizedBox(width: AppSpacing.lg),
-                Expanded(
-                  child: GmMenuTile(
-                    icon: Icons.tour_rounded,
-                    title: '학교 투어',
-                    description: '코스를 따라 학교를 둘러봐요',
-                  ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text('무엇을 도와드릴까요?', style: text.displaySmall),
+              const SizedBox(height: AppSpacing.xl),
+              const Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // 길 찾기·투어 화면이 생기면 onTap을 연결한다.
+                    Expanded(
+                      child: GmMenuTile(
+                        emphasized: true,
+                        icon: Icons.near_me_rounded,
+                        title: '길 찾기',
+                        description: '가고 싶은 곳까지 데려다 드려요',
+                      ),
+                    ),
+                    SizedBox(width: AppSpacing.lg),
+                    Expanded(
+                      child: GmMenuTile(
+                        icon: Icons.tour_rounded,
+                        title: '학교 투어',
+                        description: '코스를 따라 학교를 둘러봐요',
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              const _RobotStatusBanner(),
+            ],
           ),
-          const SizedBox(height: AppSpacing.lg),
-          const _RobotStatusBanner(),
         ],
       ),
     );

@@ -13,6 +13,7 @@ class DesignGalleryPage extends StatefulWidget {
 class _DesignGalleryPageState extends State<DesignGalleryPage> {
   static const _categories = ['전체', '교실', '행정실', '편의시설'];
   String _category = _categories.first;
+  int _tab = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -104,27 +105,30 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
           ),
           section(
             '메뉴 타일',
-            Row(
-              children: [
-                Expanded(
-                  child: GmMenuTile(
-                    icon: Icons.near_me_rounded,
-                    title: '길 찾기',
-                    description: '가고 싶은 곳까지 데려다 드려요',
-                    onTap: () {},
+            SizedBox(
+              height: 340,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: GmMenuTile(
+                      emphasized: true,
+                      icon: Icons.near_me_rounded,
+                      title: '길 찾기',
+                      description: '가고 싶은 곳까지 데려다 드려요',
+                      onTap: () {},
+                    ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.lg),
-                Expanded(
-                  child: GmMenuTile(
-                    icon: Icons.tour_rounded,
-                    title: '학교 투어',
-                    description: '코스를 따라 학교를 둘러봐요',
-                    accent: colors.secondary,
-                    onTap: () {},
+                  const SizedBox(width: AppSpacing.lg),
+                  Expanded(
+                    child: GmMenuTile(
+                      icon: Icons.tour_rounded,
+                      title: '학교 투어',
+                      description: '코스를 따라 학교를 둘러봐요',
+                      onTap: () {},
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           section(
@@ -180,6 +184,31 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
                     onSelected: (_) => setState(() => _category = c),
                   ),
               ],
+            ),
+          ),
+          section(
+            '밑줄 탭',
+            GmTabs(
+              labels: const ['1층', '2층', '3층'],
+              selectedIndex: _tab,
+              onSelected: (i) => setState(() => _tab = i),
+            ),
+          ),
+          section(
+            '워터마크',
+            const SizedBox(
+              height: 160,
+              child: ClipRect(
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: -20,
+                      left: 0,
+                      child: GmWatermark('GSM', fontSize: 200),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
           section(

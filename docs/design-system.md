@@ -1,8 +1,8 @@
 # 디자인 시스템
 
 temi 머리 태블릿(가로 10인치대)을 허리 높이에서 서서 보고 누르는 키오스크 화면 기준입니다.
-방향은 **파랑 계열 색 + 모던한 UI**입니다. 색은 학교 로고의 남색(#003366)을 참고해 더 맑은 톤으로 새로 골랐습니다. 테두리 대신 옅은 그림자와 연한 면 색으로 영역을 나누고, 모서리를 크게 둥글립니다.
-학교 로고와 글꼴은 아직 정해지지 않았습니다. 색을 조정할 때는 `app_colors.dart`만 바꾸면 됩니다.
+방향은 **깔끔한 모던 + 파랑 포인트**입니다. 연한 회색 바탕 위에 흰 면을 테두리·그림자 없이 올리고, 선명한 파랑 하나만 강조에 씁니다. 장식은 큰 제목, 짧은 밑줄 탭, 옅은 워터마크 글자 정도로 절제합니다. 학교 로고의 남색은 `navy`(`tertiary`)로 남겨 두었습니다.
+글꼴은 아직 정해지지 않았습니다. 색을 조정할 때는 `app_colors.dart`만 바꾸면 됩니다.
 
 ## 쓰는 법
 
@@ -11,7 +11,6 @@ import 'package:g_mate/core/design_system.dart';
 ```
 
 - 테마는 `AppTheme.light()`로 `lib/app/app.dart`에서 이미 적용되어 있습니다.
-- 브랜드 남색은 `context.colors.tertiary`로 꺼냅니다.
 - 색은 `context.colors`(Material `ColorScheme`)와 `context.appColors`(성공·주의·위험 같은 의미 색)로 꺼냅니다. 화면에서 `Color(0x...)`를 직접 쓰지 않습니다.
 - 글자는 `context.textStyles.titleLarge`처럼 테마 스타일을 씁니다. `fontSize`를 직접 쓰지 않습니다.
 - 간격·크기는 `AppSpacing`, `AppRadius`, `AppSize` 상수를 씁니다.
@@ -21,7 +20,7 @@ import 'package:g_mate/core/design_system.dart';
 
 | 파일 | 내용 |
 | --- | --- |
-| `lib/core/theme/app_colors.dart` | 브랜드(남색 `#0B2A5B`, 파랑 `#2257D6`, 밝은 파랑 `#3D8FE6`), 푸른빛 회색 배경·표면, 글자색, 성공·주의·위험 |
+| `lib/core/theme/app_colors.dart` | 파랑 `#3B5BDB`(포인트), 남색 `#14254A`, 회색 바탕 `#EEF1F6`·흰 면, 글자색, 성공·주의·위험, 워터마크 |
 | `lib/core/theme/app_typography.dart` | 글자 크기 체계. 본문 22, 버튼 26, 화면 제목 34, 환영 문구 44~64 |
 | `lib/core/theme/app_dimens.dart` | 간격(4dp 단위), 모서리, 버튼 높이(88/64/48), 아이콘 크기, 애니메이션 시간, 그림자 |
 | `lib/core/theme/app_semantic_colors.dart` | `ColorScheme`에 없는 의미 색 (`ThemeExtension`) |
@@ -41,9 +40,11 @@ import 'package:g_mate/core/design_system.dart';
 | --- | --- |
 | `GmScaffold` | 화면 틀. 뒤로 가기·제목·오른쪽 동작, 여백 잡힌 본문, 하단 고정 버튼 줄 |
 | `GmButton` | 버튼. `primary`/`secondary`/`outline`/`danger`, 크기 `large`/`medium`/`small`, 아이콘, `loading` |
-| `GmMenuTile` | 홈 화면의 큰 메뉴 ([길 찾기], [학교 투어]). `onTap`이 없으면 흐리게 표시 |
+| `GmMenuTile` | 홈 화면의 큰 메뉴 ([길 찾기], [학교 투어]). `emphasized`면 파랑 면, `onTap`이 없으면 '준비 중' 표시 |
 | `GmCard` | 흰 카드. 누를 수 있고 `selected` 표시 지원 (장소 카드 등) |
-| `GmChoiceChip` | 카테고리 탭, 층 필터 |
+| `GmChoiceChip` | 카테고리 필터 |
+| `GmTabs` | 글자 + 짧은 밑줄 탭 (층 전환 등) |
+| `GmWatermark` | 배경에 크고 옅게 까는 장식 글자 |
 | `GmStatusBanner` | 로봇 상태·안내 메시지 띠. `info`/`success`/`warning`/`danger` |
 | `GmEmptyState` | 목록이 비었을 때 가운데 안내 |
 

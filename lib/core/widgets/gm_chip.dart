@@ -33,8 +33,10 @@ class GmChoiceChip extends StatelessWidget {
         label: Text(label),
         labelStyle: Theme.of(context).textTheme.labelMedium
             ?.copyWith(color: fg),
-        side: BorderSide.none,
-        backgroundColor: colors.surfaceContainer,
+        side: BorderSide(
+          color: selected ? colors.primary : colors.outlineVariant,
+        ),
+        backgroundColor: colors.surface,
         selectedColor: colors.primary,
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,

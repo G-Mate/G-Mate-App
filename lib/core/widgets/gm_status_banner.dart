@@ -26,27 +26,11 @@ class GmStatusBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = context.appColors;
-    final (Color bg, Color fg, IconData defaultIcon) = switch (type) {
-      GmStatusType.info => (
-        s.infoContainer,
-        s.info,
-        Icons.info_outline_rounded,
-      ),
-      GmStatusType.success => (
-        s.successContainer,
-        s.success,
-        Icons.check_circle_outline_rounded,
-      ),
-      GmStatusType.warning => (
-        s.warningContainer,
-        s.warning,
-        Icons.warning_amber_rounded,
-      ),
-      GmStatusType.danger => (
-        s.dangerContainer,
-        s.danger,
-        Icons.error_outline_rounded,
-      ),
+    final (Color fg, IconData defaultIcon) = switch (type) {
+      GmStatusType.info => (s.info, Icons.info_outline_rounded),
+      GmStatusType.success => (s.success, Icons.check_circle_outline_rounded),
+      GmStatusType.warning => (s.warning, Icons.warning_amber_rounded),
+      GmStatusType.danger => (s.danger, Icons.error_outline_rounded),
     };
 
     return Semantics(
@@ -57,19 +41,12 @@ class GmStatusBanner extends StatelessWidget {
           vertical: AppSpacing.md,
         ),
         decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
+          color: context.colors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.md),
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.xs),
-              decoration: BoxDecoration(
-                color: context.colors.surface,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon ?? defaultIcon, color: fg, size: AppSize.iconSm),
-            ),
+            Icon(icon ?? defaultIcon, color: fg, size: AppSize.iconMd),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Text(
