@@ -18,7 +18,7 @@ Notion "G-Mate > v1"의 작업 기록·이슈 DB로 옮기기 전에 임시로 �
 | 앱 기본 구조 세팅 | 화면(UI) | 2026-10-11 | `app/`(DI·라우터·테마) + `core/` + `features/` 구조, 홈(대기) 화면과 로봇 준비 상태 표시 | |
 | RobotController 추상화 | 로봇 연동 | 2026-10-11 | `RobotController` 인터페이스, 로봇 이벤트 타입, `FakeRobotController`(이동·TTS 시뮬레이션), 채널 기반 `TemiRobotController`. 단위 테스트 6개 통과 | |
 | Kotlin temi 브리지 뼈대 | 로봇 연동 | 2026-10-11 | `gmate/robot` MethodChannel, `gmate/robot/events` EventChannel을 여는 `TemiBridge`. temi SDK 의존성은 아직 없음 | |
-| 디자인 시스템 적용 | 화면(UI) | 2026-10-11 | 색·글자·간격 토큰과 `AppTheme`, 공통 위젯 9종(`GmScaffold`, `GmHeroPanel`, `GmButton`, `GmMenuTile`, `GmCard`, `GmChoiceChip`, `GmStatusBanner`, `GmStatusIndicator`, `GmEmptyState`), 미리보기 화면(`/design-gallery`) 추가. 홈 화면을 남색 패널(인사말·로봇 상태) + 메뉴 카드 두 개로 구성. 스타일은 남색 면 하나와 파랑 강조 하나만 쓰는 절제된 모던. 정리는 [design-system.md](design-system.md) | |
+| 디자인 시스템 적용 | 화면(UI) | 2026-10-11 | 색·글자·간격 토큰과 `AppTheme`, 공통 위젯 9종(`GmScaffold`, `GmHeroPanel`, `GmButton`, `GmMenuTile`, `GmCard`, `GmChoiceChip`, `GmStatusBanner`, `GmStatusIndicator`, `GmEmptyState`), 미리보기 화면(`/design-gallery`) 추가. 홈 화면을 남색 패널(인사말·로봇 상태) + 메뉴 카드 두 개로 구성. 스타일은 남색 면 하나와 파랑 강조 하나만 쓰는 절제된 모던, 글꼴은 Pretendard. 정리는 [design-system.md](design-system.md) | |
 
 ## 트러블슈팅
 
