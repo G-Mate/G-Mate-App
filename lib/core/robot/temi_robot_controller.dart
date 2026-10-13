@@ -49,5 +49,16 @@ class TemiRobotController implements RobotController {
       _method.invokeMethod('speak', {'text': text});
 
   @override
+  Future<void> cancelSpeech() => _method.invokeMethod('cancelAllTtsRequests');
+
+  @override
+  Future<void> askQuestion(String text) =>
+      _method.invokeMethod('askQuestion', {'text': text});
+
+  @override
+  Future<void> finishConversation() =>
+      _method.invokeMethod('finishConversation');
+
+  @override
   Future<void> dispose() async {}
 }

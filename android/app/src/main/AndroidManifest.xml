@@ -29,6 +29,10 @@
         <meta-data
             android:name="com.robotemi.sdk.metadata.SKILL"
             android:value="G-Mate" />
+        <!-- 방문객의 말(음성 명령)을 temi 대신 앱이 처리한다. -->
+        <meta-data
+            android:name="com.robotemi.sdk.metadata.OVERRIDE_NLU"
+            android:value="true" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

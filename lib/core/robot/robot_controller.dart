@@ -26,5 +26,15 @@ abstract interface class RobotController {
   /// [text]를 읽기 시작한다. 진행은 [TtsStatusChanged]로 알 수 있다.
   Future<void> speak(String text);
 
+  /// 읽고 있거나 읽으려고 기다리는 말을 모두 멈춘다.
+  Future<void> cancelSpeech();
+
+  /// [text]를 읽은 뒤 방문객의 말을 듣는다 (temi `askQuestion`).
+  /// 알아들은 말은 [AsrResultReceived], 듣기 상태는 [ConversationStatusChanged]로 온다.
+  Future<void> askQuestion(String text);
+
+  /// 듣고 있던 것을 멈춘다.
+  Future<void> finishConversation();
+
   Future<void> dispose();
 }

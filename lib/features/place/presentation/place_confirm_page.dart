@@ -6,6 +6,9 @@ import '../../../app/routes.dart';
 import '../../../core/design_system.dart';
 import '../domain/place.dart';
 import 'bloc/place_detail_cubit.dart';
+import '../../speech/presentation/bloc/voice_guide_cubit.dart';
+import '../../speech/presentation/voice_guide_scope.dart';
+import '../../speech/presentation/voice_scripts.dart';
 import 'place_icons.dart';
 import 'place_not_found.dart';
 
@@ -70,55 +73,70 @@ class _ContentState extends State<_Content> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // '과학실. 이곳으로 안내할까요?'를 읽고, 누르지 않으면 '안내 시작'과 '취소'를
+    // 말할 수 있다고 안내한다.
+    context.read<VoiceGuideCubit>().start(VoiceScripts.placeConfirm(place));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return GmSplitLayout(
-      hero: GmHeroPanel(
-        top: GmHeroBackButton(onPressed: _back),
-        overline: place.meta,
-        title: place.name,
-        subtitle: '이곳으로 안내할까요?',
-        footer: Align(
-          alignment: Alignment.bottomRight,
-          child: SizedBox(
-            width: _previewWidth,
-            height: _previewHeight,
-            child: Hero(
-              tag: GmFloorPlan.heroTag,
-              child: GmFloorPlanTour(key: _tourKey, destination: place.name),
+    return VoiceGuideScope(
+      onCommand: (context, command) => switch (command) {
+        VoiceScripts.startCommand => _start(),
+        VoiceScripts.cancelCommand => _back(),
+        _ => null,
+      },
+      child: GmSplitLayout(
+        hero: GmHeroPanel(
+          top: GmHeroBackButton(onPressed: _back),
+          overline: place.meta,
+          title: place.name,
+          subtitle: '이곳으로 안내할까요?',
+          footer: Align(
+            alignment: Alignment.bottomRight,
+            child: SizedBox(
+              width: _previewWidth,
+              height: _previewHeight,
+              child: Hero(
+                tag: GmFloorPlan.heroTag,
+                child: GmFloorPlanTour(key: _tourKey, destination: place.name),
+              ),
             ),
           ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(child: _PlaceIntro(place: place)),
-          const SizedBox(height: AppSpacing.lg),
-          Row(
-            children: [
-              Expanded(
-                flex: _backFlex,
-                child: GmButton(
-                  label: '다른 곳 고르기',
-                  variant: GmButtonVariant.outline,
-                  size: GmButtonSize.large,
-                  expanded: true,
-                  onPressed: _back,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: _PlaceIntro(place: place)),
+            const SizedBox(height: AppSpacing.lg),
+            Row(
+              children: [
+                Expanded(
+                  flex: _backFlex,
+                  child: GmButton(
+                    label: '다른 곳 고르기',
+                    variant: GmButtonVariant.outline,
+                    size: GmButtonSize.large,
+                    expanded: true,
+                    onPressed: _back,
+                  ),
                 ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                flex: _startFlex,
-                child: GmButton(
-                  label: '안내 시작',
-                  size: GmButtonSize.large,
-                  expanded: true,
-                  onPressed: _start,
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  flex: _startFlex,
+                  child: GmButton(
+                    label: '안내 시작',
+                    size: GmButtonSize.large,
+                    expanded: true,
+                    onPressed: _start,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
