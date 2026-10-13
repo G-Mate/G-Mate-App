@@ -37,6 +37,7 @@ Notion "G-Mate > v1"의 작업 기록·이슈 DB로 옮기기 전에 임시로 �
 | 도착·설명 화면 버튼을 투어와 맞춤 | 화면(UI) | 2026-10-13 | 오른쪽 아래 [처음으로]를 빼고 왼쪽 남색 패널 아래에 [안내 중지]를 둠. 설명 상태 표시는 패널 위로 옮겨 투어 설명 화면과 배치를 같게 함 | |
 | 안내·투어 중지 확인 창 | 화면(UI) | 2026-10-13 | 모르고 눌렀을 때를 위해 [안내 중지](이동 중·도착 설명)와 [투어 중지]를 누르면 '안내를 멈출까요?'/'투어를 멈출까요?' 창을 띄움. [계속하기]면 이어 가고, 확인하면 홈으로. 공통 `showGmConfirmDialog` 추가 | |
 | 장소·설정 기기 저장 | 데이터 | 2026-10-13 | 메모리 저장소를 로컬 DB(drift, `AppDatabase`)로 바꿔 앱을 다시 켜도 장소(설명 줄, 사진 경로, 자동 넘김 시간), 음성 설정, 투어 코스, 학교 소개가 남게 함. 처음 DB를 만들 때만 기본 내용을 넣음(`database_seed.dart`). 관리 모드 PIN은 flutter_secure_storage에 두고 `changePin` 추가(PIN 바꾸는 화면은 아직 없음, 기본 `0000`). 고른 사진은 캐시 경로 대신 앱 문서 폴더 `place_photos/`로 복사해 저장. 테스트 78개 통과 | |
+| temi 브리지 이동·음성 연결 뼈대 | 로봇 연동 | 2026-10-13 | Kotlin `TemiBridge`에 temi SDK(`com.robotemi:sdk:1.138.0`)를 붙여 `goTo`, `stopMovement`, `speak`, `getLocations`, `saveLocation`, `deleteLocation`을 부르고, 준비·이동 상태(도착 포함)·TTS 상태·장소 변경 리스너를 `gmate/robot/events`로 보냄. 리스너는 Activity onStart/onStop에서 붙이고 뗌. `onRobotReady(true)` 전에는 명령에 `NOT_READY` 오류로 답함. 매니페스트에 temi 스킬 메타데이터 추가. Fake가 계속 기본값(`USE_FAKE_ROBOT`). 에뮬레이터에서 `USE_FAKE_ROBOT=false`로 켜면 temi 서비스 연결이 안 되어 홈에 '로봇 연결 안 됨'이 뜨고 앱은 정상 동작함을 확인. 실기 확인은 아직. 테스트 81개 통과 | |
 
 ## 트러블슈팅
 

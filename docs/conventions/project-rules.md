@@ -99,7 +99,9 @@ docs/                         # 문서
 - 채널 이름은 `lib/core/robot/robot_channels.dart`와 Kotlin `RobotChannels`에 상수로 두고, 두 곳을 항상 함께 고칩니다.
 - 메서드 이름은 temi SDK 메서드 이름을 그대로 씁니다 (`goTo`, `stopMovement`).
 - 이벤트는 `{"type": "...", ...}` 형태의 Map으로 보내고, Dart 쪽에서 타입 있는 이벤트 클래스로 바꿉니다.
-- temi SDK는 `onRobotReady(true)` 이후에만 호출합니다.
+- temi SDK는 `onRobotReady(true)` 이후에만 호출합니다. 그 전에 온 명령은 Kotlin이 `NOT_READY` 오류로 답합니다 (`isReady`만 예외).
+- temi 리스너는 `MainActivity`의 onStart에서 붙이고 onStop에서 뗍니다.
+- temi SDK 버전은 `android/app/build.gradle.kts`에서 한 곳으로 관리합니다.
 
 ## temi 장소 키
 

@@ -11,6 +11,17 @@ class MainActivity : FlutterActivity() {
         temiBridge = TemiBridge(flutterEngine.dartExecutor.binaryMessenger)
     }
 
+    // temi 예제처럼 화면이 보이는 동안만 리스너를 붙여 둔다.
+    override fun onStart() {
+        super.onStart()
+        temiBridge?.attach()
+    }
+
+    override fun onStop() {
+        temiBridge?.detach()
+        super.onStop()
+    }
+
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
         temiBridge?.dispose()
         temiBridge = null
