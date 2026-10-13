@@ -91,7 +91,11 @@ class GuidingPage extends StatelessWidget {
                           label: '안내 중지',
                           icon: Icons.stop_rounded,
                           variant: GmButtonVariant.danger,
-                          onPressed: () => bloc.add(const GuideStopRequested()),
+                          onPressed: () async {
+                            if (await confirmGuideStop(context)) {
+                              bloc.add(const GuideStopRequested());
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -107,3 +111,11 @@ class GuidingPage extends StatelessWidget {
     );
   }
 }
+
+/// [안내 중지]를 모르고 눌렀을 때를 위해 한 번 더 묻는다.
+Future<bool> confirmGuideStop(BuildContext context) => showGmConfirmDialog(
+  context,
+  title: '안내를 멈출까요?',
+  message: '처음 화면으로 돌아가요',
+  confirmLabel: '안내 중지',
+);

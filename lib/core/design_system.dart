@@ -11,6 +11,7 @@ export 'widgets/gm_background.dart';
 export 'widgets/gm_button.dart';
 export 'widgets/gm_card.dart';
 export 'widgets/gm_chip.dart';
+export 'widgets/gm_confirm_dialog.dart';
 export 'widgets/gm_dense_theme.dart';
 export 'widgets/gm_empty_state.dart';
 export 'widgets/gm_floor_plan.dart';

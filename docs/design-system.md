@@ -57,6 +57,7 @@ import 'package:g_mate/core/design_system.dart';
 | `GmStatusBanner` | 로봇 상태·안내 메시지 띠. `info`/`success`/`warning`/`danger` |
 | `GmStatusIndicator` | 점 + 짧은 글자로 된 작은 상태 표시 (남색 패널 위에서도 사용) |
 | `GmStat` / `GmStatRow` | 큰 숫자 + 작은 설명 (예: 2015 / 개교). 남색 패널 아래쪽에 나란히 둔다 |
+| `showGmConfirmDialog` | 되돌리기 어려운 행동 전에 한 번 더 묻는 창. 제목 + 짧은 설명, [계속하기](테두리) [멈추는 버튼](빨강). [안내 중지]·[투어 중지]에 씀 |
 | `GmEmptyState` | 목록이 비었을 때 가운데 안내 |
 
 새 공통 위젯은 `lib/core/widgets/`에 `gm_` 접두사로 만들고 `lib/core/design_system.dart`에서 export 합니다.

@@ -106,7 +106,7 @@ class _Hero extends StatelessWidget {
       label: '투어 중지',
       icon: Icons.stop_rounded,
       variant: GmButtonVariant.danger,
-      onPressed: () => bloc.add(const TourStopRequested()),
+      onPressed: () => _confirmStop(context, bloc),
     );
     // 도착했는데 로봇이 완료를 못 알리면 [도착했어요]로 직접 넘긴다.
     final arrived = GmButton(
@@ -143,7 +143,7 @@ class _Hero extends StatelessWidget {
             GmButton(
               label: '투어 중지',
               variant: GmButtonVariant.danger,
-              onPressed: () => bloc.add(const TourStopRequested()),
+              onPressed: () => _confirmStop(context, bloc),
             ),
           ],
         ),
@@ -161,7 +161,7 @@ class _Hero extends StatelessWidget {
           label: '투어 중지',
           icon: Icons.stop_rounded,
           variant: GmButtonVariant.outline,
-          onPressed: () => bloc.add(const TourStopRequested()),
+          onPressed: () => _confirmStop(context, bloc),
         ),
       ),
       _ => GmHeroPanel(
@@ -345,4 +345,15 @@ class _ExplainButtons extends StatelessWidget {
       ],
     );
   }
+}
+
+/// [투어 중지]를 모르고 눌렀을 때를 위해 한 번 더 묻는다.
+Future<void> _confirmStop(BuildContext context, TourBloc bloc) async {
+  final stop = await showGmConfirmDialog(
+    context,
+    title: '투어를 멈출까요?',
+    message: '처음 화면으로 돌아가요',
+    confirmLabel: '투어 중지',
+  );
+  if (stop) bloc.add(const TourStopRequested());
 }

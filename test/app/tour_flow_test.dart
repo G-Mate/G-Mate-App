@@ -44,14 +44,19 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
-  testWidgets('투어 중지를 누르면 홈으로 돌아간다', (tester) async {
+  testWidgets('투어 중지는 한 번 더 묻고, 확인하면 홈으로 돌아간다', (tester) async {
     useTabletView(tester);
     final robot = await registerTestDependencies();
     await tester.pumpWidget(testApp(AppRoutes.tourRun('classrooms')));
     await tester.pump();
     await tester.pump();
 
+    // 묻는 동안 도착하지 않도록 Fake 로봇의 이동을 멈춰 둔다.
+    await robot.stopMovement();
     await tester.tap(find.text('투어 중지'));
+    await tester.pumpAndSettle();
+    expect(find.text('투어를 멈출까요?'), findsOneWidget);
+    await tester.tap(find.text('투어 중지').last);
     await tester.pumpAndSettle();
     expect(find.byType(HomePage), findsOneWidget);
     await robot.stopMovement();

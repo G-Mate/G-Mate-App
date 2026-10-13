@@ -7,6 +7,7 @@ import '../../../core/design_system.dart';
 import '../../place/presentation/place_not_found.dart';
 import 'bloc/arrival_cubit.dart';
 import 'bloc/arrival_state.dart';
+import 'guiding_page.dart';
 import 'widgets/keep_all_text.dart';
 
 /// 길 찾기 - 도착·설명. 로봇이 읽는 본 설명을 자막처럼 한 줄씩 크게 보여 준다.
@@ -63,7 +64,11 @@ class ArrivalPage extends StatelessWidget {
               label: '안내 중지',
               icon: Icons.stop_rounded,
               variant: GmButtonVariant.outline,
-              onPressed: () => context.go(AppRoutes.home),
+              onPressed: () async {
+                if (await confirmGuideStop(context) && context.mounted) {
+                  context.go(AppRoutes.home);
+                }
+              },
             ),
           ),
           child: Column(
