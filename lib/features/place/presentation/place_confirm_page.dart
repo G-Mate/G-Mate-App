@@ -13,8 +13,7 @@ import 'place_not_found.dart';
 class PlaceConfirmPage extends StatelessWidget {
   const PlaceConfirmPage({super.key});
 
-  static const _photoIconSize = 160.0;
-  static const _photoIconAlpha = 0.12;
+  static const _photoBadgeSize = 200.0;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +43,6 @@ class _Content extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = context.textStyles;
-    final colors = context.colors;
 
     return GmSplitLayout(
       hero: GmHeroPanel(
@@ -59,16 +57,10 @@ class _Content extends StatelessWidget {
           // 장소 사진 자리. 사진 등록이 생기기 전까지 흐린 아이콘을 둔다.
           Expanded(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(AppRadius.lg),
-              child: ColoredBox(
-                color: colors.surface,
-                child: Icon(
-                  placeIcon(place),
-                  size: PlaceConfirmPage._photoIconSize,
-                  color: colors.primary.withValues(
-                    alpha: PlaceConfirmPage._photoIconAlpha,
-                  ),
-                ),
+              borderRadius: BorderRadius.circular(AppRadius.xl),
+              child: GmPhotoPlaceholder(
+                icon: placeIcon(place),
+                badgeSize: PlaceConfirmPage._photoBadgeSize,
               ),
             ),
           ),

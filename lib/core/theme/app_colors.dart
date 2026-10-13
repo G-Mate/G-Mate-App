@@ -10,8 +10,14 @@ abstract final class AppColors {
   static const navy = Color(0xFF13213F);
   static const navyLight = Color(0xFF1C2F57);
 
+  /// 남색 패널 그라데이션의 가장 짙은 끝.
+  static const navyDeep = Color(0xFF0B1530);
+
   /// 남색 면 위의 보조 글자색.
   static const onNavyMuted = Color(0xFF9DAACB);
+
+  /// 남색 면 위의 반투명 흰 면 (상태 알약, 뒤로 가기 버튼).
+  static const onNavySurface = Color(0x1AFFFFFF);
 
   static const primary = Color(0xFF3360E0);
   static const primaryDark = Color(0xFF274CB8);
@@ -23,7 +29,7 @@ abstract final class AppColors {
   static const onSecondaryContainer = onPrimaryContainer;
 
   // 중립
-  static const background = Color(0xFFF4F5F8);
+  static const background = Color(0xFFF2F4F8);
   static const surface = Color(0xFFFFFFFF);
   static const surfaceVariant = Color(0xFFF0F2F6);
   static const outline = Color(0xFFE4E7EC);

@@ -12,7 +12,7 @@ class AdminPinPage extends StatelessWidget {
   const AdminPinPage({super.key});
 
   static const _keyWidth = 104.0;
-  static const _keyHeight = 68.0;
+  static const _keyHeight = 76.0;
   static const _keypadWidth = _keyWidth * 3 + AppSpacing.md * 2;
   static const _cellWidth = 60.0;
   static const _cellHeight = 72.0;
@@ -81,6 +81,7 @@ class AdminPinPage extends StatelessWidget {
                                   : colors.surface,
                               width: 2,
                             ),
+                            boxShadow: AppShadow.soft,
                           ),
                           child: i < entered
                               ? Container(
@@ -115,26 +116,39 @@ class AdminPinPage extends StatelessWidget {
                             height: _keyHeight,
                             child: k.isEmpty
                                 ? null
-                                : TextButton(
-                                    onPressed: k == _backspace
-                                        ? cubit.backspace
-                                        : () => cubit.press(k),
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: colors.onSurface,
-                                      textStyle: text.headlineMedium,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          AppRadius.md,
+                                : DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(
+                                        AppRadius.lg,
+                                      ),
+                                      boxShadow: k == _backspace
+                                          ? null
+                                          : AppShadow.soft,
+                                    ),
+                                    child: TextButton(
+                                      onPressed: k == _backspace
+                                          ? cubit.backspace
+                                          : () => cubit.press(k),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: colors.onSurface,
+                                        backgroundColor: k == _backspace
+                                            ? null
+                                            : colors.surface,
+                                        textStyle: text.headlineMedium,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            AppRadius.lg,
+                                          ),
                                         ),
                                       ),
+                                      child: k == _backspace
+                                          ? const Icon(
+                                              Icons.backspace_outlined,
+                                              size: AppSize.iconMd,
+                                              semanticLabel: '지우기',
+                                            )
+                                          : Text(k),
                                     ),
-                                    child: k == _backspace
-                                        ? const Icon(
-                                            Icons.backspace_outlined,
-                                            size: AppSize.iconMd,
-                                            semanticLabel: '지우기',
-                                          )
-                                        : Text(k),
                                   ),
                           ),
                       ],

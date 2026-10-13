@@ -25,9 +25,13 @@ class GmHeroPanel extends StatelessWidget {
   /// 패널 맨 아래에 둘 위젯 (예: 로봇 상태 표시).
   final Widget? footer;
 
-  /// 패널 맨 위에 둘 위젯. 없으면 G-MATE 글자를 보여 준다
+  /// 패널 맨 위에 둘 위젯. 없으면 [GmBrandMark]를 보여 준다
   /// (예: [GmHeroBackButton]).
   final Widget? top;
+
+  /// 오른쪽 위에 번지는 파랑 빛의 지름과 진하기.
+  static const _glowSize = 640.0;
+  static const _glowAlpha = 0.45;
 
   @override
   Widget build(BuildContext context) {
@@ -37,51 +41,116 @@ class GmHeroPanel extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.navyLight, AppColors.navy],
+          colors: [AppColors.navyLight, AppColors.navy, AppColors.navyDeep],
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xxl),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            top ??
-                Text(
-                  'G-MATE',
-                  style: text.labelSmall?.copyWith(
-                    color: Colors.white,
-                    letterSpacing: 2,
+      child: Stack(
+        clipBehavior: Clip.hardEdge,
+        children: [
+          // 장식은 이 은은한 빛 하나뿐이다. 남색 면에 깊이를 준다.
+          Positioned(
+            top: -_glowSize / 2,
+            right: -_glowSize / 2,
+            child: IgnorePointer(
+              child: Container(
+                width: _glowSize,
+                height: _glowSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      AppColors.primary.withValues(alpha: _glowAlpha),
+                      AppColors.primary.withValues(alpha: 0),
+                    ],
                   ),
                 ),
-            const Spacer(),
-            if (overline != null) ...[
-              Text(
-                overline!,
-                style: text.bodySmall?.copyWith(color: AppColors.onNavyMuted),
               ),
-              const SizedBox(height: AppSpacing.sm),
-            ],
-            Text(
-              title,
-              style: text.displaySmall?.copyWith(color: Colors.white),
             ),
-            if (subtitle != null) ...[
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                subtitle!,
-                style: text.bodyMedium?.copyWith(color: AppColors.onNavyMuted),
+          ),
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.xxl),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  top ?? const GmBrandMark(),
+                  const Spacer(),
+                  if (overline != null) ...[
+                    Text(
+                      overline!,
+                      style: text.labelSmall?.copyWith(
+                        color: AppColors.onNavyMuted,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                  ],
+                  Text(
+                    title,
+                    style: text.displaySmall?.copyWith(color: Colors.white),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      subtitle!,
+                      style: text.bodyMedium?.copyWith(
+                        color: AppColors.onNavyMuted,
+                      ),
+                    ),
+                  ],
+                  const Spacer(),
+                  ?footer,
+                ],
               ),
-            ],
-            const Spacer(),
-            ?footer,
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// 남색 패널 위에 두는 뒤로 가기 버튼 (흰 아이콘 + 글자).
+/// 남색 패널 맨 위의 G-MATE 표시 (파랑 사각 배지 + 글자).
+class GmBrandMark extends StatelessWidget {
+  const GmBrandMark({super.key});
+
+  static const _badgeSize = 40.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: _badgeSize,
+          height: _badgeSize,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+          ),
+          child: Text(
+            'G',
+            style: text.titleSmall?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Text(
+          'G-MATE',
+          style: text.labelSmall?.copyWith(
+            color: Colors.white,
+            letterSpacing: 2,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 남색 패널 위에 두는 알약 모양 뒤로 가기 버튼 (흰 아이콘 + 글자).
 class GmHeroBackButton extends StatelessWidget {
   const GmHeroBackButton({super.key, required this.onPressed, this.label});
 
@@ -94,7 +163,9 @@ class GmHeroBackButton extends StatelessWidget {
       onPressed: onPressed,
       style: TextButton.styleFrom(
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+        backgroundColor: AppColors.onNavySurface,
+        shape: const StadiumBorder(),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.lg, 0),
         textStyle: Theme.of(context).textTheme.labelMedium,
       ),
       icon: const Icon(Icons.arrow_back_rounded, size: AppSize.iconMd),

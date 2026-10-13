@@ -126,12 +126,10 @@ abstract final class AppTheme {
       chipTheme: ChipThemeData(
         labelStyle: textTheme.labelMedium,
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
+          horizontal: AppSpacing.lg,
           vertical: AppSpacing.sm,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-        ),
+        shape: const StadiumBorder(),
         side: const BorderSide(color: AppColors.outline),
         backgroundColor: AppColors.surface,
         selectedColor: AppColors.primary,

@@ -13,7 +13,7 @@ import 'widgets/keep_all_text.dart';
 class ArrivalPage extends StatelessWidget {
   const ArrivalPage({super.key});
 
-  static const _progressHeight = 4.0;
+  static const _progressHeight = 6.0;
   static const _subtitleLineHeight = 1.4;
 
   @override
@@ -62,16 +62,22 @@ class ArrivalPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(_progressHeight / 2),
-                      child: LinearProgressIndicator(
-                        value: (current + 1) / lines.length,
-                        minHeight: _progressHeight,
-                        backgroundColor: colors.outlineVariant,
+                  // 한 칸이 한 줄. 지나온 줄과 지금 줄을 파랑으로 채운다.
+                  for (var i = 0; i < lines.length; i++) ...[
+                    if (i > 0) const SizedBox(width: AppSpacing.xs),
+                    Expanded(
+                      child: AnimatedContainer(
+                        duration: AppDuration.slow,
+                        height: _progressHeight,
+                        decoration: BoxDecoration(
+                          color: i <= current
+                              ? colors.primary
+                              : colors.outlineVariant,
+                          borderRadius: BorderRadius.circular(AppRadius.full),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
               const Spacer(),
@@ -86,7 +92,7 @@ class ArrivalPage extends StatelessWidget {
                 Text(
                   next,
                   style: text.bodyMedium?.copyWith(
-                    color: semantic.textDisabled,
+                    color: semantic.textSecondary.withValues(alpha: 0.6),
                   ),
                 ),
               ],

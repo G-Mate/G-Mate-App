@@ -36,6 +36,7 @@ class FloorMap extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
+        boxShadow: AppShadow.soft,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

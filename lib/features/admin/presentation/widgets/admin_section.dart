@@ -18,10 +18,14 @@ class AdminSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
+      ),
       decoration: BoxDecoration(
         color: context.colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
+        boxShadow: AppShadow.soft,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
