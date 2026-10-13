@@ -51,32 +51,26 @@ class AdminPlacesPage extends StatelessWidget {
               message: '로봇을 장소로 데려간 뒤 [현재 위치 저장]을 눌러 주세요',
             );
           }
-          return DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRadius.lg),
-              boxShadow: AppShadow.soft,
-            ),
-            child: Material(
-              color: context.colors.surface,
-              borderRadius: BorderRadius.circular(AppRadius.lg),
-              clipBehavior: Clip.antiAlias,
-              child: ListView.separated(
-                itemCount: state.places.length,
-                separatorBuilder: (_, _) => const Divider(
-                  indent: AppSpacing.lg,
-                  endIndent: AppSpacing.lg,
-                ),
-                itemBuilder: (context, i) {
-                  final place = state.places[i];
-                  return _PlaceRow(
-                    place: place,
-                    isOnRobot: state.isOnRobot(place),
-                    onTap: () => _edit(context, cubit, place.key),
-                    onPreview: () => cubit.preview(place),
-                    onTestMove: () => _testMove(context, cubit, place),
-                  );
-                },
+          return Material(
+            color: context.colors.surface,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            clipBehavior: Clip.antiAlias,
+            child: ListView.separated(
+              itemCount: state.places.length,
+              separatorBuilder: (_, _) => const Divider(
+                indent: AppSpacing.lg,
+                endIndent: AppSpacing.lg,
               ),
+              itemBuilder: (context, i) {
+                final place = state.places[i];
+                return _PlaceRow(
+                  place: place,
+                  isOnRobot: state.isOnRobot(place),
+                  onTap: () => _edit(context, cubit, place.key),
+                  onPreview: () => cubit.preview(place),
+                  onTestMove: () => _testMove(context, cubit, place),
+                );
+              },
             ),
           );
         },
@@ -139,8 +133,6 @@ class _PlaceRow extends StatelessWidget {
   final VoidCallback onPreview;
   final VoidCallback onTestMove;
 
-  static const _iconBadgeSize = 52.0;
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -156,19 +148,7 @@ class _PlaceRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: _iconBadgeSize,
-              height: _iconBadgeSize,
-              decoration: BoxDecoration(
-                color: colors.primaryContainer,
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-              ),
-              child: Icon(
-                placeIcon(place),
-                size: AppSize.iconSm + AppSpacing.xxs,
-                color: colors.primary,
-              ),
-            ),
+            Icon(placeIcon(place), size: AppSize.iconMd, color: colors.primary),
             const SizedBox(width: AppSpacing.lg),
             Expanded(
               child: Column(

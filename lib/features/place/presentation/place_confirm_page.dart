@@ -13,7 +13,7 @@ import 'place_not_found.dart';
 class PlaceConfirmPage extends StatelessWidget {
   const PlaceConfirmPage({super.key});
 
-  static const _photoBadgeSize = 200.0;
+  static const _summaryMaxLines = 4;
 
   @override
   Widget build(BuildContext context) {
@@ -54,24 +54,30 @@ class _Content extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 장소 사진 자리. 사진 등록이 생기기 전까지 흐린 아이콘을 둔다.
+          // 장소 소개. 사진 등록이 생기면 아이콘 자리에 사진을 둔다.
           Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(AppRadius.xl),
-              child: GmPhotoPlaceholder(
-                icon: placeIcon(place),
-                badgeSize: PlaceConfirmPage._photoBadgeSize,
+            child: GmCard(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    placeIcon(place),
+                    size: AppSize.iconXl,
+                    color: context.colors.primary,
+                  ),
+                  const Spacer(),
+                  Text(
+                    place.summary,
+                    style: text.bodyLarge,
+                    maxLines: PlaceConfirmPage._summaryMaxLines,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.xl),
-          Text(
-            place.summary,
-            style: text.bodyMedium,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.lg),
           Row(
             children: [
               Expanded(

@@ -44,6 +44,7 @@ class HomePage extends StatelessWidget {
               icon: Icons.near_me_outlined,
               title: '길 찾기',
               description: '가고 싶은 곳까지 데려다 드려요',
+              index: '01',
               emphasized: true,
               onTap: () => context.push(AppRoutes.placeSelect),
             ),

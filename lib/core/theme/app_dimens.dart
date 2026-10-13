@@ -20,10 +20,9 @@ abstract final class AppSpacing {
 
 /// 모서리 둥글기.
 abstract final class AppRadius {
-  static const double sm = 12;
-  static const double md = 16;
-  static const double lg = 24;
-  static const double xl = 32;
+  static const double sm = 8;
+  static const double md = 12;
+  static const double lg = 16;
   static const double full = 999;
 }
 
@@ -49,17 +48,9 @@ abstract final class AppDuration {
   static const slow = Duration(milliseconds: 320);
 }
 
-/// 그림자. 흰 카드는 아주 옅고 넓게 퍼진 [soft]로 바탕에서 살짝 띄우고,
-/// 떠 있어야 하는 요소(하단 버튼 줄, 다이얼로그)에는 [raised]를 쓴다.
+/// 그림자. 기본은 테두리로 면을 나누고, 떠 있어야 하는 요소(하단 버튼 줄,
+/// 다이얼로그)에만 옅게 쓴다.
 abstract final class AppShadow {
-  static final soft = [
-    BoxShadow(
-      color: AppColors.shadow.withValues(alpha: 0.05),
-      blurRadius: 32,
-      offset: const Offset(0, 8),
-    ),
-  ];
-
   static final raised = [
     BoxShadow(
       color: AppColors.shadow.withValues(alpha: 0.08),

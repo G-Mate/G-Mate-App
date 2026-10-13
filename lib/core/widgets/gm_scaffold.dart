@@ -57,24 +57,15 @@ class GmScaffold extends StatelessWidget {
                   child: Row(
                     children: [
                       if (onBack != null)
-                        DecoratedBox(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: AppShadow.soft,
-                          ),
-                          child: IconButton(
-                            onPressed: onBack,
-                            tooltip: '뒤로',
-                            iconSize: AppSize.iconMd,
-                            style: IconButton.styleFrom(
-                              backgroundColor: context.colors.surface,
-                            ),
-                            icon: const Icon(Icons.arrow_back_rounded),
-                          ),
+                        IconButton(
+                          onPressed: onBack,
+                          tooltip: '뒤로',
+                          iconSize: AppSize.iconLg,
+                          icon: const Icon(Icons.arrow_back_rounded),
                         )
                       else
                         const SizedBox(width: AppSpacing.lg),
-                      const SizedBox(width: AppSpacing.md),
+                      const SizedBox(width: AppSpacing.xs),
                       if (title != null)
                         Expanded(
                           child: Column(

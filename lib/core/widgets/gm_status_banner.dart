@@ -42,19 +42,11 @@ class GmStatusBanner extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: context.colors.surface,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          boxShadow: AppShadow.soft,
+          borderRadius: BorderRadius.circular(AppRadius.md),
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.xs),
-              decoration: BoxDecoration(
-                color: fg.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-              ),
-              child: Icon(icon ?? defaultIcon, color: fg, size: AppSize.iconMd),
-            ),
+            Icon(icon ?? defaultIcon, color: fg, size: AppSize.iconMd),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Text(
@@ -75,10 +67,9 @@ class GmStatusBanner extends StatelessWidget {
   }
 }
 
-/// 점 하나와 짧은 글자로 된 알약 모양 상태 표시 (예: 로봇 준비 완료).
+/// 점 하나와 짧은 글자로 된 작은 상태 표시 (예: 로봇 준비 완료).
 ///
-/// 바탕은 상태 색을 옅게 깐다. [onDark]가 true면 남색 패널 위에 놓도록
-/// 반투명 흰 바탕과 흰 글자를 쓴다.
+/// [onDark]가 true면 남색 패널 위에 놓을 때의 글자색을 쓴다.
 class GmStatusIndicator extends StatelessWidget {
   const GmStatusIndicator({
     super.key,
@@ -91,55 +82,33 @@ class GmStatusIndicator extends StatelessWidget {
   final GmStatusType type;
   final bool onDark;
 
-  static const _dotSize = 10.0;
-  static const _glowAlpha = 0.35;
-
   @override
   Widget build(BuildContext context) {
     final s = context.appColors;
-    final (Color dot, Color container) = switch (type) {
-      GmStatusType.info => (s.info, s.infoContainer),
-      GmStatusType.success => (s.success, s.successContainer),
-      GmStatusType.warning => (s.warning, s.warningContainer),
-      GmStatusType.danger => (s.danger, s.dangerContainer),
+    final dot = switch (type) {
+      GmStatusType.info => s.info,
+      GmStatusType.success => s.success,
+      GmStatusType.warning => s.warning,
+      GmStatusType.danger => s.danger,
     };
     return Semantics(
       liveRegion: true,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.xs,
-        ),
-        decoration: BoxDecoration(
-          color: onDark ? AppColors.onNavySurface : container,
-          borderRadius: BorderRadius.circular(AppRadius.full),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: _dotSize,
-              height: _dotSize,
-              decoration: BoxDecoration(
-                color: dot,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: dot.withValues(alpha: _glowAlpha),
-                    spreadRadius: 4,
-                  ),
-                ],
-              ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            label,
+            style: context.textStyles.bodySmall?.copyWith(
+              color: onDark ? AppColors.onNavyMuted : s.textSecondary,
             ),
-            const SizedBox(width: AppSpacing.sm),
-            Text(
-              label,
-              style: context.textStyles.labelSmall?.copyWith(
-                color: onDark ? Colors.white : AppColors.textPrimary,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

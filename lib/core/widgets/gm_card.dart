@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_semantic_colors.dart';
 import '../theme/app_tokens.dart';
 
-/// 회색 배경 위의 흰 면 카드 (테두리 없이 아주 옅은 그림자로 띄움).
+/// 회색 배경 위의 흰 면 카드. 그림자 없이 1px 선으로만 면을 나눈다.
 /// [onTap]이 있으면 누를 수 있다.
 class GmCard extends StatelessWidget {
   const GmCard({
@@ -28,10 +28,9 @@ class GmCard extends StatelessWidget {
         color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
-          color: selected ? colors.primary : colors.surface,
-          width: 2,
+          color: selected ? colors.primary : colors.outlineVariant,
+          width: selected ? 2 : 1,
         ),
-        boxShadow: AppShadow.soft,
       ),
       child: Material(
         type: MaterialType.transparency,
@@ -47,9 +46,9 @@ class GmCard extends StatelessWidget {
 
 /// 홈 화면의 큰 메뉴 카드 ([길 찾기], [학교 투어]).
 ///
-/// 왼쪽 위에 아이콘 배지, 아래쪽에 큰 제목과 작은 설명, 오른쪽 아래에 둥근
-/// 화살표 버튼을 둔다. [emphasized]면 파랑 면으로 칠해 주 메뉴임을 보여 준다.
-/// [emphasized] 카드의 오른쪽 위 모서리에 아주 옅게 걸친 큰 아이콘이 유일한 장식이다.
+/// 왼쪽 위에 선 아이콘, 오른쪽 위에 번호(또는 [badge]), 아래쪽에 큰 제목과
+/// 작은 설명, 오른쪽 아래에 화살표. 장식 없이 글자 크기 대비로만 위계를 만든다.
+/// [emphasized]면 파랑 단색 면으로 칠해 주 메뉴임을 보여 준다.
 class GmMenuTile extends StatelessWidget {
   const GmMenuTile({
     super.key,
@@ -57,6 +56,7 @@ class GmMenuTile extends StatelessWidget {
     required this.title,
     this.onTap,
     this.description,
+    this.index,
     this.emphasized = false,
     this.badge,
   });
@@ -65,18 +65,20 @@ class GmMenuTile extends StatelessWidget {
   final String title;
   final String? description;
 
+  /// 오른쪽 위 작은 번호 (예: '01').
+  final String? index;
+
   /// null이면 아직 쓸 수 없는 메뉴로 보고 화살표를 흐리게 표시한다.
   final VoidCallback? onTap;
 
-  /// true면 파랑 면에 흰 글자로 그린다 (화면의 주 메뉴 하나에만 쓴다).
+  /// true면 파랑 단색 면에 흰 글자로 그린다 (화면의 주 메뉴 하나에만 쓴다).
   final bool emphasized;
 
-  /// 오른쪽 위 작은 알약 글자 (예: '준비 중').
+  /// 번호 대신 오른쪽 위에 둘 짧은 글자 (예: '준비 중').
   final String? badge;
 
-  static const _decorIconSize = 240.0;
-  static const _badgeSize = 72.0;
-  static const _arrowSize = 64.0;
+  /// 흰 면 위 보조 글자의 진하기.
+  static const _onPrimaryMutedAlpha = 0.72;
 
   @override
   Widget build(BuildContext context) {
@@ -85,151 +87,82 @@ class GmMenuTile extends StatelessWidget {
     final text = context.textStyles;
     final enabled = onTap != null;
 
-    final Color titleColor = emphasized ? Colors.white : colors.onSurface;
-    final Color descColor = emphasized
-        ? Colors.white.withValues(alpha: 0.75)
+    final Color fg = emphasized ? colors.onPrimary : colors.onSurface;
+    final Color muted = emphasized
+        ? colors.onPrimary.withValues(alpha: _onPrimaryMutedAlpha)
         : semantic.textSecondary;
-    final Color iconBg = emphasized
-        ? Colors.white.withValues(alpha: 0.16)
-        : colors.primaryContainer;
-    final Color iconFg = emphasized ? Colors.white : colors.primary;
-    final (Color arrowBg, Color arrowFg) = switch ((emphasized, enabled)) {
-      (true, _) => (Colors.white, colors.primary),
-      (false, true) => (colors.primary, colors.onPrimary),
-      (false, false) => (colors.surfaceContainer, semantic.textDisabled),
-    };
+    final Color accent = emphasized ? colors.onPrimary : colors.primary;
+    final corner = badge ?? index;
 
     return Semantics(
       button: true,
       label: description == null ? title : '$title, $description',
       enabled: enabled,
       excludeSemantics: true,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: emphasized ? null : colors.surface,
-          gradient: emphasized
-              ? const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [AppColors.primary, AppColors.primaryDark],
-                )
-              : null,
-          borderRadius: BorderRadius.circular(AppRadius.xl),
-          boxShadow: emphasized
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.28),
-                    blurRadius: 32,
-                    offset: const Offset(0, 12),
-                  ),
-                ]
-              : AppShadow.soft,
+      child: Material(
+        color: emphasized ? colors.primary : colors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          side: emphasized
+              ? BorderSide.none
+              : BorderSide(color: colors.outlineVariant),
         ),
-        child: Material(
-          type: MaterialType.transparency,
-          borderRadius: BorderRadius.circular(AppRadius.xl),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: onTap,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            // 위 줄은 위에, 제목 줄은 아래에 붙인다. 칸이 작아도 넘치지 않는다.
             child: Stack(
+              fit: StackFit.expand,
               children: [
-                if (emphasized)
-                  Positioned(
-                    right: -AppSpacing.xxxl,
-                    top: -AppSpacing.xxxl,
-                    child: Icon(
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
                       icon,
-                      size: _decorIconSize,
-                      color: Colors.white.withValues(alpha: 0.07),
+                      size: AppSize.iconLg,
+                      color: enabled ? accent : semantic.textDisabled,
                     ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.all(AppSpacing.xl),
-                  // 배지 줄은 위에, 제목 줄은 아래에 붙인다. 칸이 작아도 넘치지 않는다.
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: _badgeSize,
-                            height: _badgeSize,
-                            decoration: BoxDecoration(
-                              color: iconBg,
-                              borderRadius: BorderRadius.circular(AppRadius.lg),
-                            ),
-                            child: Icon(
-                              icon,
-                              size: AppSize.iconLg - AppSpacing.xs,
-                              color: iconFg,
-                            ),
-                          ),
-                          const Spacer(),
-                          if (badge != null)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.md,
-                                vertical: AppSpacing.xs,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colors.surfaceContainer,
-                                borderRadius: BorderRadius.circular(
-                                  AppRadius.full,
-                                ),
-                              ),
-                              child: Text(
-                                badge!,
-                                style: text.labelSmall?.copyWith(
-                                  color: semantic.textSecondary,
-                                ),
-                              ),
-                            ),
-                        ],
+                    const Spacer(),
+                    if (corner != null)
+                      Text(
+                        corner,
+                        style: text.labelSmall?.copyWith(
+                          color: muted,
+                          letterSpacing: 1,
+                        ),
                       ),
-                      Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                  ],
+                ),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    title,
-                                    style: text.headlineLarge?.copyWith(
-                                      color: titleColor,
-                                    ),
-                                  ),
-                                  if (description != null) ...[
-                                    const SizedBox(height: AppSpacing.xxs),
-                                    Text(
-                                      description!,
-                                      style: text.bodySmall?.copyWith(
-                                        color: descColor,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
+                            Text(
+                              title,
+                              style: text.displaySmall?.copyWith(color: fg),
                             ),
-                            Container(
-                              width: _arrowSize,
-                              height: _arrowSize,
-                              decoration: BoxDecoration(
-                                color: arrowBg,
-                                shape: BoxShape.circle,
+                            if (description != null) ...[
+                              const SizedBox(height: AppSpacing.xs),
+                              Text(
+                                description!,
+                                style: text.bodySmall?.copyWith(color: muted),
                               ),
-                              child: Icon(
-                                Icons.arrow_forward_rounded,
-                                size: AppSize.iconMd,
-                                color: arrowFg,
-                              ),
-                            ),
+                            ],
                           ],
                         ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward,
+                        size: AppSize.iconLg,
+                        color: enabled ? accent : semantic.textDisabled,
                       ),
                     ],
                   ),
@@ -243,9 +176,10 @@ class GmMenuTile extends StatelessWidget {
   }
 }
 
-/// 장소 카드: 사진 영역 + 이름 + 층·분류.
+/// 장소 카드: (사진) + 선 아이콘 + 이름 + 층·분류.
 ///
-/// 사진이 없으면 [icon]을 옅게 그린 회색 면을 대신 보여 준다.
+/// 사진이 있으면 위에 사진을 두고, 없으면 왼쪽 위 선 아이콘과 아래쪽 이름만
+/// 남긴 글자 중심 카드로 그린다.
 class GmPlaceCard extends StatelessWidget {
   const GmPlaceCard({
     super.key,
@@ -270,120 +204,80 @@ class GmPlaceCard extends StatelessWidget {
   /// true면 부모가 정한 높이를 채운다 (그리드 칸 안에서 쓸 때).
   final bool fillHeight;
 
+  /// 사진이 없을 때 [fillHeight]가 아니면 쓰는 카드 높이.
+  static const _textOnlyHeight = 200.0;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final text = context.textStyles;
-    final Widget photo = SizedBox(
-      width: double.infinity,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        child: image != null
-            ? Image(image: image!, fit: BoxFit.cover)
-            : GmPhotoPlaceholder(icon: icon),
-      ),
+
+    final Widget label = Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(name, style: text.headlineSmall),
+              const SizedBox(height: AppSpacing.xxs),
+              Text(
+                meta,
+                style: text.bodySmall?.copyWith(
+                  color: context.appColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Icon(Icons.arrow_forward, size: AppSize.iconMd, color: colors.primary),
+      ],
     );
+
+    final Widget content;
+    if (image != null) {
+      final photo = ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: SizedBox(
+          width: double.infinity,
+          child: Image(image: image!, fit: BoxFit.cover),
+        ),
+      );
+      content = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 그리드 칸처럼 높이가 정해져 있으면 사진이 남은 높이를 채우고,
+          // 아니면 16:10 비율로 그린다.
+          if (fillHeight)
+            Expanded(child: photo)
+          else
+            AspectRatio(aspectRatio: 16 / 10, child: photo),
+          const SizedBox(height: AppSpacing.md),
+          label,
+        ],
+      );
+    } else {
+      final Widget body = Stack(
+        fit: StackFit.expand,
+        children: [
+          Align(
+            alignment: Alignment.topLeft,
+            child: Icon(icon, size: AppSize.iconLg, color: colors.primary),
+          ),
+          Align(alignment: Alignment.bottomLeft, child: label),
+        ],
+      );
+      content = fillHeight
+          ? body
+          : SizedBox(height: _textOnlyHeight, child: body);
+    }
+
     return Semantics(
       button: true,
       label: '$name, $meta',
       excludeSemantics: true,
-      child: GmCard(
-        onTap: onTap,
-        selected: selected,
-        padding: const EdgeInsets.all(AppSpacing.sm),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 그리드 칸처럼 높이가 정해져 있으면 사진이 남은 높이를 채우고,
-            // 아니면 16:10 비율로 그린다.
-            if (fillHeight)
-              Expanded(child: photo)
-            else
-              AspectRatio(aspectRatio: 16 / 10, child: photo),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.xs,
-                AppSpacing.md,
-                AppSpacing.xs,
-                AppSpacing.xs,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(name, style: text.titleLarge),
-                            const SizedBox(height: AppSpacing.xxs),
-                            Text(
-                              meta,
-                              style: text.bodySmall?.copyWith(
-                                color: context.appColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(
-                        Icons.arrow_forward_rounded,
-                        size: AppSize.iconMd,
-                        color: colors.primary,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 사진이 없을 때 쓰는 자리: 연한 파랑 그라데이션 위에 흰 원 배지와 아이콘.
-class GmPhotoPlaceholder extends StatelessWidget {
-  const GmPhotoPlaceholder({
-    super.key,
-    required this.icon,
-    this.badgeSize = 112,
-  });
-
-  final IconData icon;
-  final double badgeSize;
-
-  static const _iconRatio = 0.45;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [colors.primaryContainer, colors.surfaceContainer],
-        ),
-      ),
-      child: Center(
-        child: Container(
-          width: badgeSize,
-          height: badgeSize,
-          decoration: BoxDecoration(
-            color: colors.surface,
-            shape: BoxShape.circle,
-            boxShadow: AppShadow.soft,
-          ),
-          child: Icon(
-            icon,
-            size: badgeSize * _iconRatio,
-            color: colors.primary,
-          ),
-        ),
-      ),
+      child: GmCard(onTap: onTap, selected: selected, child: content),
     );
   }
 }
