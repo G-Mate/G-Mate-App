@@ -25,6 +25,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- temi 런처에 이 앱을 스킬로 알린다. -->
+        <meta-data
+            android:name="com.robotemi.sdk.metadata.SKILL"
+            android:value="G-Mate" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
