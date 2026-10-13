@@ -19,4 +19,5 @@ export 'widgets/gm_icon.dart';
 export 'widgets/gm_place_art.dart';
 export 'widgets/gm_scaffold.dart';
 export 'widgets/gm_search_field.dart';
+export 'widgets/gm_stat.dart';
 export 'widgets/gm_status_banner.dart';

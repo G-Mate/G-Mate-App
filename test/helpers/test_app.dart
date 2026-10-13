@@ -10,8 +10,12 @@ import 'package:g_mate/features/admin/domain/admin_pin_repository.dart';
 import 'package:g_mate/features/admin/domain/place_image_picker.dart';
 import 'package:g_mate/features/place/data/in_memory_place_repository.dart';
 import 'package:g_mate/features/place/domain/place_repository.dart';
+import 'package:g_mate/features/school/data/in_memory_school_info_repository.dart';
+import 'package:g_mate/features/school/domain/school_info_repository.dart';
 import 'package:g_mate/features/speech/data/in_memory_speech_settings_repository.dart';
 import 'package:g_mate/features/speech/domain/speech_settings_repository.dart';
+import 'package:g_mate/features/tour/data/in_memory_tour_repository.dart';
+import 'package:g_mate/features/tour/domain/tour_repository.dart';
 
 /// temi 머리 태블릿 가로 화면 (논리 크기 1280x800).
 void useTabletView(WidgetTester tester) {
@@ -37,7 +41,9 @@ Future<FakeRobotController> registerTestDependencies({
       InMemorySpeechSettingsRepository(),
     )
     ..registerSingleton<AdminPinRepository>(InMemoryAdminPinRepository())
-    ..registerSingleton<PlaceImagePicker>(FakePlaceImagePicker());
+    ..registerSingleton<PlaceImagePicker>(FakePlaceImagePicker())
+    ..registerSingleton<TourRepository>(InMemoryTourRepository())
+    ..registerSingleton<SchoolInfoRepository>(InMemorySchoolInfoRepository());
   return robot;
 }
 

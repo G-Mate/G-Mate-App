@@ -64,18 +64,17 @@ class HomePage extends StatelessWidget {
             emphasized: true,
             onTap: () => context.push(AppRoutes.placeSelect),
           ),
-          // 투어·학교 개요 화면이 생기면 onTap을 연결한다.
-          const HomeMenuItem(
+          HomeMenuItem(
             icon: GmIcons.tour,
             title: '학교 투어',
             description: '코스를 따라 학교를 둘러봐요',
-            badge: '준비 중',
+            onTap: () => context.push(AppRoutes.tourSelect),
           ),
-          const HomeMenuItem(
+          HomeMenuItem(
             icon: GmIcons.school,
             title: '학교 개요',
             description: '우리 학교를 한눈에 알아봐요',
-            badge: '준비 중',
+            onTap: () => context.push(AppRoutes.schoolOverview),
           ),
         ],
       ),

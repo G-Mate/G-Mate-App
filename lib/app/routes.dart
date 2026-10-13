@@ -8,6 +8,15 @@ abstract final class AppRoutes {
   static String guiding(String key) => '/guide/$key';
   static String arrival(String key) => '/arrival/$key';
 
+  // 학교 투어
+  static const tourSelect = '/tours';
+  static String tourConfirm(String key) => '/tours/$key';
+  static String tourRun(String key) => '/tour-run/$key';
+  static String tourDone(String key) => '/tour-done/$key';
+
+  // 학교 개요
+  static const schoolOverview = '/school';
+
   // 관리 모드
   static const adminPin = '/admin';
   static const adminPlaces = '/admin/places';

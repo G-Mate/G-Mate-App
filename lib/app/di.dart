@@ -10,8 +10,12 @@ import '../features/admin/domain/place_image_picker.dart';
 import '../features/place/data/in_memory_place_repository.dart';
 import '../features/place/data/seed_places.dart';
 import '../features/place/domain/place_repository.dart';
+import '../features/school/data/in_memory_school_info_repository.dart';
+import '../features/school/domain/school_info_repository.dart';
 import '../features/speech/data/in_memory_speech_settings_repository.dart';
 import '../features/speech/domain/speech_settings_repository.dart';
+import '../features/tour/data/in_memory_tour_repository.dart';
+import '../features/tour/domain/tour_repository.dart';
 
 final getIt = GetIt.instance;
 
@@ -40,5 +44,9 @@ void configureDependencies() {
       InMemorySpeechSettingsRepository.new,
     )
     ..registerLazySingleton<AdminPinRepository>(InMemoryAdminPinRepository.new)
-    ..registerLazySingleton<PlaceImagePicker>(GalleryPlaceImagePicker.new);
+    ..registerLazySingleton<PlaceImagePicker>(GalleryPlaceImagePicker.new)
+    ..registerLazySingleton<TourRepository>(InMemoryTourRepository.new)
+    ..registerLazySingleton<SchoolInfoRepository>(
+      InMemorySchoolInfoRepository.new,
+    );
 }

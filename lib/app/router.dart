@@ -26,7 +26,19 @@ import '../features/place/presentation/bloc/place_detail_cubit.dart';
 import '../features/place/presentation/bloc/place_select_cubit.dart';
 import '../features/place/presentation/place_confirm_page.dart';
 import '../features/place/presentation/place_select_page.dart';
+import '../features/school/domain/school_info_repository.dart';
+import '../features/school/presentation/bloc/school_overview_cubit.dart';
+import '../features/school/presentation/school_overview_page.dart';
 import '../features/speech/domain/speech_settings_repository.dart';
+import '../features/tour/domain/get_tour_visits.dart';
+import '../features/tour/domain/tour_repository.dart';
+import '../features/tour/presentation/bloc/tour_bloc.dart';
+import '../features/tour/presentation/bloc/tour_detail_cubit.dart';
+import '../features/tour/presentation/bloc/tour_select_cubit.dart';
+import '../features/tour/presentation/tour_confirm_page.dart';
+import '../features/tour/presentation/tour_done_page.dart';
+import '../features/tour/presentation/tour_run_page.dart';
+import '../features/tour/presentation/tour_select_page.dart';
 import 'di.dart';
 import 'routes.dart';
 
@@ -105,6 +117,55 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
       ),
     ),
 
+    // 학교 투어
+    GoRoute(
+      path: AppRoutes.tourSelect,
+      builder: (context, state) => BlocProvider(
+        create: (_) => TourSelectCubit(getIt<TourRepository>())..load(),
+        child: const TourSelectPage(),
+      ),
+      routes: [
+        GoRoute(
+          path: ':key',
+          builder: (context, state) => BlocProvider(
+            create: (_) => _tourDetail(state.pathParameters['key']!),
+            child: const TourConfirmPage(),
+          ),
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/tour-run/:key',
+      builder: (context, state) => BlocProvider(
+        create: (_) => TourBloc(
+          robot: getIt<RobotController>(),
+          tours: getIt<TourRepository>(),
+          getVisits: GetTourVisits(getIt<PlaceRepository>()),
+          tourKey: state.pathParameters['key']!,
+        )..add(const TourStarted()),
+        child: const TourRunPage(),
+      ),
+    ),
+    GoRoute(
+      path: '/tour-done/:key',
+      builder: (context, state) => BlocProvider(
+        create: (_) => _tourDetail(state.pathParameters['key']!),
+        child: const TourDonePage(),
+      ),
+    ),
+
+    // 학교 개요
+    GoRoute(
+      path: AppRoutes.schoolOverview,
+      builder: (context, state) => BlocProvider(
+        create: (_) => SchoolOverviewCubit(
+          info: getIt<SchoolInfoRepository>(),
+          places: getIt<PlaceRepository>(),
+        )..load(),
+        child: const SchoolOverviewPage(),
+      ),
+    ),
+
     // 관리 모드. PIN을 지나면 PIN 화면은 쌓아 두지 않도록 형제 경로로 둔다.
     GoRoute(
       path: AppRoutes.adminPin,
@@ -154,5 +215,11 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
     ),
   ],
 );
+
+TourDetailCubit _tourDetail(String key) => TourDetailCubit(
+  tours: getIt<TourRepository>(),
+  getVisits: GetTourVisits(getIt<PlaceRepository>()),
+  tourKey: key,
+)..load();
 
 final appRouter = createRouter();

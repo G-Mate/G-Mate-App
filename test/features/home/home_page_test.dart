@@ -24,6 +24,8 @@ void main() {
 
     expect(find.text('길 찾기'), findsOneWidget);
     expect(find.text('학교 투어'), findsOneWidget);
+    expect(find.text('학교 개요'), findsOneWidget);
+    expect(find.text('준비 중'), findsNothing);
     expect(find.text('로봇 준비 완료'), findsOneWidget);
   });
 }
