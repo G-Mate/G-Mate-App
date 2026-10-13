@@ -2,7 +2,7 @@ import '../domain/tour.dart';
 import '../domain/tour_repository.dart';
 import 'seed_tours.dart';
 
-/// 메모리에만 두는 투어 코스 저장소. 로컬 DB(drift)를 붙이기 전까지 쓴다.
+/// 메모리에만 두는 투어 코스 저장소. 테스트에서 쓴다.
 class InMemoryTourRepository implements TourRepository {
   InMemoryTourRepository({this._tours = seedTours});
 

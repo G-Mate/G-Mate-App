@@ -1,0 +1,124 @@
+import 'dart:io';
+
+import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/native.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:g_mate/app/database_seed.dart';
+import 'package:g_mate/core/database/app_database.dart';
+import 'package:g_mate/features/place/data/drift_place_repository.dart';
+import 'package:g_mate/features/place/data/seed_places.dart';
+import 'package:g_mate/features/place/domain/place.dart';
+import 'package:g_mate/features/school/data/drift_school_info_repository.dart';
+import 'package:g_mate/features/school/data/seed_school_info.dart';
+import 'package:g_mate/features/speech/data/drift_speech_settings_repository.dart';
+import 'package:g_mate/features/speech/domain/speech_settings.dart';
+import 'package:g_mate/features/tour/data/drift_tour_repository.dart';
+import 'package:g_mate/features/tour/data/seed_tours.dart';
+
+void main() {
+  // 파일 DB 테스트는 메모리 DB와 따로 열고 닫으므로 여러 번 연다는 경고를 끈다.
+  driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  late AppDatabase db;
+
+  setUp(() {
+    db = AppDatabase(NativeDatabase.memory(), seed: seedDatabase);
+  });
+
+  tearDown(() => db.close());
+
+  group('처음 만든 DB', () {
+    test('기본 장소를 같은 순서로 담는다', () async {
+      final places = await DriftPlaceRepository(db).getPlaces();
+      expect(places, seedPlaces);
+    });
+
+    test('기본 투어 코스를 같은 순서로 담는다', () async {
+      final tours = DriftTourRepository(db);
+      expect(await tours.getTours(), seedTours);
+      expect(await tours.getTour(seedTours.first.key), seedTours.first);
+      expect(await tours.getTour('none'), isNull);
+    });
+
+    test('기본 학교 소개를 담는다', () async {
+      expect(
+        await DriftSchoolInfoRepository(db).getSchoolInfo(),
+        seedSchoolInfo,
+      );
+    });
+
+    test('음성 설정은 저장 전에는 기본값이다', () async {
+      expect(
+        await DriftSpeechSettingsRepository(db).load(),
+        const SpeechSettings(),
+      );
+    });
+  });
+
+  test('장소를 고치면 순서는 그대로, 내용은 바뀐다', () async {
+    final repo = DriftPlaceRepository(db);
+    final first = seedPlaces.first;
+    final edited = first.copyWith(
+      speech: first.speech.copyWith(descriptionLines: ['새 설명 한 줄']),
+      lineInterval: const Duration(seconds: 12),
+      imagePath: '/photos/science.jpg',
+    );
+    await repo.savePlace(edited);
+
+    final places = await repo.getPlaces();
+    expect(places.first, edited);
+    expect(places.length, seedPlaces.length);
+    expect(await repo.getPlace(first.key), edited);
+
+    await repo.savePlace(edited.copyWith(clearImage: true));
+    expect((await repo.getPlace(first.key))!.imagePath, isNull);
+  });
+
+  test('새 장소는 목록 끝에 붙는다', () async {
+    final repo = DriftPlaceRepository(db);
+    final created = Place.create(key: 'music_room', name: '음악실');
+    await repo.savePlace(created);
+
+    expect((await repo.getPlaces()).last, created);
+    expect(await repo.getPlace('nowhere'), isNull);
+  });
+
+  test('음성 설정을 저장하고 다시 읽는다', () async {
+    final repo = DriftSpeechSettingsRepository(db);
+    const settings = SpeechSettings(
+      gender: VoiceGender.male,
+      speed: 1.5,
+      pitch: -3,
+      volume: 8,
+    );
+    await repo.save(settings);
+    await repo.save(settings);
+    expect(await repo.load(), settings);
+  });
+
+  test('파일 DB를 닫았다 다시 열면 고친 내용이 남고 기본 내용은 다시 넣지 않는다', () async {
+    final dir = await Directory.systemTemp.createTemp('g_mate_db');
+    addTearDown(() => dir.delete(recursive: true));
+    final file = File('${dir.path}/g_mate.sqlite');
+    var seeded = 0;
+    AppDatabase open() => AppDatabase(
+      NativeDatabase(file),
+      seed: (db) async {
+        seeded++;
+        await seedDatabase(db);
+      },
+    );
+
+    final first = open();
+    final edited = seedPlaces.first.copyWith(name: '새 과학실');
+    await DriftPlaceRepository(first).savePlace(edited);
+    await first.close();
+
+    final second = open();
+    final places = await DriftPlaceRepository(second).getPlaces();
+    await second.close();
+
+    expect(seeded, 1);
+    expect(places.first, edited);
+    expect(places.length, seedPlaces.length);
+  });
+}
