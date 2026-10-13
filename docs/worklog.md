@@ -38,6 +38,7 @@ Notion "G-Mate > v1"의 작업 기록·이슈 DB로 옮기기 전에 임시로 �
 | 안내·투어 중지 확인 창 | 화면(UI) | 2026-10-13 | 모르고 눌렀을 때를 위해 [안내 중지](이동 중·도착 설명)와 [투어 중지]를 누르면 '안내를 멈출까요?'/'투어를 멈출까요?' 창을 띄움. [계속하기]면 이어 가고, 확인하면 홈으로. 공통 `showGmConfirmDialog` 추가 | |
 | 장소·설정 기기 저장 | 데이터 | 2026-10-13 | 메모리 저장소를 로컬 DB(drift, `AppDatabase`)로 바꿔 앱을 다시 켜도 장소(설명 줄, 사진 경로, 자동 넘김 시간), 음성 설정, 투어 코스, 학교 소개가 남게 함. 처음 DB를 만들 때만 기본 내용을 넣음(`database_seed.dart`). 관리 모드 PIN은 flutter_secure_storage에 두고 `changePin` 추가(PIN 바꾸는 화면은 아직 없음, 기본 `0000`). 고른 사진은 캐시 경로 대신 앱 문서 폴더 `place_photos/`로 복사해 저장. 테스트 78개 통과 | |
 | temi 브리지 이동·음성 연결 뼈대 | 로봇 연동 | 2026-10-13 | Kotlin `TemiBridge`에 temi SDK(`com.robotemi:sdk:1.138.0`)를 붙여 `goTo`, `stopMovement`, `speak`, `getLocations`, `saveLocation`, `deleteLocation`을 부르고, 준비·이동 상태(도착 포함)·TTS 상태·장소 변경 리스너를 `gmate/robot/events`로 보냄. 리스너는 Activity onStart/onStop에서 붙이고 뗌. `onRobotReady(true)` 전에는 명령에 `NOT_READY` 오류로 답함. 매니페스트에 temi 스킬 메타데이터 추가. Fake가 계속 기본값(`USE_FAKE_ROBOT`). 에뮬레이터에서 `USE_FAKE_ROBOT=false`로 켜면 temi 서비스 연결이 안 되어 홈에 '로봇 연결 안 됨'이 뜨고 앱은 정상 동작함을 확인. 실기 확인은 아직. 테스트 81개 통과 | |
+| Git 규칙을 develop 기준으로 변경 | 공통 | 2026-10-13 | `develop` 브랜치를 만들고, 작업 브랜치는 `develop`에서 만들어 `develop`으로 PR을 올리도록 [git.md](conventions/git.md)를 고침. `main`은 배포 때 `develop`을 merge commit으로 합침. PR을 작업 브랜치 위에 쌓지 않음 | |
 
 ## 트러블슈팅
 
@@ -47,3 +48,4 @@ Notion "G-Mate > v1"의 작업 기록·이슈 DB로 옮기기 전에 임시로 �
 | 큰 자막 글씨가 단어 중간에서 줄바꿈됨 | 화면(UI) | 2026-10-12 | 해결 | Flutter 기본 줄바꿈이 한글을 글자 단위로 끊어 '교실입니/다.'처럼 보임. 띄어쓰기 단위로 나눠 `Wrap`으로 그리도록 바꿈(도착 화면) | |
 | 화면 전환에 Hero가 날지 않음 | 화면(UI) | 2026-10-13 | 해결 | go_router 18이 MaterialApp을 찾지 못해 모든 화면을 전환 시간 0인 `NoTransitionPage`로 만들고 있었음. 이동 중 화면만 `CustomTransitionPage`(페이드 600ms)로 바꾸고, 첫 프레임에 지도(도착 쪽 Hero)가 있도록 장소를 route extra로 넘겨 해결 | |
 | 반투명 아이콘이 깨져 보임 | 화면(UI) | 2026-10-13 | 해결 | 선과 면을 같은 반투명 색으로 따로 그려 겹친 곳만 진해짐. `saveLayer`로 한 겹에 불투명하게 그린 뒤 겹 전체에 투명도를 줘서 해결 | |
+| 쌓아 올린 PR이 main에 들어가지 않음 | 공통 | 2026-10-13 | 해결 | 기기 저장(#11)·temi 브리지(#12) PR을 앞 PR 브랜치 위에 쌓아 올렸는데, 앞 PR이 먼저 합쳐진 뒤 합쳐져서 변경이 `main`이 아니라 앞 PR 브랜치에만 들어감. 두 변경을 `develop`으로 다시 PR을 올려 합치고, PR을 작업 브랜치 위에 쌓지 않도록 규칙에 넣음 | |
