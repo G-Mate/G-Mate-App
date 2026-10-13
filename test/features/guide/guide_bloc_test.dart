@@ -62,4 +62,23 @@ void main() {
     await bloc.stream.firstWhere((s) => s.phase == GuidePhase.notFound);
     await bloc.close();
   });
+
+  test('안내 완료를 누르면 이동을 멈추고 바로 arrived가 된다', () async {
+    final bloc = GuideBloc(
+      robot: FakeRobotController(
+        initialLocations: const ['science_lab'],
+        stepDelay: const Duration(seconds: 5),
+      ),
+      places: InMemoryPlaceRepository(),
+      placeKey: 'science_lab',
+    )..add(const GuideStarted());
+    await bloc.stream.firstWhere((s) => s.phase == GuidePhase.moving);
+
+    bloc.add(const GuideCompleteRequested());
+    final arrived = await bloc.stream.firstWhere(
+      (s) => s.phase == GuidePhase.arrived,
+    );
+    expect(arrived.progress, 1);
+    await bloc.close();
+  });
 }

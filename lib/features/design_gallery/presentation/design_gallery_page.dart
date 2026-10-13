@@ -146,7 +146,7 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
                             children: [
                               Expanded(
                                 child: GmMenuTile(
-                                  icon: Icons.near_me_outlined,
+                                  icon: GmIcons.navigate,
                                   title: '길 찾기',
                                   description: '가고 싶은 곳까지 데려다 드려요',
                                   onTap: () {},
@@ -155,7 +155,7 @@ class _DesignGalleryPageState extends State<DesignGalleryPage> {
                               const SizedBox(height: AppSpacing.md),
                               Expanded(
                                 child: GmMenuTile(
-                                  icon: Icons.flag_outlined,
+                                  icon: GmIcons.tour,
                                   title: '학교 투어',
                                   description: '코스를 따라 학교를 둘러봐요',
                                   onTap: () {},

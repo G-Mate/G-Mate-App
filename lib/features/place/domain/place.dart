@@ -53,7 +53,17 @@ class Place extends Equatable {
     required this.speech,
     required this.originalSpeech,
     this.keywords = const [],
+    this.lineInterval = defaultLineInterval,
+    this.imagePath,
   });
+
+  /// 도착 화면에서 한 줄을 다 읽은 뒤 다음 줄로 저절로 넘어가기까지 기다리는
+  /// 기본 시간.
+  static const defaultLineInterval = Duration(seconds: 5);
+
+  /// 관리 모드에서 고를 수 있는 기다리는 시간 범위.
+  static const minLineInterval = Duration(seconds: 1);
+  static const maxLineInterval = Duration(seconds: 20);
 
   /// temi에 저장되는 장소 키 (영문 소문자, 예: `science_lab`). 바꿀 수 없다.
   final String key;
@@ -71,6 +81,13 @@ class Place extends Equatable {
 
   /// 처음 들어 있던 멘트. [원래 설명으로]가 이 값으로 되돌린다.
   final PlaceSpeech originalSpeech;
+
+  /// 본 설명 한 줄을 다 읽은 뒤 다음 줄로 저절로 넘어가기까지 기다리는 시간.
+  /// 방문객은 [다음]을 눌러 기다리지 않고 넘길 수 있다.
+  final Duration lineInterval;
+
+  /// 장소 사진 파일 경로. 없으면 화면은 장소 아이콘 그림을 쓴다.
+  final String? imagePath;
 
   /// 관리 모드에서 현재 위치를 새 장소로 저장할 때 만드는 기본 장소.
   /// 멘트는 기본 문장으로 채우고, 본 설명은 장소 편집에서 적는다.
@@ -115,6 +132,9 @@ class Place extends Equatable {
     PlaceCategory? category,
     List<String>? keywords,
     PlaceSpeech? speech,
+    Duration? lineInterval,
+    String? imagePath,
+    bool clearImage = false,
   }) => Place(
     key: key,
     name: name ?? this.name,
@@ -123,6 +143,8 @@ class Place extends Equatable {
     keywords: keywords ?? this.keywords,
     speech: speech ?? this.speech,
     originalSpeech: originalSpeech,
+    lineInterval: lineInterval ?? this.lineInterval,
+    imagePath: clearImage ? null : imagePath ?? this.imagePath,
   );
 
   @override
@@ -134,5 +156,7 @@ class Place extends Equatable {
     keywords,
     speech,
     originalSpeech,
+    lineInterval,
+    imagePath,
   ];
 }

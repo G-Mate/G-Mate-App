@@ -28,11 +28,11 @@ abstract final class AppRadius {
 
 /// 터치 대상과 아이콘 크기.
 ///
-/// 키오스크는 허리 높이에서 서서 누르므로 버튼 최소 높이를 64dp로 잡는다.
+/// 키오스크는 허리 높이에서 서서 누르므로 버튼 최소 높이를 56dp로 잡는다.
 abstract final class AppSize {
-  static const double touchTargetMin = 64;
-  static const double buttonLarge = 88;
-  static const double buttonMedium = 64;
+  static const double touchTargetMin = 56;
+  static const double buttonLarge = 64;
+  static const double buttonMedium = 56;
   static const double buttonSmall = 48; // 관리 모드 전용
 
   static const double iconSm = 24;

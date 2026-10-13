@@ -14,8 +14,7 @@ class PlaceSelectPage extends StatelessWidget {
   const PlaceSelectPage({super.key});
 
   static const _columns = 3;
-  static const _cardAspectRatio = 1.15;
-  static const _searchWidth = 360.0;
+  static const _gap = AppSpacing.lg;
 
   @override
   Widget build(BuildContext context) {
@@ -25,19 +24,7 @@ class PlaceSelectPage extends StatelessWidget {
       eyebrow: '길 찾기',
       title: '어디로 갈까요?',
       onBack: () => context.go(AppRoutes.home),
-      actions: [
-        SizedBox(
-          width: _searchWidth,
-          child: TextField(
-            onChanged: cubit.search,
-            style: context.textStyles.bodyMedium,
-            decoration: const InputDecoration(
-              hintText: '장소 이름으로 찾기',
-              prefixIcon: Icon(Icons.search_rounded, size: AppSize.iconMd),
-            ),
-          ),
-        ),
-      ],
+      actions: [GmSearchField(hintText: '장소 이름으로 찾기', onChanged: cubit.search)],
       body: BlocBuilder<PlaceSelectCubit, PlaceSelectState>(
         builder: (context, state) {
           if (state.isLoading) {
@@ -63,7 +50,7 @@ class PlaceSelectPage extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.md),
               Expanded(
                 child: places.isEmpty
                     ? const GmEmptyState(
@@ -71,22 +58,36 @@ class PlaceSelectPage extends StatelessWidget {
                         title: '찾는 장소가 없어요',
                         message: '다른 이름으로 찾아보거나 분류를 바꿔 보세요',
                       )
-                    : GridView.count(
-                        crossAxisCount: _columns,
-                        mainAxisSpacing: AppSpacing.lg,
-                        crossAxisSpacing: AppSpacing.lg,
-                        childAspectRatio: _cardAspectRatio,
-                        children: [
-                          for (final p in places)
-                            GmPlaceCard(
-                              name: p.name,
-                              meta: p.meta,
-                              icon: placeIcon(p),
-                              fillHeight: true,
-                              onTap: () =>
-                                  context.push(AppRoutes.placeConfirm(p.key)),
-                            ),
-                        ],
+                    // 사진 비율(16:10)을 지키도록 칸 높이를 너비에서 계산한다.
+                    : LayoutBuilder(
+                        builder: (context, constraints) {
+                          final cardWidth =
+                              (constraints.maxWidth - _gap * (_columns - 1)) /
+                              _columns;
+                          return GridView.builder(
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: _columns,
+                                  mainAxisSpacing: _gap,
+                                  crossAxisSpacing: _gap,
+                                  mainAxisExtent:
+                                      cardWidth / GmPlaceCard.photoAspectRatio +
+                                      GmPlaceCard.labelExtent,
+                                ),
+                            itemCount: places.length,
+                            itemBuilder: (context, i) {
+                              final p = places[i];
+                              return GmPlaceCard(
+                                name: p.name,
+                                meta: p.meta,
+                                icon: placeIcon(p),
+                                image: placeImage(p),
+                                onTap: () =>
+                                    context.push(AppRoutes.placeConfirm(p.key)),
+                              );
+                            },
+                          );
+                        },
                       ),
               ),
             ],

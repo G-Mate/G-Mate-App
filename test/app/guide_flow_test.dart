@@ -22,21 +22,28 @@ void main() {
     expect(find.text('컴퓨터실'), findsNothing);
 
     await tester.tap(find.text('과학실'));
-    await tester.pumpAndSettle();
+    // 장소 확인의 평면도 미리보기는 계속 돌아가므로 정해진 시간만큼만 그린다.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('이곳으로 안내할까요?'), findsOneWidget);
 
+    // 미리보기가 전체 보기로 물러난 뒤 이동 중 화면으로 넘어간다.
     await tester.tap(find.text('안내 시작'));
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.pump();
-    expect(find.text('과학실로\n안내하고 있어요'), findsOneWidget);
+    expect(find.textContaining('안내하고 있어요'), findsOneWidget);
 
     // Fake 로봇이 이동을 마치면 도착·설명으로 넘어간다.
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(find.text('도착했어요'), findsOneWidget);
-    expect(find.text(' / 4'), findsOneWidget);
+    expect(find.textContaining(RegExp(r'^[1-4] / 4$')), findsOneWidget);
 
-    await tester.tap(find.text('처음으로'));
+    await tester.tap(find.text('안내 중지'));
+    await tester.pumpAndSettle();
+    expect(find.text('안내를 멈출까요?'), findsOneWidget);
+    await tester.tap(find.text('안내 중지').last);
     await tester.pumpAndSettle();
     expect(find.byType(HomePage), findsOneWidget);
     // 읽던 설명 타이머를 끝낸다.
@@ -56,15 +63,30 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
-  testWidgets('안내 중지를 누르면 홈으로 돌아간다', (tester) async {
+  testWidgets('안내 중지는 한 번 더 묻고, 확인하면 홈으로 돌아간다', (tester) async {
     useTabletView(tester);
-    await registerTestDependencies();
+    final robot = await registerTestDependencies();
     await tester.pumpWidget(testApp(AppRoutes.guiding('science_lab')));
     await tester.pump();
     await tester.pump();
+    // 묻는 동안 도착하지 않도록 Fake 로봇의 이동을 멈춰 둔다.
+    await robot.stopMovement();
 
     await tester.tap(find.text('안내 중지'));
     await tester.pumpAndSettle();
+    expect(find.text('안내를 멈출까요?'), findsOneWidget);
+
+    // [계속하기]면 안내를 이어 간다.
+    await tester.tap(find.text('계속하기'));
+    await tester.pumpAndSettle();
+    expect(find.text('안내를 멈출까요?'), findsNothing);
+    expect(find.textContaining('안내하고 있어요'), findsOneWidget);
+
+    await tester.tap(find.text('안내 중지'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('안내 중지').last);
+    await tester.pumpAndSettle();
     expect(find.byType(HomePage), findsOneWidget);
+    await tester.pump(const Duration(seconds: 1));
   });
 }

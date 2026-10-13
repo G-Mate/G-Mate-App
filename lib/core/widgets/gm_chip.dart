@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_tokens.dart';
 
-/// 카테고리 탭, 층 필터에 쓰는 선택 칩 (높이 64dp).
+/// 카테고리 탭, 층 필터에 쓰는 알약 모양 선택 칩 (높이 56dp, 관리 모드 48dp).
 class GmChoiceChip extends StatelessWidget {
   const GmChoiceChip({
     super.key,
@@ -35,19 +35,16 @@ class GmChoiceChip extends StatelessWidget {
             ? null
             : Icon(icon, color: fg, size: AppSize.iconSm),
         label: Text(label),
-        labelStyle: Theme.of(context).textTheme.labelMedium
-            ?.copyWith(color: fg),
+        labelStyle: Theme.of(context).textTheme.labelSmall?.copyWith(color: fg),
+        shape: const StadiumBorder(),
         side: BorderSide(
-          color: selected ? colors.primary : colors.outlineVariant,
+          color: selected ? colors.primary : AppColors.glassBorder,
         ),
-        backgroundColor: colors.surface,
+        backgroundColor: AppColors.glass,
         selectedColor: colors.primary,
         padding: dense
             ? const EdgeInsets.symmetric(horizontal: AppSpacing.xs)
-            : const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
-              ),
+            : const EdgeInsets.symmetric(horizontal: AppSpacing.md),
         materialTapTargetSize: MaterialTapTargetSize.padded,
       ),
     );

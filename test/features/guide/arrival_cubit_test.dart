@@ -20,10 +20,18 @@ void main() {
   });
   tearDown(() => robot.dispose());
 
+  /// 줄 사이 기다리는 시간을 [interval]로 줄인 교무실 저장소.
+  Future<InMemoryPlaceRepository> placesWith(Duration interval) async {
+    final places = InMemoryPlaceRepository();
+    final office = (await places.getPlace('teachers_office'))!;
+    await places.savePlace(office.copyWith(lineInterval: interval));
+    return places;
+  }
+
   test('도착 멘트 다음 본 설명을 한 줄씩 읽으며 줄을 넘긴다', () async {
     final cubit = ArrivalCubit(
       robot: robot,
-      places: InMemoryPlaceRepository(),
+      places: await placesWith(const Duration(milliseconds: 10)),
       placeKey: 'teachers_office',
     );
     final indexes = <int>[];
@@ -45,7 +53,7 @@ void main() {
   test('다시 듣기는 본 설명 첫 줄부터 읽는다', () async {
     final cubit = ArrivalCubit(
       robot: robot,
-      places: InMemoryPlaceRepository(),
+      places: await placesWith(const Duration(milliseconds: 10)),
       placeKey: 'teachers_office',
     );
     await cubit.start();
@@ -71,6 +79,44 @@ void main() {
     expect(cubit.state.lines, ['체육관에 도착했어요.']);
     await cubit.stream.firstWhere((s) => !s.isSpeaking);
     expect(spoken, ['체육관에 도착했어요.']);
+    await cubit.close();
+  });
+
+  test('한 줄을 다 읽어도 정한 시간이 지나기 전에는 다음 줄로 넘어가지 않는다', () async {
+    final cubit = ArrivalCubit(
+      robot: robot,
+      places: await placesWith(const Duration(milliseconds: 300)),
+      placeKey: 'teachers_office',
+    );
+    await cubit.start();
+    // 도착 멘트와 첫 줄을 다 읽을 만큼만 기다린다.
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    expect(cubit.state.lineIndex, 0);
+    expect(spoken, hasLength(2));
+
+    await cubit.stream.firstWhere((s) => s.lineIndex == 1);
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(spoken, hasLength(3));
+    await cubit.close();
+  });
+
+  test('다음을 누르면 기다리지 않고 다음 줄을 읽고, 마지막 줄에서는 넘어가지 않는다', () async {
+    final cubit = ArrivalCubit(
+      robot: robot,
+      places: await placesWith(const Duration(seconds: 30)),
+      placeKey: 'teachers_office',
+    );
+    await cubit.start();
+    expect(cubit.state.hasNext, isTrue);
+
+    cubit.next();
+    expect(cubit.state.lineIndex, 1);
+    expect(cubit.state.hasNext, isFalse);
+
+    cubit.next();
+    expect(cubit.state.lineIndex, 1);
+    await cubit.stream.firstWhere((s) => !s.isSpeaking);
+    expect(spoken.last, '선생님을 찾으시면 문 앞에서 노크해 주세요.');
     await cubit.close();
   });
 }

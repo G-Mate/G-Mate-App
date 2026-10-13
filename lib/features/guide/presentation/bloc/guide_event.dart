@@ -17,6 +17,11 @@ final class GuideStopRequested extends GuideEvent {
   const GuideStopRequested();
 }
 
+/// [안내 완료]: 로봇이 도착을 알리지 못했을 때 방문객이 직접 도착으로 넘긴다.
+final class GuideCompleteRequested extends GuideEvent {
+  const GuideCompleteRequested();
+}
+
 /// 이동하지 못했을 때 [다시 시도].
 final class GuideRetryRequested extends GuideEvent {
   const GuideRetryRequested();

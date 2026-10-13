@@ -1,8 +1,10 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/robot/robot_controller.dart';
 import '../features/admin/domain/admin_pin_repository.dart';
+import '../features/admin/domain/place_image_picker.dart';
 import '../features/admin/presentation/admin_pin_page.dart';
 import '../features/admin/presentation/admin_place_edit_page.dart';
 import '../features/admin/presentation/admin_places_page.dart';
@@ -18,16 +20,32 @@ import '../features/guide/presentation/bloc/guide_bloc.dart';
 import '../features/guide/presentation/guiding_page.dart';
 import '../features/home/presentation/bloc/robot_status_cubit.dart';
 import '../features/home/presentation/home_page.dart';
+import '../features/place/domain/place.dart';
 import '../features/place/domain/place_repository.dart';
 import '../features/place/presentation/bloc/place_detail_cubit.dart';
 import '../features/place/presentation/bloc/place_select_cubit.dart';
 import '../features/place/presentation/place_confirm_page.dart';
 import '../features/place/presentation/place_select_page.dart';
+import '../features/school/domain/school_info_repository.dart';
+import '../features/school/presentation/bloc/school_overview_cubit.dart';
+import '../features/school/presentation/school_overview_page.dart';
 import '../features/speech/domain/speech_settings_repository.dart';
+import '../features/tour/domain/get_tour_visits.dart';
+import '../features/tour/domain/tour_repository.dart';
+import '../features/tour/presentation/bloc/tour_bloc.dart';
+import '../features/tour/presentation/bloc/tour_detail_cubit.dart';
+import '../features/tour/presentation/bloc/tour_select_cubit.dart';
+import '../features/tour/presentation/tour_confirm_page.dart';
+import '../features/tour/presentation/tour_done_page.dart';
+import '../features/tour/presentation/tour_run_page.dart';
+import '../features/tour/presentation/tour_select_page.dart';
 import 'di.dart';
 import 'routes.dart';
 
 export 'routes.dart';
+
+/// 장소 확인 → 이동 중 전환 시간 (평면도 Hero가 지도로 커지는 시간).
+const guideTransition = Duration(milliseconds: 700);
 
 GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
   initialLocation: initialLocation,
@@ -62,13 +80,29 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
     ),
     GoRoute(
       path: '/guide/:key',
-      builder: (context, state) => BlocProvider(
-        create: (_) => GuideBloc(
-          robot: getIt<RobotController>(),
-          places: getIt<PlaceRepository>(),
-          placeKey: state.pathParameters['key']!,
-        )..add(const GuideStarted()),
-        child: const GuidingPage(),
+      // 장소 확인의 평면도가 이 화면의 지도로 날아가도록(Hero) 전환 시간을 둔다.
+      // 다른 화면은 기본처럼 바로 바뀐다.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: guideTransition,
+        reverseTransitionDuration: guideTransition,
+        // 화면은 먼저 빠르게 바뀌고, 그 위로 지도 카드가 커지며 자리 잡는다.
+        transitionsBuilder: (context, animation, _, child) => FadeTransition(
+          opacity: CurvedAnimation(
+            parent: animation,
+            curve: const Interval(0, 0.3, curve: Curves.easeOut),
+          ),
+          child: child,
+        ),
+        child: BlocProvider(
+          create: (_) => GuideBloc(
+            robot: getIt<RobotController>(),
+            places: getIt<PlaceRepository>(),
+            placeKey: state.pathParameters['key']!,
+            initialPlace: state.extra is Place ? state.extra! as Place : null,
+          )..add(const GuideStarted()),
+          child: const GuidingPage(),
+        ),
       ),
     ),
     GoRoute(
@@ -80,6 +114,55 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
           placeKey: state.pathParameters['key']!,
         )..start(),
         child: const ArrivalPage(),
+      ),
+    ),
+
+    // 학교 투어
+    GoRoute(
+      path: AppRoutes.tourSelect,
+      builder: (context, state) => BlocProvider(
+        create: (_) => TourSelectCubit(getIt<TourRepository>())..load(),
+        child: const TourSelectPage(),
+      ),
+      routes: [
+        GoRoute(
+          path: ':key',
+          builder: (context, state) => BlocProvider(
+            create: (_) => _tourDetail(state.pathParameters['key']!),
+            child: const TourConfirmPage(),
+          ),
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/tour-run/:key',
+      builder: (context, state) => BlocProvider(
+        create: (_) => TourBloc(
+          robot: getIt<RobotController>(),
+          tours: getIt<TourRepository>(),
+          getVisits: GetTourVisits(getIt<PlaceRepository>()),
+          tourKey: state.pathParameters['key']!,
+        )..add(const TourStarted()),
+        child: const TourRunPage(),
+      ),
+    ),
+    GoRoute(
+      path: '/tour-done/:key',
+      builder: (context, state) => BlocProvider(
+        create: (_) => _tourDetail(state.pathParameters['key']!),
+        child: const TourDonePage(),
+      ),
+    ),
+
+    // 학교 개요
+    GoRoute(
+      path: AppRoutes.schoolOverview,
+      builder: (context, state) => BlocProvider(
+        create: (_) => SchoolOverviewCubit(
+          info: getIt<SchoolInfoRepository>(),
+          places: getIt<PlaceRepository>(),
+        )..load(),
+        child: const SchoolOverviewPage(),
       ),
     ),
 
@@ -105,6 +188,7 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
           path: ':key',
           builder: (context, state) => BlocProvider(
             create: (_) => AdminPlaceEditCubit(
+              imagePicker: getIt<PlaceImagePicker>(),
               robot: getIt<RobotController>(),
               places: getIt<PlaceRepository>(),
               placeKey: state.pathParameters['key']!,
@@ -131,5 +215,11 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
     ),
   ],
 );
+
+TourDetailCubit _tourDetail(String key) => TourDetailCubit(
+  tours: getIt<TourRepository>(),
+  getVisits: GetTourVisits(getIt<PlaceRepository>()),
+  tourKey: key,
+)..load();
 
 final appRouter = createRouter();

@@ -86,8 +86,8 @@ class AdminPinPage extends StatelessWidget {
                               ? Container(
                                   width: _dotSize,
                                   height: _dotSize,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.navy,
+                                  decoration: BoxDecoration(
+                                    color: colors.onSurface,
                                     shape: BoxShape.circle,
                                   ),
                                 )

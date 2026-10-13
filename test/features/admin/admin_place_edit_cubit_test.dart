@@ -2,14 +2,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:g_mate/core/robot/fake_robot_controller.dart';
 import 'package:g_mate/features/admin/presentation/bloc/admin_place_edit_cubit.dart';
 import 'package:g_mate/features/place/data/in_memory_place_repository.dart';
+import 'package:g_mate/features/place/domain/place.dart';
+
+import '../../helpers/test_app.dart';
 
 void main() {
   late FakeRobotController robot;
   late InMemoryPlaceRepository places;
+  late FakePlaceImagePicker picker;
 
   setUp(() {
     robot = FakeRobotController();
     places = InMemoryPlaceRepository();
+    picker = FakePlaceImagePicker();
   });
   tearDown(() => robot.dispose());
 
@@ -18,6 +23,7 @@ void main() {
       robot: robot,
       places: places,
       placeKey: 'science_lab',
+      imagePicker: picker,
     );
     await cubit.load();
     return cubit;
@@ -66,6 +72,35 @@ void main() {
       cubit.state.place!.speech.descriptionLines.first,
       '과학실은 3층 동쪽 끝에 있어요.',
     );
+    await cubit.close();
+  });
+
+  test('자동 넘김 시간을 바꾸면 저장할 때 같이 저장된다', () async {
+    final cubit = await load();
+    expect(cubit.state.place!.lineInterval, Place.defaultLineInterval);
+
+    cubit.changeLineInterval(const Duration(seconds: 8));
+    await cubit.save();
+    expect(
+      (await places.getPlace('science_lab'))!.lineInterval,
+      const Duration(seconds: 8),
+    );
+    await cubit.close();
+  });
+
+  test('사진을 고르면 장소 사진이 되고, 지우면 빠진다', () async {
+    final cubit = await load();
+    expect(cubit.state.place!.imagePath, isNull);
+
+    await cubit.pickImage();
+    expect(cubit.state.place!.imagePath, '/photos/place.jpg');
+
+    picker.path = null;
+    await cubit.pickImage();
+    expect(cubit.state.place!.imagePath, '/photos/place.jpg');
+
+    cubit.removeImage();
+    expect(cubit.state.place!.imagePath, isNull);
     await cubit.close();
   });
 }

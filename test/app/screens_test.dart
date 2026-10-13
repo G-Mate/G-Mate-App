@@ -15,6 +15,11 @@ void main() {
     '장소 관리': AppRoutes.adminPlaces,
     '장소 편집': AppRoutes.adminPlaceEdit('science_lab'),
     '음성 설정': AppRoutes.adminTts,
+    '학교 개요': AppRoutes.schoolOverview,
+    '투어 코스 선택': AppRoutes.tourSelect,
+    '투어 코스 확인': AppRoutes.tourConfirm('full_tour'),
+    '투어 진행': AppRoutes.tourRun('full_tour'),
+    '투어 끝': AppRoutes.tourDone('full_tour'),
   };
 
   for (final MapEntry(key: name, value: path) in screens.entries) {

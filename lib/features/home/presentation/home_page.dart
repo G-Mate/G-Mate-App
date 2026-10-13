@@ -6,11 +6,13 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../core/design_system.dart';
 import 'bloc/robot_status_cubit.dart';
+import 'widgets/home_clock.dart';
+import 'widgets/menu_carousel.dart';
 
 /// 안내 모드 홈(대기) 화면.
 ///
-/// 왼쪽 남색 패널에 인사말과 로봇 상태, 오른쪽에 메뉴 카드 두 개를 둔다.
-/// 남색 패널을 [adminHoldDuration] 동안 누르고 있으면 관리 모드 PIN으로 간다.
+/// 왼쪽 남색 패널에 인사말·로봇 상태·시계, 오른쪽에 세로로 넘기는 메뉴 카드를
+/// 둔다. 남색 패널을 [adminHoldDuration] 동안 누르고 있으면 관리 모드 PIN으로 간다.
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -32,29 +34,46 @@ class HomePage extends StatelessWidget {
         child: const GmHeroPanel(
           overline: '광주소프트웨어마이스터고등학교',
           title: '무엇을\n도와드릴까요?',
-          subtitle: '원하는 메뉴를 눌러 주세요',
-          footer: _RobotStatus(),
+          subtitle: '원하는 메뉴를 골라 주세요',
+          footer: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _RobotStatus(),
+              SizedBox(width: AppSpacing.lg),
+              // 패널이 좁으면 시계를 줄여서 넘치지 않게 한다.
+              Expanded(
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.bottomRight,
+                    child: HomeClock(),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: GmMenuTile(
-              icon: Icons.near_me_outlined,
-              title: '길 찾기',
-              description: '가고 싶은 곳까지 데려다 드려요',
-              onTap: () => context.push(AppRoutes.placeSelect),
-            ),
+      child: MenuCarousel(
+        items: [
+          HomeMenuItem(
+            icon: GmIcons.navigate,
+            title: '길 찾기',
+            description: '가고 싶은 곳까지 데려다 드려요',
+            onTap: () => context.push(AppRoutes.placeSelect),
           ),
-          const SizedBox(height: AppSpacing.lg),
-          // 투어 선택 화면이 생기면 onTap을 연결한다.
-          const Expanded(
-            child: GmMenuTile(
-              icon: Icons.flag_outlined,
-              title: '학교 투어',
-              description: '코스를 따라 학교를 둘러봐요',
-            ),
+          HomeMenuItem(
+            icon: GmIcons.tour,
+            title: '학교 투어',
+            description: '코스를 따라 학교를 둘러봐요',
+            onTap: () => context.push(AppRoutes.tourSelect),
+          ),
+          HomeMenuItem(
+            icon: GmIcons.school,
+            title: '학교 개요',
+            description: '우리 학교를 한눈에 알아봐요',
+            onTap: () => context.push(AppRoutes.schoolOverview),
           ),
         ],
       ),

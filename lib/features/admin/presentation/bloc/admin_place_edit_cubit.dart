@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/robot/robot_controller.dart';
 import '../../../place/domain/place.dart';
 import '../../../place/domain/place_repository.dart';
+import '../../domain/place_image_picker.dart';
 import 'admin_place_edit_state.dart';
 
 /// 장소 편집: 장소 정보와 멘트를 고치고 저장한다.
@@ -11,11 +12,13 @@ class AdminPlaceEditCubit extends Cubit<AdminPlaceEditState> {
     required this._robot,
     required this._places,
     required this.placeKey,
+    required this._imagePicker,
   }) : super(const AdminPlaceEditState());
 
   final RobotController _robot;
   final PlaceRepository _places;
   final String placeKey;
+  final PlaceImagePicker _imagePicker;
   int _nextLineId = 0;
 
   Future<void> load() async {
@@ -48,6 +51,20 @@ class AdminPlaceEditCubit extends Cubit<AdminPlaceEditState> {
       ],
     ),
   );
+
+  /// [사진 고르기]: 사진첩에서 고른 사진을 장소 사진으로 둔다.
+  Future<void> pickImage() async {
+    final path = await _imagePicker.pick();
+    if (path == null || isClosed) return;
+    _update(_place.copyWith(imagePath: path));
+  }
+
+  /// [사진 지우기]: 사진을 빼고 아이콘 그림으로 되돌린다.
+  void removeImage() => _update(_place.copyWith(clearImage: true));
+
+  /// 본 설명 줄 사이에 저절로 넘어가기까지 기다리는 시간.
+  void changeLineInterval(Duration interval) =>
+      _update(_place.copyWith(lineInterval: interval));
 
   void changeStart(String text) =>
       _update(_place.copyWith(speech: _speech.copyWith(start: text)));
