@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,10 +32,26 @@ class HomePage extends StatelessWidget {
               ),
         },
         child: const GmHeroPanel(
+          // 홈은 시계가 패널을 채우니 평면도 장식은 끈다.
+          showFloorPlan: false,
           overline: '광주소프트웨어마이스터고등학교',
           title: '무엇을\n도와드릴까요?',
           subtitle: '원하는 메뉴를 눌러 주세요',
-          footer: _RobotStatus(),
+          footer: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _RobotStatus(),
+              SizedBox(width: AppSpacing.lg),
+              // 패널이 좁으면 시계를 줄여서 넘치지 않게 한다.
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.bottomRight,
+                  child: _Clock(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       child: Column(
@@ -82,6 +100,64 @@ class _RobotStatus extends StatelessWidget {
         };
         return GmStatusIndicator(label: label, type: type, onDark: true);
       },
+    );
+  }
+}
+
+/// 남색 패널 오른쪽 아래의 큰 시계와 날짜.
+class _Clock extends StatefulWidget {
+  const _Clock();
+
+  @override
+  State<_Clock> createState() => _ClockState();
+}
+
+class _ClockState extends State<_Clock> {
+  static const _tick = Duration(seconds: 1);
+  static const _weekdays = ['월', '화', '수', '목', '금', '토', '일'];
+
+  late DateTime _now = DateTime.now();
+  late final Timer _timer = Timer.periodic(_tick, (_) {
+    final now = DateTime.now();
+    if (now.minute != _now.minute) setState(() => _now = now);
+  });
+
+  @override
+  void initState() {
+    super.initState();
+    _timer;
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  String _two(int n) => n.toString().padLeft(2, '0');
+
+  @override
+  Widget build(BuildContext context) {
+    final text = context.textStyles;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          '${_two(_now.hour)}:${_two(_now.minute)}',
+          style: text.displaySmall?.copyWith(
+            color: context.colors.onSurface,
+            fontWeight: FontWeight.w500,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+        Text(
+          '${_now.month}월 ${_now.day}일 ${_weekdays[_now.weekday - 1]}요일',
+          style: text.bodySmall?.copyWith(
+            color: context.appColors.textSecondary,
+          ),
+        ),
+      ],
     );
   }
 }

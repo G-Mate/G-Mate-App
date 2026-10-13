@@ -4,7 +4,7 @@ import '../theme/app_semantic_colors.dart';
 import '../theme/app_tokens.dart';
 import 'gm_icon.dart';
 
-/// 회색 배경 위의 흰 면 카드. 그림자 없이 1px 선으로만 면을 나눈다.
+/// 바탕의 빛이 비치는 반투명 유리 카드. 1px 밝은 선으로 가장자리를 잡는다.
 /// [onTap]이 있으면 누를 수 있다.
 class GmCard extends StatelessWidget {
   const GmCard({
@@ -26,10 +26,10 @@ class GmCard extends StatelessWidget {
     return AnimatedContainer(
       duration: AppDuration.normal,
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: AppColors.glass,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
-          color: selected ? colors.primary : colors.outlineVariant,
+          color: selected ? colors.primary : AppColors.glassBorder,
           width: selected ? 2 : 1,
         ),
       ),
@@ -81,6 +81,7 @@ class GmMenuTile extends StatelessWidget {
   /// 흰 면 위 보조 글자의 진하기.
   static const _onPrimaryMutedAlpha = 0.72;
   static const _iconSize = 64.0;
+  static const _glowAlpha = 0.45;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +94,7 @@ class GmMenuTile extends StatelessWidget {
     final Color muted = emphasized
         ? colors.onPrimary.withValues(alpha: _onPrimaryMutedAlpha)
         : semantic.textSecondary;
-    final Color accent = emphasized ? colors.onPrimary : colors.primary;
+    final Color accent = colors.onSurface;
     final corner = badge ?? index;
 
     return Semantics(
@@ -101,78 +102,100 @@ class GmMenuTile extends StatelessWidget {
       label: description == null ? title : '$title, $description',
       enabled: enabled,
       excludeSemantics: true,
-      child: Material(
-        color: emphasized ? colors.primary : colors.surface,
-        shape: RoundedRectangleBorder(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.lg),
-          side: emphasized
-              ? BorderSide.none
-              : BorderSide(color: colors.outlineVariant),
+          gradient: emphasized
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [AppColors.primary, AppColors.primaryDark],
+                )
+              : null,
+          // 주 메뉴는 파랑 빛이 아래로 번지며 떠 있는 느낌을 준다.
+          boxShadow: emphasized
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: _glowAlpha),
+                    blurRadius: 40,
+                    offset: const Offset(0, 16),
+                  ),
+                ]
+              : null,
         ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.xl),
-            // 위 줄은 위에, 제목 줄은 아래에 붙인다. 칸이 작아도 넘치지 않는다.
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GmIcon(
-                      icon,
-                      size: _iconSize,
-                      color: enabled ? accent : semantic.textDisabled,
-                      fillOpacity: emphasized
-                          ? 0.22
-                          : GmIcon.defaultFillOpacity,
-                    ),
-                    const Spacer(),
-                    if (corner != null)
-                      Text(
-                        corner,
-                        style: text.labelSmall?.copyWith(
-                          color: muted,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                  ],
-                ),
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+        child: Material(
+          color: emphasized ? Colors.transparent : AppColors.glass,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            side: emphasized
+                ? BorderSide.none
+                : const BorderSide(color: AppColors.glassBorder),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              // 위 줄은 위에, 제목 줄은 아래에 붙인다. 칸이 작아도 넘치지 않는다.
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              title,
-                              style: text.headlineLarge?.copyWith(color: fg),
-                            ),
-                            if (description != null) ...[
-                              const SizedBox(height: AppSpacing.xs),
-                              Text(
-                                description!,
-                                style: text.bodySmall?.copyWith(color: muted),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
                       GmIcon(
-                        GmIcons.arrowForward,
-                        size: AppSize.iconLg,
+                        icon,
+                        size: _iconSize,
                         color: enabled ? accent : semantic.textDisabled,
+                        fillOpacity: emphasized
+                            ? 0.22
+                            : GmIcon.defaultFillOpacity,
                       ),
+                      const Spacer(),
+                      if (corner != null)
+                        Text(
+                          corner,
+                          style: text.labelSmall?.copyWith(
+                            color: muted,
+                            letterSpacing: 1,
+                          ),
+                        ),
                     ],
                   ),
-                ),
-              ],
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title,
+                                style: text.headlineLarge?.copyWith(color: fg),
+                              ),
+                              if (description != null) ...[
+                                const SizedBox(height: AppSpacing.xs),
+                                Text(
+                                  description!,
+                                  style: text.bodySmall?.copyWith(color: muted),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        GmIcon(
+                          GmIcons.arrowForward,
+                          size: AppSize.iconLg,
+                          color: enabled ? accent : semantic.textDisabled,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -272,7 +295,7 @@ class GmPlaceCard extends StatelessWidget {
         children: [
           Align(
             alignment: Alignment.topLeft,
-            child: GmIcon(icon, size: AppSize.iconXl, color: colors.primary),
+            child: GmIcon(icon, size: AppSize.iconXl, color: colors.onSurface),
           ),
           Align(alignment: Alignment.bottomLeft, child: label),
         ],

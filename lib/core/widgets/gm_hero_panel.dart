@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_tokens.dart';
+import 'gm_background.dart';
 
 /// 화면 한쪽을 채우는 남색 패널. 홈(대기), 도착 안내처럼 화면의 주제를
 /// 크게 보여 줄 때 쓴다.
@@ -34,6 +35,7 @@ class GmHeroPanel extends StatelessWidget {
   final bool showFloorPlan;
 
   static const _planTop = 84.0;
+  static const _panelAlpha = 0.45;
   static const _planWidth = 270.0;
   static const _planHeight = 195.0;
 
@@ -41,7 +43,10 @@ class GmHeroPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return DecoratedBox(
-      decoration: const BoxDecoration(color: AppColors.navy),
+      // 바탕 위에 한 톤 어두운 반투명 남색을 깔아 화면을 둘로 나눈다.
+      decoration: BoxDecoration(
+        color: AppColors.navy.withValues(alpha: _panelAlpha),
+      ),
       child: Stack(
         children: [
           // 장식은 오른쪽 위의 가는 선 평면도 하나뿐이다 (길 안내 로봇이라는 주제).
@@ -219,22 +224,25 @@ class GmSplitLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(flex: heroFlex, child: hero),
-          Expanded(
-            flex: childFlex,
-            child: SafeArea(
-              left: false,
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.xxl),
-                child: child,
+    return GmBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(flex: heroFlex, child: hero),
+            Expanded(
+              flex: childFlex,
+              child: SafeArea(
+                left: false,
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.xxl),
+                  child: child,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

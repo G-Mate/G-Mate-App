@@ -5,10 +5,11 @@ import 'app_semantic_colors.dart';
 
 /// 앱 전체 테마. `MaterialApp(theme: AppTheme.light())`로 적용한다.
 ///
-/// 키오스크는 실내 조명 아래 한 가지 화면으로만 운영하므로 v1은 라이트 테마만 둔다.
+/// 키오스크는 한 가지 화면으로만 운영하므로 v1은 어두운 남색 테마 하나만 둔다.
+/// (이름은 기존 호출부와 맞추려고 `light()`를 그대로 쓴다.)
 abstract final class AppTheme {
   static const colorScheme = ColorScheme(
-    brightness: Brightness.light,
+    brightness: Brightness.dark,
     primary: AppColors.primary,
     onPrimary: Colors.white,
     primaryContainer: AppColors.primaryContainer,
@@ -22,7 +23,7 @@ abstract final class AppTheme {
     error: AppColors.danger,
     onError: Colors.white,
     errorContainer: AppColors.dangerContainer,
-    onErrorContainer: Color(0xFF5F1412),
+    onErrorContainer: Color(0xFFFFD9DD),
     surface: AppColors.surface,
     onSurface: AppColors.textPrimary,
     onSurfaceVariant: AppColors.textSecondary,
@@ -34,6 +35,7 @@ abstract final class AppTheme {
     outline: AppColors.outlineStrong,
     outlineVariant: AppColors.outline,
     scrim: AppColors.scrim,
+    surfaceTint: Colors.transparent,
   );
 
   static ThemeData light() {
@@ -132,15 +134,15 @@ abstract final class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
-        side: const BorderSide(color: AppColors.outline),
-        backgroundColor: AppColors.surface,
+        side: const BorderSide(color: AppColors.glassBorder),
+        backgroundColor: AppColors.glass,
         selectedColor: AppColors.primary,
         secondarySelectedColor: AppColors.primary,
         showCheckmark: false,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: AppColors.glass,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,
           vertical: AppSpacing.md,
@@ -157,7 +159,10 @@ abstract final class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.outline, width: 1.5),
+          borderSide: const BorderSide(
+            color: AppColors.glassBorder,
+            width: 1.5,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
@@ -170,6 +175,7 @@ abstract final class AppTheme {
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: AppColors.surface,
+        barrierColor: AppColors.scrim,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.lg),
         ),
@@ -178,8 +184,10 @@ abstract final class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.textPrimary,
-        contentTextStyle: textTheme.bodyMedium?.copyWith(color: Colors.white),
+        backgroundColor: AppColors.surfaceVariant,
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: AppColors.textPrimary,
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.sm),
         ),

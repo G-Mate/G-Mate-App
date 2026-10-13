@@ -65,7 +65,7 @@ class _Content extends StatelessWidget {
                   GmIcon(
                     placeIcon(place),
                     size: PlaceConfirmPage._iconSize,
-                    color: context.colors.primary,
+                    color: context.colors.onSurface,
                   ),
                   const Spacer(),
                   Text(

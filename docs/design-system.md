@@ -1,7 +1,7 @@
 # 디자인 시스템
 
 temi 머리 태블릿(가로 10인치대)을 허리 높이에서 서서 보고 누르는 키오스크 화면 기준입니다.
-방향은 **절제된 모던**입니다. 화면의 큰 면은 학교 로고에서 가져온 남색 하나, 강조는 파랑 하나만 씁니다. 회색 바탕 위에 흰 카드를 그림자 없이 1px 선(`outlineVariant`)으로만 나눠 올리고, 그라데이션·빛 번짐·색 그림자·아이콘 배지 같은 장식은 쓰지 않습니다. 남색 패널도 단색이고, 장식은 패널 오른쪽 위의 가는 선 평면도(교실 칸과 목적지까지의 점선 경로) 하나뿐입니다. 아이콘은 직접 그린 `GmIcon`(둥근 선 + 옅은 면의 두 톤)을 씁니다. 디자인 포인트는 장식이 아니라 남색 패널과 흰 영역의 화면 분할, 큰 제목과 작은 설명의 크기 대비로 만듭니다.
+방향은 **어두운 남색 키오스크**입니다(TV·셋톱 UI 참고). 화면 전체를 짙은 남색 그라데이션(`GmBackground`)으로 깔고 오른쪽 아래에 파랑 빛을 번지게 합니다. 카드·칩·입력 칸은 빛이 비치는 반투명 유리 면(`AppColors.glass`)에 밝은 1px 테두리, 주 메뉴 하나만 밝은 파랑(페리윙클 `#5C6CFA`) 면에 파랑 빛 그림자로 띄웁니다. 글자와 아이콘은 흰색 계열입니다. 왼쪽 패널은 바탕보다 한 톤 어둡게 깔고, 홈에는 큰 시계와 날짜, 다른 화면에는 가는 선 평면도를 둡니다. 아이콘은 직접 그린 `GmIcon`(둥근 선 + 옅은 면의 두 톤)을 씁니다.
 글꼴은 Pretendard(SIL OFL 1.1, `assets/fonts/pretendard/`)를 앱에 넣어 씁니다. 색을 조정할 때는 `app_colors.dart`만 바꾸면 됩니다.
 
 ## 쓰는 법
@@ -20,7 +20,7 @@ import 'package:g_mate/core/design_system.dart';
 
 | 파일 | 내용 |
 | --- | --- |
-| `lib/core/theme/app_colors.dart` | 남색 `#13213F`(히어로 패널), 파랑 `#3360E0`(강조), 회색 바탕 `#F4F5F8`·흰 면, 글자색, 성공·주의·위험 |
+| `lib/core/theme/app_colors.dart` | 바탕 그라데이션 `#1C2A70`→`#0E1640`과 빛 `#3D5BFF`, 패널 남색, 강조 파랑 `#5C6CFA`, 카드 면·유리 면, 흰 글자색, 성공·주의·위험 |
 | `lib/core/theme/app_typography.dart` | 글자 크기 체계. 본문 22, 버튼 26, 화면 제목 34, 환영 문구 44~64 |
 | `lib/core/theme/app_dimens.dart` | 간격(4dp 단위), 모서리, 버튼 높이(72/64/48), 아이콘 크기, 애니메이션 시간, 그림자 |
 | `lib/core/theme/app_semantic_colors.dart` | `ColorScheme`에 없는 의미 색 (`ThemeExtension`) |
@@ -33,12 +33,13 @@ import 'package:g_mate/core/design_system.dart';
 - 본문은 22sp 이상입니다. 60cm~1m 떨어져서 읽을 수 있는 크기입니다.
 - 화면 좌우 여백은 48dp입니다 (`GmScaffold`가 넣어 줍니다).
 - 글꼴은 Pretendard 5가지 굵기(400~800)를 씁니다. 큰 글자일수록 자간을 크기의 -2~-3%로 좁힙니다.
-- v1은 라이트 테마만 둡니다.
+- v1은 어두운 남색 테마 하나만 둡니다 (`AppTheme.light()`라는 이름은 기존 호출부 때문에 그대로).
 
 ## 공통 위젯
 
 | 위젯 | 용도 |
 | --- | --- |
+| `GmBackground` | 화면 전체 바탕(남색 그라데이션 + 오른쪽 아래 파랑 빛). `GmScaffold`·`GmSplitLayout`이 깔아 줌 |
 | `GmScaffold` | 화면 틀. 뒤로 가기·작은 머리말·제목·오른쪽 동작, 여백 잡힌 본문, 하단 고정 버튼 줄 |
 | `GmButton` | 버튼. `primary`/`secondary`/`outline`/`danger`, 크기 `large`/`medium`/`small`, 아이콘, `loading` |
 | `GmMenuTile` | 홈 화면의 큰 메뉴 카드. 왼쪽 위 선 아이콘, 오른쪽 위 번호(`index`) 또는 짧은 글자(`badge`), 아래 큰 제목·작은 설명·화살표. `emphasized`면 파랑 단색 면(주 메뉴 하나에만) |

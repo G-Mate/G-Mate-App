@@ -10,9 +10,10 @@ Widget _wrap(Widget child) => MaterialApp(
 
 void main() {
   group('GmTheme', () {
-    test('브랜드 색과 의미 색 확장을 담는다', () {
+    test('어두운 남색 테마로 브랜드 색과 의미 색 확장을 담는다', () {
       final theme = AppTheme.light();
       expect(theme.colorScheme.primary, AppColors.primary);
+      expect(theme.colorScheme.brightness, Brightness.dark);
       expect(theme.scaffoldBackgroundColor, AppColors.background);
       expect(theme.extension<AppSemanticColors>(), AppSemanticColors.light);
     });

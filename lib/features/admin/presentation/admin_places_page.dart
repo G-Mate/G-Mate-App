@@ -151,7 +151,7 @@ class _PlaceRow extends StatelessWidget {
             GmIcon(
               placeIcon(place),
               size: AppSize.iconLg,
-              color: colors.primary,
+              color: colors.onSurface,
             ),
             const SizedBox(width: AppSpacing.lg),
             Expanded(

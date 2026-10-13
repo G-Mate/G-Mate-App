@@ -45,7 +45,7 @@ class FloorMap extends StatelessWidget {
               Expanded(child: Text('$floor층', style: text.titleLarge)),
               _Legend(color: colors.primary, label: '지금 위치'),
               const SizedBox(width: AppSpacing.lg),
-              _Legend(color: AppColors.navy, label: destination),
+              _Legend(color: colors.onSurface, label: destination),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -61,14 +61,16 @@ class FloorMap extends StatelessWidget {
                   label: TextPainter(
                     text: TextSpan(
                       text: destination,
-                      style: text.titleMedium?.copyWith(color: AppColors.navy),
+                      style: text.titleMedium?.copyWith(
+                        color: colors.onSurface,
+                      ),
                     ),
                     textDirection: TextDirection.ltr,
                   )..layout(),
                   wall: semantic.textDisabled,
                   room: colors.surfaceContainerHighest,
                   route: colors.primary,
-                  destination: AppColors.navy,
+                  destination: colors.onSurface,
                 ),
               ),
             ),

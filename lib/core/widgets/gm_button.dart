@@ -89,9 +89,9 @@ class GmButton extends StatelessWidget {
         BorderSide.none,
       ),
       GmButtonVariant.outline => (
-        colors.surface,
+        AppColors.glass,
         colors.onSurface,
-        BorderSide(color: colors.outlineVariant, width: 1.5),
+        const BorderSide(color: AppColors.glassBorder, width: 1.5),
       ),
       GmButtonVariant.danger => (
         semantic.danger,
