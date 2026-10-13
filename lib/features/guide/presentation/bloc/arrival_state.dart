@@ -9,6 +9,7 @@ class ArrivalState extends Equatable {
     this.lineIndex = 0,
     this.isSpeaking = false,
     this.isLineDone = false,
+    this.isListening = false,
   });
 
   final bool isLoading;
@@ -24,13 +25,14 @@ class ArrivalState extends Equatable {
   /// 이때 [다음] 버튼을 강조하고 남은 시간을 보여 준다.
   final bool isLineDone;
 
-  /// 화면에 한 줄씩 보여 줄 설명. 본 설명이 비어 있으면 도착 멘트 한 줄.
-  List<String> get lines {
-    final p = place;
-    if (p == null) return const [];
-    final description = p.speech.descriptionLines;
-    return description.isEmpty ? [p.speech.arrival] : description;
-  }
+  /// [설명 듣기]를 눌러 본 설명을 듣는 중인지. false면 도착 멘트만 읽은 상태다.
+  final bool isListening;
+
+  /// 한 줄씩 보여 주며 읽을 본 설명.
+  List<String> get lines => place?.speech.descriptionLines ?? const [];
+
+  /// 들려줄 본 설명이 있는지 ([설명 듣기] 버튼).
+  bool get hasDescription => lines.isNotEmpty;
 
   /// 지금 줄 다음에 더 읽을 줄이 있는지 ([다음] 버튼).
   bool get hasNext => lineIndex < lines.length - 1;
@@ -41,12 +43,14 @@ class ArrivalState extends Equatable {
     int? lineIndex,
     bool? isSpeaking,
     bool? isLineDone,
+    bool? isListening,
   }) => ArrivalState(
     isLoading: isLoading ?? this.isLoading,
     place: place ?? this.place,
     lineIndex: lineIndex ?? this.lineIndex,
     isSpeaking: isSpeaking ?? this.isSpeaking,
     isLineDone: isLineDone ?? this.isLineDone,
+    isListening: isListening ?? this.isListening,
   );
 
   @override
@@ -56,5 +60,6 @@ class ArrivalState extends Equatable {
     lineIndex,
     isSpeaking,
     isLineDone,
+    isListening,
   ];
 }
