@@ -47,3 +47,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // temi 로봇 SDK. temi가 아닌 기기에서는 onRobotReady가 오지 않아 명령을 보내지 않는다.
+    implementation("com.robotemi:sdk:1.138.0")
+}

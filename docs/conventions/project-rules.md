@@ -35,7 +35,8 @@ data (Repository 구현, DataSource, Model)
 | 아키텍처 | Clean Architecture | 확정 |
 | 의존성 주입 | get_it | 검토 중 기본값 |
 | 라우팅 | go_router | 검토 중 기본값 |
-| 로컬 DB | drift | 검토 중 기본값 (데이터 계층 작업 때 추가) |
+| 로컬 DB | drift | 검토 중 기본값 (적용됨) |
+| 비밀값 저장 (관리 모드 PIN) | flutter_secure_storage | 검토 중 기본값 (적용됨) |
 
 검토 중인 항목을 바꾸면 이 표와 관련 코드를 함께 고칩니다.
 
@@ -79,6 +80,15 @@ docs/                         # 문서
 - 색, 글자 크기, 간격은 [디자인 시스템](../design-system.md)의 토큰과 테마로만 씁니다. 화면에 `Color(0x...)`, `fontSize` 숫자를 직접 쓰지 않습니다.
 - 방문객 화면의 누르는 요소는 최소 64dp입니다.
 
+## 데이터 저장 규칙
+
+- 장소, 투어 코스, 학교 소개, 음성 설정은 로컬 DB(`lib/core/database/app_database.dart`, drift)에 둡니다. 관리 모드 PIN만 flutter_secure_storage에 둡니다.
+- 표 정의는 `core/database`에, 표 ↔ 도메인 값 변환은 기능별 `data/`의 `DriftXxxRepository`에 둡니다.
+- 처음 DB를 만들 때만 `lib/app/database_seed.dart`가 기본 내용을 넣습니다. 이미 설치된 기기의 내용은 바꾸지 않습니다.
+- 표를 바꾸면 `schemaVersion`을 올리고 `migration`에 옮기는 단계를 넣은 뒤, `dart run build_runner build`로 `app_database.g.dart`를 다시 만들어 함께 커밋합니다.
+- 장소 사진은 앱 문서 폴더(`place_photos/`)에 복사하고 DB에는 경로만 둡니다.
+- 테스트는 `InMemoryXxxRepository`를 쓰고, drift 저장소 자체는 `NativeDatabase.memory()`로 테스트합니다.
+
 ## 플랫폼 채널 규칙
 
 | 채널 | 종류 | 용도 |
@@ -89,7 +99,9 @@ docs/                         # 문서
 - 채널 이름은 `lib/core/robot/robot_channels.dart`와 Kotlin `RobotChannels`에 상수로 두고, 두 곳을 항상 함께 고칩니다.
 - 메서드 이름은 temi SDK 메서드 이름을 그대로 씁니다 (`goTo`, `stopMovement`).
 - 이벤트는 `{"type": "...", ...}` 형태의 Map으로 보내고, Dart 쪽에서 타입 있는 이벤트 클래스로 바꿉니다.
-- temi SDK는 `onRobotReady(true)` 이후에만 호출합니다.
+- temi SDK는 `onRobotReady(true)` 이후에만 호출합니다. 그 전에 온 명령은 Kotlin이 `NOT_READY` 오류로 답합니다 (`isReady`만 예외).
+- temi 리스너는 `MainActivity`의 onStart에서 붙이고 onStop에서 뗍니다.
+- temi SDK 버전은 `android/app/build.gradle.kts`에서 한 곳으로 관리합니다.
 
 ## temi 장소 키
 
