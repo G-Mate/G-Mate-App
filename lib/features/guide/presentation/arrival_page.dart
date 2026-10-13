@@ -23,7 +23,10 @@ class ArrivalPage extends StatelessWidget {
   static const _lineSwitch = Duration(milliseconds: 450);
 
   /// 다음 줄 미리보기의 진하기.
-  static const _nextAlpha = 0.45;
+  static const _nextAlpha = 0.4;
+
+  /// 줄이 바뀔 때 오르내리는 거리 (자기 높이 대비).
+  static const _rise = 0.35;
 
   @override
   Widget build(BuildContext context) {
@@ -90,36 +93,44 @@ class ArrivalPage extends StatelessWidget {
                   switchInCurve: Curves.easeOutCubic,
                   switchOutCurve: Curves.easeInCubic,
                   layoutBuilder: (currentChild, previous) => Stack(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.center,
                     children: [...previous, ?currentChild],
                   ),
-                  transitionBuilder: (child, animation) => FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position: Tween(
-                        begin: const Offset(0, 0.08),
-                        end: Offset.zero,
-                      ).animate(animation),
-                      child: child,
-                    ),
-                  ),
+                  // 지금 줄은 위로 올라가며 사라지고, 다음 줄은 아래에서
+                  // 올라오며 나타난다.
+                  transitionBuilder: (child, animation) {
+                    final incoming = child.key == ValueKey(current);
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween(
+                          begin: Offset(0, incoming ? _rise : -_rise),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
+                      ),
+                    );
+                  },
                   child: Column(
                     key: ValueKey(current),
                     mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       KeepAllText(
                         lines[current],
+                        alignment: WrapAlignment.center,
                         style: text.displaySmall?.copyWith(
                           height: _subtitleLineHeight,
                         ),
                       ),
                       if (next != null) ...[
                         const SizedBox(height: AppSpacing.xl),
-                        KeepAllText(
+                        // 다음 줄은 작고 옅게 한 줄만 미리 보여 준다.
+                        Text(
                           next,
-                          style: text.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: text.bodySmall?.copyWith(
                             color: colors.onSurface.withValues(
                               alpha: _nextAlpha,
                             ),
@@ -146,14 +157,23 @@ class ArrivalPage extends StatelessWidget {
                     onPressed: cubit.replay,
                   ),
                   const SizedBox(width: AppSpacing.sm),
-                  _NextButton(
-                    // 줄이 바뀌거나 다 읽으면 남은 시간을 처음부터 센다.
-                    key: ValueKey('next-$current-${state.isLineDone}'),
-                    enabled: state.hasNext,
-                    waiting: state.isLineDone,
-                    interval: place.lineInterval,
-                    onPressed: cubit.next,
-                  ),
+                  // 마지막 줄에서는 [마침]으로 바뀌어 처음 화면으로 돌아간다.
+                  if (state.hasNext)
+                    _NextButton(
+                      // 줄이 바뀌거나 다 읽으면 남은 시간을 처음부터 센다.
+                      key: ValueKey('next-$current-${state.isLineDone}'),
+                      waiting: state.isLineDone,
+                      interval: place.lineInterval,
+                      onPressed: cubit.next,
+                    )
+                  else
+                    GmButton(
+                      label: '마침',
+                      variant: state.isSpeaking
+                          ? GmButtonVariant.outline
+                          : GmButtonVariant.primary,
+                      onPressed: () => context.go(AppRoutes.home),
+                    ),
                 ],
               ),
             ],
@@ -169,13 +189,11 @@ class ArrivalPage extends StatelessWidget {
 class _NextButton extends StatelessWidget {
   const _NextButton({
     super.key,
-    required this.enabled,
     required this.waiting,
     required this.interval,
     required this.onPressed,
   });
 
-  final bool enabled;
   final bool waiting;
   final Duration interval;
   final VoidCallback onPressed;
@@ -186,12 +204,11 @@ class _NextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!enabled || !waiting) {
+    if (!waiting) {
       return GmButton(
         label: '다음',
-        icon: Icons.arrow_forward_rounded,
         variant: GmButtonVariant.outline,
-        onPressed: enabled ? onPressed : null,
+        onPressed: onPressed,
       );
     }
     return TweenAnimationBuilder<double>(
@@ -201,11 +218,7 @@ class _NextButton extends StatelessWidget {
         final seconds = (remain * interval.inMilliseconds / 1000).ceil();
         return Stack(
           children: [
-            GmButton(
-              label: '다음 · $seconds초',
-              icon: Icons.arrow_forward_rounded,
-              onPressed: onPressed,
-            ),
+            GmButton(label: '다음 · $seconds초', onPressed: onPressed),
             Positioned(
               left: AppSpacing.md,
               right: AppSpacing.md,

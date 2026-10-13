@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_semantic_colors.dart';
 import '../theme/app_tokens.dart';
 import 'gm_icon.dart';
+import 'gm_place_art.dart';
 
 /// 바탕의 빛이 비치는 반투명 유리 카드. 1px 밝은 선으로 가장자리를 잡는다.
 /// [onTap]이 있으면 누를 수 있다.
@@ -48,7 +49,7 @@ class GmCard extends StatelessWidget {
 /// 홈 화면의 큰 메뉴 카드 ([길 찾기], [학교 투어]).
 ///
 /// 왼쪽 위에 선 아이콘, 오른쪽 위에 번호(또는 [badge]), 아래쪽에 큰 제목과
-/// 작은 설명, 오른쪽 아래에 화살표. 장식 없이 글자 크기 대비로만 위계를 만든다.
+/// 작은 설명. 장식 없이 글자 크기 대비로만 위계를 만든다.
 /// [emphasized]면 파랑 단색 면으로 칠해 주 메뉴임을 보여 준다.
 class GmMenuTile extends StatelessWidget {
   const GmMenuTile({
@@ -186,11 +187,6 @@ class GmMenuTile extends StatelessWidget {
                             ],
                           ),
                         ),
-                        GmIcon(
-                          GmIcons.arrowForward,
-                          size: AppSize.iconLg,
-                          color: enabled ? accent : semantic.textDisabled,
-                        ),
                       ],
                     ),
                   ),
@@ -204,10 +200,10 @@ class GmMenuTile extends StatelessWidget {
   }
 }
 
-/// 장소 카드: 위쪽 사진 자리 + 이름 + 층·분류.
+/// 장소 카드: 16:10 사진 자리 + 이름 + 층·분류.
 ///
 /// 사진이 들어갈 카드라 유리 면 대신 불투명한 남색 면을 쓴다. 사진이 없으면
-/// 사진 자리에 작은 [icon]을 가운데 둔다.
+/// 장소 아이콘을 크게 깐 [GmPlaceArt]로 채운다. 사진 비율은 늘 16:10이다.
 class GmPlaceCard extends StatelessWidget {
   const GmPlaceCard({
     super.key,
@@ -217,7 +213,6 @@ class GmPlaceCard extends StatelessWidget {
     this.image,
     this.onTap,
     this.selected = false,
-    this.fillHeight = false,
   });
 
   final String name;
@@ -229,65 +224,15 @@ class GmPlaceCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool selected;
 
-  /// true면 부모가 정한 높이를 채운다 (그리드 칸 안에서 쓸 때).
-  final bool fillHeight;
+  static const photoAspectRatio = 16 / 10;
 
-  static const _photoIconSize = 40.0;
+  /// 사진 아래 이름 칸의 높이 (그리드 칸 높이를 계산할 때 쓴다).
+  static const labelExtent = 96.0;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final text = context.textStyles;
-
-    final Widget photo = SizedBox(
-      width: double.infinity,
-      child: image != null
-          ? Image(image: image!, fit: BoxFit.cover)
-          : ColoredBox(
-              color: colors.surfaceContainerHighest,
-              child: Center(
-                child: GmIcon(
-                  icon,
-                  size: _photoIconSize,
-                  color: context.appColors.textSecondary,
-                ),
-              ),
-            ),
-    );
-
-    final Widget label = Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.md,
-        AppSpacing.md,
-        AppSpacing.md,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(name, style: text.titleLarge),
-                Text(
-                  meta,
-                  style: text.bodySmall?.copyWith(
-                    color: context.appColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          GmIcon(
-            GmIcons.arrowForward,
-            size: AppSize.iconSm,
-            color: colors.onSurface,
-          ),
-        ],
-      ),
-    );
 
     return Semantics(
       button: true,
@@ -307,13 +252,33 @@ class GmPlaceCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 그리드 칸처럼 높이가 정해져 있으면 사진이 남은 높이를 채우고,
-              // 아니면 16:10 비율로 그린다.
-              if (fillHeight)
-                Expanded(child: photo)
-              else
-                AspectRatio(aspectRatio: 16 / 10, child: photo),
-              label,
+              AspectRatio(
+                aspectRatio: photoAspectRatio,
+                child: image != null
+                    ? Image(image: image!, fit: BoxFit.cover)
+                    : GmPlaceArt(icon: icon),
+              ),
+              SizedBox(
+                height: labelExtent,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name, style: text.titleLarge),
+                      Text(
+                        meta,
+                        style: text.bodySmall?.copyWith(
+                          color: context.appColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),

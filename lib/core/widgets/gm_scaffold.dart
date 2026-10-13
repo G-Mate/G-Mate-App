@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_semantic_colors.dart';
 import '../theme/app_tokens.dart';
+import 'gm_back_button.dart';
 import 'gm_background.dart';
 import 'gm_hero_panel.dart';
 
@@ -62,18 +63,7 @@ class GmScaffold extends StatelessWidget {
                     child: Row(
                       children: [
                         if (onBack != null)
-                          IconButton(
-                            onPressed: onBack,
-                            tooltip: '뒤로',
-                            iconSize: AppSize.iconMd,
-                            style: IconButton.styleFrom(
-                              backgroundColor: AppColors.glass,
-                              side: const BorderSide(
-                                color: AppColors.glassBorder,
-                              ),
-                            ),
-                            icon: const Icon(Icons.arrow_back_rounded),
-                          )
+                          GmBackButton(onPressed: onBack!)
                         else
                           const SizedBox.shrink(),
                         if (onBack != null)
@@ -93,7 +83,7 @@ class GmScaffold extends StatelessWidget {
                                 ],
                                 Text(
                                   title!,
-                                  style: context.textStyles.headlineLarge,
+                                  style: context.textStyles.headlineMedium,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ],
@@ -114,7 +104,7 @@ class GmScaffold extends StatelessWidget {
                     ? Padding(
                         padding: EdgeInsets.fromLTRB(
                           AppSpacing.screenHorizontal,
-                          hasHeader ? AppSpacing.xl : AppSpacing.screenVertical,
+                          hasHeader ? AppSpacing.lg : AppSpacing.screenVertical,
                           AppSpacing.screenHorizontal,
                           bottomBar == null
                               ? AppSpacing.screenVertical

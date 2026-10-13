@@ -32,7 +32,7 @@ import 'routes.dart';
 export 'routes.dart';
 
 /// 장소 확인 → 이동 중 전환 시간 (평면도 Hero가 지도로 커지는 시간).
-const guideTransition = Duration(milliseconds: 600);
+const guideTransition = Duration(milliseconds: 700);
 
 GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
   initialLocation: initialLocation,
@@ -73,8 +73,14 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
         key: state.pageKey,
         transitionDuration: guideTransition,
         reverseTransitionDuration: guideTransition,
-        transitionsBuilder: (context, animation, _, child) =>
-            FadeTransition(opacity: animation, child: child),
+        // 평면도가 먼저 날아가고, 새 화면은 그 뒤에 서서히 나타난다.
+        transitionsBuilder: (context, animation, _, child) => FadeTransition(
+          opacity: CurvedAnimation(
+            parent: animation,
+            curve: const Interval(0.35, 1, curve: Curves.easeOut),
+          ),
+          child: child,
+        ),
         child: BlocProvider(
           create: (_) => GuideBloc(
             robot: getIt<RobotController>(),

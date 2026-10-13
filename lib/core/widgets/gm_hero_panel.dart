@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_tokens.dart';
+import 'gm_back_button.dart';
 import 'gm_background.dart';
 
 /// 화면 한쪽을 채우는 남색 패널. 홈(대기), 도착 안내처럼 화면의 주제를
@@ -144,7 +145,7 @@ class GmOverline extends StatelessWidget {
   }
 }
 
-/// 남색 패널 위에 두는 뒤로 가기 버튼 (유리 알약 + 흰 아이콘·글자).
+/// 남색 패널 위에 두는 뒤로 가기 버튼. 모든 화면이 [GmBackButton] 하나를 쓴다.
 class GmHeroBackButton extends StatelessWidget {
   const GmHeroBackButton({super.key, required this.onPressed, this.label});
 
@@ -152,23 +153,8 @@ class GmHeroBackButton extends StatelessWidget {
   final String? label;
 
   @override
-  Widget build(BuildContext context) {
-    return TextButton.icon(
-      onPressed: onPressed,
-      // 왼쪽 여백 선에 맞춰 붙는 유리 알약. 아이콘 쪽 여백을 조금 좁혀 균형을 맞춘다.
-      style: TextButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: AppColors.glass,
-        side: const BorderSide(color: AppColors.glassBorder),
-        shape: const StadiumBorder(),
-        minimumSize: const Size(0, AppSize.buttonSmall),
-        padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.lg, 0),
-        textStyle: Theme.of(context).textTheme.labelSmall,
-      ),
-      icon: const Icon(Icons.arrow_back_rounded, size: AppSize.iconSm),
-      label: Text(label ?? '뒤로'),
-    );
-  }
+  Widget build(BuildContext context) =>
+      GmBackButton(onPressed: onPressed, label: label ?? '뒤로');
 }
 
 /// 왼쪽 남색 패널 + 오른쪽 본문으로 나뉜 화면 틀.

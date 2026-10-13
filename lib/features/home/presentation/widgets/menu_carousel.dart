@@ -50,8 +50,16 @@ class _MenuCarouselState extends State<MenuCarousel> {
   static const _activeDotLength = 24.0;
   static const _move = Duration(milliseconds: 420);
 
-  final _controller = PageController(viewportFraction: _viewportFraction);
-  int _current = 0;
+  /// 끝없이 넘길 수 있도록 아주 큰 페이지 번호의 가운데에서 시작한다.
+  static const _loopBase = 10000;
+
+  late int _current = _loopBase * widget.items.length;
+  late final _controller = PageController(
+    viewportFraction: _viewportFraction,
+    initialPage: _current,
+  );
+
+  int get _count => widget.items.length;
 
   @override
   void dispose() {
@@ -95,10 +103,10 @@ class _MenuCarouselState extends State<MenuCarousel> {
             child: PageView.builder(
               controller: _controller,
               scrollDirection: Axis.vertical,
-              itemCount: widget.items.length,
+              // itemCount가 없으면 끝없이 넘긴다. 메뉴는 차례대로 되풀이된다.
               onPageChanged: (i) => setState(() => _current = i),
               itemBuilder: (context, i) {
-                final item = widget.items[i];
+                final item = widget.items[i % _count];
                 return AnimatedBuilder(
                   animation: _controller,
                   builder: (context, child) {
@@ -121,7 +129,7 @@ class _MenuCarouselState extends State<MenuCarousel> {
                       icon: item.icon,
                       title: item.title,
                       description: item.description,
-                      index: '0${i + 1}',
+                      index: '0${i % _count + 1}',
                       badge: item.badge,
                       emphasized: item.emphasized,
                       // 가운데가 아닌 카드는 누르면 가운데로 옮겨 온다.
@@ -138,16 +146,16 @@ class _MenuCarouselState extends State<MenuCarousel> {
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (var i = 0; i < widget.items.length; i++)
+            for (var i = 0; i < _count; i++)
               GestureDetector(
-                onTap: () => _goTo(i),
+                onTap: () => _goTo(_current - _current % _count + i),
                 child: AnimatedContainer(
                   duration: AppDuration.slow,
                   margin: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
                   width: _dotSize,
-                  height: i == _current ? _activeDotLength : _dotSize,
+                  height: i == _current % _count ? _activeDotLength : _dotSize,
                   decoration: BoxDecoration(
-                    color: i == _current
+                    color: i == _current % _count
                         ? colors.primary
                         : colors.outlineVariant,
                     borderRadius: BorderRadius.circular(AppRadius.full),

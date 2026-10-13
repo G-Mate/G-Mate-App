@@ -52,6 +52,7 @@ class FloorMap extends StatelessWidget {
           Expanded(
             child: Hero(
               tag: GmFloorPlan.heroTag,
+              flightShuttleBuilder: GmFloorPlanFade.flightShuttle,
               // 이동 상태가 바뀔 때 로봇 점이 부드럽게 따라가도록.
               child: TweenAnimationBuilder<double>(
                 tween: Tween(end: progress),

@@ -86,18 +86,25 @@ class GmFloorPlanTour extends StatefulWidget {
   final String startLabel;
 
   @override
-  State<GmFloorPlanTour> createState() => _GmFloorPlanTourState();
+  State<GmFloorPlanTour> createState() => GmFloorPlanTourState();
 }
 
-class _GmFloorPlanTourState extends State<GmFloorPlanTour>
-    with SingleTickerProviderStateMixin {
+class GmFloorPlanTourState extends State<GmFloorPlanTour>
+    with TickerProviderStateMixin {
   static const _period = Duration(seconds: 8);
+  static const _settleDuration = Duration(milliseconds: 280);
   static const _closeZoom = 2.2;
 
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: _period,
   )..repeat();
+
+  /// [settle]에서 전체 보기로 물러나는 진행 (0 = 돌던 자리, 1 = 전체).
+  late final AnimationController _settle = AnimationController(
+    vsync: this,
+    duration: _settleDuration,
+  );
 
   // 한 바퀴 안의 구간 (0~1).
   static const _zoomInEnd = 0.15;
@@ -108,7 +115,15 @@ class _GmFloorPlanTourState extends State<GmFloorPlanTour>
   @override
   void dispose() {
     _controller.dispose();
+    _settle.dispose();
     super.dispose();
+  }
+
+  /// 되풀이를 멈추고 전체 보기로 부드럽게 물러난다. 다음 화면 지도로
+  /// 이어지기(Hero) 전에 부른다.
+  Future<void> settle() async {
+    _controller.stop();
+    await _settle.animateTo(1, curve: Curves.easeOutCubic);
   }
 
   (double focus, double zoom) _camera(double t) {
@@ -126,16 +141,68 @@ class _GmFloorPlanTourState extends State<GmFloorPlanTour>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _controller,
+      animation: Listenable.merge([_controller, _settle]),
       builder: (context, _) {
         final (focus, zoom) = _camera(_controller.value);
         return GmFloorPlan(
           destination: widget.destination,
           cameraFocus: focus,
-          cameraZoom: zoom,
+          cameraZoom: zoom + (1 - zoom) * _settle.value,
           startLabel: widget.startLabel,
         );
       },
+    );
+  }
+}
+
+/// 가장자리가 흐려지며 바탕에 녹아드는 평면도 (장소 확인 미리보기, Hero 비행 중).
+///
+/// [strength]가 0이면 흐림 없이 그대로 보여 준다.
+class GmFloorPlanFade extends StatelessWidget {
+  const GmFloorPlanFade({super.key, required this.child, this.strength = 1});
+
+  final Widget child;
+  final double strength;
+
+  static const _solidRadius = 0.35;
+
+  @override
+  Widget build(BuildContext context) {
+    if (strength <= 0) return child;
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (rect) => RadialGradient(
+        radius: 0.68,
+        colors: [
+          Colors.white,
+          Colors.white,
+          Colors.white.withValues(alpha: 1 - strength),
+        ],
+        stops: const [0, _solidRadius, 1],
+      ).createShader(rect),
+      child: child,
+    );
+  }
+
+  /// 두 화면의 평면도 Hero가 쓰는 비행 모양: 날아가는 동안 가장자리 흐림이
+  /// 장소 확인 쪽에서 이동 중 쪽으로 자연스럽게 바뀐다.
+  static Widget flightShuttle(
+    BuildContext flightContext,
+    Animation<double> animation,
+    HeroFlightDirection direction,
+    BuildContext fromContext,
+    BuildContext toContext,
+  ) {
+    final toHero = toContext.widget as Hero;
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) => GmFloorPlanFade(
+        strength: direction == HeroFlightDirection.push
+            ? 1 - animation.value
+            : animation.value,
+        child: child!,
+      ),
+      child: toHero.child,
     );
   }
 }

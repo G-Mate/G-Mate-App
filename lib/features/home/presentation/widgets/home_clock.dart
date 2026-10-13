@@ -10,8 +10,6 @@ import '../../../../core/design_system.dart';
 class HomeClock extends StatelessWidget {
   const HomeClock({super.key});
 
-  static const heroTag = 'home-clock';
-
   @override
   Widget build(BuildContext context) {
     final text = context.textStyles;
@@ -22,16 +20,13 @@ class HomeClock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Hero(
-            tag: heroTag,
-            child: _Ticking(
-              builder: (now) => Text(
-                _hhmm(now),
-                style: text.displaySmall?.copyWith(
-                  color: context.colors.onSurface,
-                  fontWeight: FontWeight.w500,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
+          _Ticking(
+            builder: (now) => Text(
+              _hhmm(now),
+              style: text.displaySmall?.copyWith(
+                color: context.colors.onSurface,
+                fontWeight: FontWeight.w500,
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
           ),
@@ -79,6 +74,8 @@ class _HomeClockFocusState extends State<HomeClockFocus> {
   static const _blurSigma = 24.0;
   static const _scrimAlpha = 0.55;
   static const _clockWidth = 760.0;
+  static const _startScale = 0.94;
+  static const _riseOffset = 0.04;
 
   late final Timer _closeTimer = Timer(_autoClose, _close);
 
@@ -123,77 +120,89 @@ class _HomeClockFocusState extends State<HomeClockFocus> {
             child: child,
           ),
         ),
+        // 시계는 살짝 작게, 조금 아래에서 시작해 제자리로 떠오르며 나타난다.
         child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FadeTransition(
-                opacity: fade,
-                child: _Ticking(
-                  builder: (now) => Text(
-                    now.hour < 12 ? '오전' : '오후',
-                    style: text.titleMedium?.copyWith(
-                      color: semantic.textSecondary,
-                      letterSpacing: 2,
+          child: FadeTransition(
+            opacity: fade,
+            child: SlideTransition(
+              position: Tween(
+                begin: const Offset(0, _riseOffset),
+                end: Offset.zero,
+              ).animate(fade),
+              child: ScaleTransition(
+                scale: Tween(begin: _startScale, end: 1.0).animate(fade),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FadeTransition(
+                      opacity: fade,
+                      child: _Ticking(
+                        builder: (now) => Text(
+                          now.hour < 12 ? '오전' : '오후',
+                          style: text.titleMedium?.copyWith(
+                            color: semantic.textSecondary,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: _clockWidth,
-                child: FittedBox(
-                  child: Hero(
-                    tag: HomeClock.heroTag,
-                    child: _Ticking(
-                      builder: (now) => Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(text: _hhmm(now)),
-                            // 초는 작고 옅게 붙인다.
+                    SizedBox(
+                      width: _clockWidth,
+                      child: FittedBox(
+                        child: _Ticking(
+                          builder: (now) => Text.rich(
                             TextSpan(
-                              text: ' ${_two(now.second)}',
-                              style: TextStyle(
-                                color: colors.primary,
-                                fontWeight: FontWeight.w400,
+                              children: [
+                                TextSpan(text: _hhmm(now)),
+                                // 초는 작고 옅게 붙인다.
+                                TextSpan(
+                                  text: ' ${_two(now.second)}',
+                                  style: TextStyle(
+                                    color: colors.primary,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            style: text.displayLarge?.copyWith(
+                              color: colors.onSurface,
+                              fontWeight: FontWeight.w500,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    FadeTransition(
+                      opacity: fade,
+                      child: Column(
+                        children: [
+                          _Ticking(
+                            builder: (now) => Text(
+                              '${now.year}년 ${_date(now)}',
+                              style: text.headlineSmall?.copyWith(
+                                color: colors.onSurface,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                          ],
-                        ),
-                        style: text.displayLarge?.copyWith(
-                          color: colors.onSurface,
-                          fontWeight: FontWeight.w500,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              FadeTransition(
-                opacity: fade,
-                child: Column(
-                  children: [
-                    _Ticking(
-                      builder: (now) => Text(
-                        '${now.year}년 ${_date(now)}',
-                        style: text.headlineSmall?.copyWith(
-                          color: colors.onSurface,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.xxl),
-                    Text(
-                      '화면을 누르면 돌아가요',
-                      style: text.bodySmall?.copyWith(
-                        color: semantic.textSecondary,
+                          ),
+                          const SizedBox(height: AppSpacing.xxl),
+                          Text(
+                            '화면을 누르면 돌아가요',
+                            style: text.bodySmall?.copyWith(
+                              color: semantic.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),

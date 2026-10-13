@@ -16,7 +16,7 @@ class GmSearchField extends StatelessWidget {
   final ValueChanged<String> onChanged;
   final double width;
 
-  static const defaultWidth = 360.0;
+  static const defaultWidth = 440.0;
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +35,10 @@ class GmSearchField extends StatelessWidget {
         expands: true,
         maxLines: null,
         textAlignVertical: TextAlignVertical.center,
-        style: text.bodySmall?.copyWith(color: context.colors.onSurface),
+        style: text.bodyMedium?.copyWith(color: context.colors.onSurface),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: text.bodySmall?.copyWith(color: semantic.textDisabled),
+          hintStyle: text.bodyMedium?.copyWith(color: semantic.textDisabled),
           isDense: true,
           contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           prefixIcon: Padding(
@@ -48,7 +48,7 @@ class GmSearchField extends StatelessWidget {
             ),
             child: Icon(
               Icons.search_rounded,
-              size: AppSize.iconSm,
+              size: AppSize.iconSm + AppSpacing.xxs,
               color: semantic.textSecondary,
             ),
           ),

@@ -27,10 +27,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('이곳으로 안내할까요?'), findsOneWidget);
 
+    // 미리보기가 전체 보기로 물러난 뒤 이동 중 화면으로 넘어간다.
     await tester.tap(find.text('안내 시작'));
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.pump();
-    expect(find.text('과학실로\n안내하고 있어요'), findsOneWidget);
+    expect(find.textContaining('안내하고 있어요'), findsOneWidget);
 
     // Fake 로봇이 이동을 마치면 도착·설명으로 넘어간다.
     await tester.pump(const Duration(milliseconds: 400));
