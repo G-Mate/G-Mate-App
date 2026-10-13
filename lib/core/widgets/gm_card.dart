@@ -50,7 +50,7 @@ class GmCard extends StatelessWidget {
 ///
 /// 왼쪽 위에 선 아이콘, 오른쪽 위에 [badge](예: '준비 중'), 아래쪽에 큰 제목과
 /// 작은 설명. 장식 없이 글자 크기 대비로만 위계를 만든다.
-/// [emphasized]면 파랑 단색 면으로 칠해 주 메뉴임을 보여 준다.
+/// [emphasized]면 파랑 면으로 칠해 지금 고른 메뉴임을 보여 준다.
 class GmMenuTile extends StatelessWidget {
   const GmMenuTile({
     super.key,
@@ -69,7 +69,7 @@ class GmMenuTile extends StatelessWidget {
   /// null이면 아직 쓸 수 없는 메뉴로 보고 화살표를 흐리게 표시한다.
   final VoidCallback? onTap;
 
-  /// true면 파랑 단색 면에 흰 글자로 그린다 (화면의 주 메뉴 하나에만 쓴다).
+  /// true면 파랑 면에 흰 글자로 그린다 (화면에서 지금 고른 메뉴 하나에만 쓴다).
   final bool emphasized;
 
   /// 오른쪽 위에 둘 짧은 글자 (예: '준비 중').
@@ -99,7 +99,9 @@ class GmMenuTile extends StatelessWidget {
       label: description == null ? title : '$title, $description',
       enabled: enabled,
       excludeSemantics: true,
-      child: DecoratedBox(
+      // 강조가 바뀔 때(홈 메뉴를 넘길 때) 파랑 면과 빛이 서서히 바뀐다.
+      child: AnimatedContainer(
+        duration: AppDuration.slow,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.lg),
           gradient: emphasized
@@ -109,7 +111,7 @@ class GmMenuTile extends StatelessWidget {
                   colors: [AppColors.primary, AppColors.primaryDark],
                 )
               : null,
-          // 주 메뉴는 파랑 빛이 아래로 번지며 떠 있는 느낌을 준다.
+          // 고른 메뉴는 파랑 빛이 아래로 번지며 떠 있는 느낌을 준다.
           boxShadow: emphasized
               ? [
                   BoxShadow(

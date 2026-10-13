@@ -10,7 +10,6 @@ class HomeMenuItem {
     required this.description,
     this.onTap,
     this.badge,
-    this.emphasized = false,
   });
 
   final GmIcons icon;
@@ -20,10 +19,9 @@ class HomeMenuItem {
   /// null이면 아직 쓸 수 없는 메뉴.
   final VoidCallback? onTap;
   final String? badge;
-  final bool emphasized;
 }
 
-/// 세로로 넘기는 메뉴 카드. 가운데 카드는 크고 밝게, 위아래 카드는 작고
+/// 세로로 넘기는 메뉴 카드. 가운데 카드는 크고 파랗게, 위아래 카드는 작고
 /// 흐리게 보여 준다. 옆 카드를 누르면 가운데로 옮겨 오고, 가운데 카드를
 /// 누르면 메뉴로 들어간다.
 class MenuCarousel extends StatefulWidget {
@@ -130,7 +128,8 @@ class _MenuCarouselState extends State<MenuCarousel> {
                       title: item.title,
                       description: item.description,
                       badge: item.badge,
-                      emphasized: item.emphasized,
+                      // 가운데(지금 고른) 카드만 파랑으로 강조한다.
+                      emphasized: i == _current,
                       // 가운데가 아닌 카드는 누르면 가운데로 옮겨 온다.
                       onTap: i == _current ? item.onTap : () => _goTo(i),
                     ),

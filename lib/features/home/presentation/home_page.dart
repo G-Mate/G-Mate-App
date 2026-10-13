@@ -61,7 +61,6 @@ class HomePage extends StatelessWidget {
             icon: GmIcons.navigate,
             title: '길 찾기',
             description: '가고 싶은 곳까지 데려다 드려요',
-            emphasized: true,
             onTap: () => context.push(AppRoutes.placeSelect),
           ),
           HomeMenuItem(
