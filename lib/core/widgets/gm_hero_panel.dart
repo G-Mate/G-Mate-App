@@ -16,7 +16,6 @@ class GmHeroPanel extends StatelessWidget {
     this.subtitle,
     this.footer,
     this.top,
-    this.art,
   });
 
   final String title;
@@ -32,13 +31,7 @@ class GmHeroPanel extends StatelessWidget {
   /// (예: [GmHeroBackButton]).
   final Widget? top;
 
-  /// 패널 오른쪽 위에 둘 그림 (예: 장소 확인의 [GmRoutePreview]).
-  final Widget? art;
-
   static const _panelAlpha = 0.45;
-  static const _artTop = 96.0;
-  static const _artWidth = 280.0;
-  static const _artHeight = 210.0;
 
   /// 두 줄 제목의 첫 줄 진하기.
   static const _leadAlpha = 0.72;
@@ -56,14 +49,6 @@ class GmHeroPanel extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          if (art != null)
-            Positioned(
-              top: _artTop,
-              right: AppSpacing.xxl,
-              width: _artWidth,
-              height: _artHeight,
-              child: IgnorePointer(child: art),
-            ),
           Positioned.fill(
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.xxl),
@@ -159,7 +144,7 @@ class GmOverline extends StatelessWidget {
   }
 }
 
-/// 남색 패널 위에 두는 뒤로 가기 버튼 (흰 아이콘 + 글자).
+/// 남색 패널 위에 두는 뒤로 가기 버튼 (유리 알약 + 흰 아이콘·글자).
 class GmHeroBackButton extends StatelessWidget {
   const GmHeroBackButton({super.key, required this.onPressed, this.label});
 
@@ -170,12 +155,17 @@ class GmHeroBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton.icon(
       onPressed: onPressed,
+      // 왼쪽 여백 선에 맞춰 붙는 유리 알약. 아이콘 쪽 여백을 조금 좁혀 균형을 맞춘다.
       style: TextButton.styleFrom(
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-        textStyle: Theme.of(context).textTheme.labelMedium,
+        backgroundColor: AppColors.glass,
+        side: const BorderSide(color: AppColors.glassBorder),
+        shape: const StadiumBorder(),
+        minimumSize: const Size(0, AppSize.buttonSmall),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.lg, 0),
+        textStyle: Theme.of(context).textTheme.labelSmall,
       ),
-      icon: const Icon(Icons.arrow_back_rounded, size: AppSize.iconMd),
+      icon: const Icon(Icons.arrow_back_rounded, size: AppSize.iconSm),
       label: Text(label ?? '뒤로'),
     );
   }

@@ -22,7 +22,9 @@ void main() {
     expect(find.text('컴퓨터실'), findsNothing);
 
     await tester.tap(find.text('과학실'));
-    await tester.pumpAndSettle();
+    // 장소 확인의 평면도 미리보기는 계속 돌아가므로 정해진 시간만큼만 그린다.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('이곳으로 안내할까요?'), findsOneWidget);
 
     await tester.tap(find.text('안내 시작'));
@@ -34,7 +36,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(find.text('도착했어요'), findsOneWidget);
-    expect(find.text(' / 4'), findsOneWidget);
+    expect(find.text('1 / 4'), findsOneWidget);
 
     await tester.tap(find.text('처음으로'));
     await tester.pumpAndSettle();

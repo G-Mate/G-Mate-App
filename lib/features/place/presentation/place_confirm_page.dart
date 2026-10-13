@@ -15,6 +15,7 @@ class PlaceConfirmPage extends StatelessWidget {
 
   static const _summaryMaxLines = 4;
   static const _iconSize = 56.0;
+  static const _previewHeight = 240.0;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +52,28 @@ class _Content extends StatelessWidget {
         overline: place.meta,
         title: place.name,
         subtitle: '이곳으로 안내할까요?',
-        art: GmRoutePreview(destination: place.name),
+        // 아래쪽 평면도 미리보기. 안내를 시작하면 이동 중 화면의 지도로 이어진다.
+        footer: SizedBox(
+          width: double.infinity,
+          height: PlaceConfirmPage._previewHeight,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: AppColors.glass,
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              border: Border.all(color: AppColors.glassBorder),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Hero(
+                  tag: GmFloorPlan.heroTag,
+                  child: GmFloorPlanTour(destination: place.name),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -94,7 +116,9 @@ class _Content extends StatelessWidget {
                 label: '안내 시작',
                 icon: Icons.arrow_forward_rounded,
                 size: GmButtonSize.large,
-                onPressed: () => context.go(AppRoutes.guiding(place.key)),
+                // Hero로 평면도가 이어지도록 push로 넘어간다.
+                onPressed: () =>
+                    context.push(AppRoutes.guiding(place.key), extra: place),
               ),
             ],
           ),

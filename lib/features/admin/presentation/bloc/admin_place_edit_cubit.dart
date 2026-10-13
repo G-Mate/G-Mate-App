@@ -49,6 +49,10 @@ class AdminPlaceEditCubit extends Cubit<AdminPlaceEditState> {
     ),
   );
 
+  /// 본 설명 줄 사이에 저절로 넘어가기까지 기다리는 시간.
+  void changeLineInterval(Duration interval) =>
+      _update(_place.copyWith(lineInterval: interval));
+
   void changeStart(String text) =>
       _update(_place.copyWith(speech: _speech.copyWith(start: text)));
 

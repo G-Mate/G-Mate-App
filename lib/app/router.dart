@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,6 +19,7 @@ import '../features/guide/presentation/bloc/guide_bloc.dart';
 import '../features/guide/presentation/guiding_page.dart';
 import '../features/home/presentation/bloc/robot_status_cubit.dart';
 import '../features/home/presentation/home_page.dart';
+import '../features/place/domain/place.dart';
 import '../features/place/domain/place_repository.dart';
 import '../features/place/presentation/bloc/place_detail_cubit.dart';
 import '../features/place/presentation/bloc/place_select_cubit.dart';
@@ -28,6 +30,9 @@ import 'di.dart';
 import 'routes.dart';
 
 export 'routes.dart';
+
+/// 장소 확인 → 이동 중 전환 시간 (평면도 Hero가 지도로 커지는 시간).
+const guideTransition = Duration(milliseconds: 600);
 
 GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
   initialLocation: initialLocation,
@@ -62,13 +67,23 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
     ),
     GoRoute(
       path: '/guide/:key',
-      builder: (context, state) => BlocProvider(
-        create: (_) => GuideBloc(
-          robot: getIt<RobotController>(),
-          places: getIt<PlaceRepository>(),
-          placeKey: state.pathParameters['key']!,
-        )..add(const GuideStarted()),
-        child: const GuidingPage(),
+      // 장소 확인의 평면도가 이 화면의 지도로 날아가도록(Hero) 전환 시간을 둔다.
+      // 다른 화면은 기본처럼 바로 바뀐다.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: guideTransition,
+        reverseTransitionDuration: guideTransition,
+        transitionsBuilder: (context, animation, _, child) =>
+            FadeTransition(opacity: animation, child: child),
+        child: BlocProvider(
+          create: (_) => GuideBloc(
+            robot: getIt<RobotController>(),
+            places: getIt<PlaceRepository>(),
+            placeKey: state.pathParameters['key']!,
+            initialPlace: state.extra is Place ? state.extra! as Place : null,
+          )..add(const GuideStarted()),
+          child: const GuidingPage(),
+        ),
       ),
     ),
     GoRoute(

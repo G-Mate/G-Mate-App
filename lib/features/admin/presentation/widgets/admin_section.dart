@@ -80,3 +80,62 @@ class AdminField extends StatelessWidget {
     );
   }
 }
+
+/// 라벨 + 슬라이더 + 오른쪽 값 글자 (+ 선택 도움말).
+class AdminSliderField extends StatelessWidget {
+  const AdminSliderField({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.divisions,
+    required this.display,
+    required this.onChanged,
+    this.hint,
+  });
+
+  final String label;
+  final double value;
+  final double min;
+  final double max;
+  final int divisions;
+
+  /// 오른쪽에 보여 줄 값 (예: '1.0배', '5초').
+  final String display;
+  final ValueChanged<double> onChanged;
+  final String? hint;
+
+  static const _valueWidth = 72.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return AdminField(
+      label: label,
+      hint: hint,
+      child: Row(
+        children: [
+          Expanded(
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: divisions,
+              onChanged: onChanged,
+            ),
+          ),
+          SizedBox(
+            width: _valueWidth,
+            child: Text(
+              display,
+              textAlign: TextAlign.end,
+              style: context.textStyles.titleSmall?.copyWith(
+                color: context.colors.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

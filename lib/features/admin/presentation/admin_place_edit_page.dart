@@ -154,6 +154,18 @@ class _BasicInfo extends StatelessWidget {
             onChanged: cubit.changeKeywords,
           ),
         ),
+        AdminSliderField(
+          label: '자동 넘김',
+          hint: '한 줄을 읽고 다음 줄로 넘어가기까지 기다려요',
+          value: place.lineInterval.inSeconds.toDouble(),
+          min: Place.minLineInterval.inSeconds.toDouble(),
+          max: Place.maxLineInterval.inSeconds.toDouble(),
+          divisions:
+              Place.maxLineInterval.inSeconds - Place.minLineInterval.inSeconds,
+          display: '${place.lineInterval.inSeconds}초',
+          onChanged: (v) =>
+              cubit.changeLineInterval(Duration(seconds: v.round())),
+        ),
       ],
     );
   }

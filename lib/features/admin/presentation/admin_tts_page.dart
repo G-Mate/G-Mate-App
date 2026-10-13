@@ -89,7 +89,7 @@ class _AdminTtsPageState extends State<AdminTtsPage> {
                           ],
                         ),
                       ),
-                      _SliderField(
+                      AdminSliderField(
                         label: '말하기 속도',
                         value: s.speed,
                         min: SpeechSettings.minSpeed,
@@ -100,7 +100,7 @@ class _AdminTtsPageState extends State<AdminTtsPage> {
                           s.copyWith(speed: double.parse(v.toStringAsFixed(1))),
                         ),
                       ),
-                      _SliderField(
+                      AdminSliderField(
                         label: '높낮이',
                         value: s.pitch.toDouble(),
                         min: SpeechSettings.minPitch.toDouble(),
@@ -113,7 +113,7 @@ class _AdminTtsPageState extends State<AdminTtsPage> {
                         onChanged: (v) =>
                             cubit.change(s.copyWith(pitch: v.round())),
                       ),
-                      _SliderField(
+                      AdminSliderField(
                         label: '음량',
                         value: s.volume.toDouble(),
                         min: SpeechSettings.minVolume.toDouble(),
@@ -169,59 +169,6 @@ class _AdminTtsPageState extends State<AdminTtsPage> {
           ),
         );
       },
-    );
-  }
-}
-
-/// 라벨과 현재 값 + 슬라이더.
-class _SliderField extends StatelessWidget {
-  const _SliderField({
-    required this.label,
-    required this.value,
-    required this.min,
-    required this.max,
-    required this.divisions,
-    required this.display,
-    required this.onChanged,
-  });
-
-  final String label;
-  final double value;
-  final double min;
-  final double max;
-  final int divisions;
-  final String display;
-  final ValueChanged<double> onChanged;
-
-  static const _valueWidth = 72.0;
-
-  @override
-  Widget build(BuildContext context) {
-    return AdminField(
-      label: label,
-      child: Row(
-        children: [
-          Expanded(
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: divisions,
-              onChanged: onChanged,
-            ),
-          ),
-          SizedBox(
-            width: _valueWidth,
-            child: Text(
-              display,
-              textAlign: TextAlign.end,
-              style: context.textStyles.titleSmall?.copyWith(
-                color: context.colors.primary,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -27,6 +27,9 @@ class ArrivalState extends Equatable {
     return description.isEmpty ? [p.speech.arrival] : description;
   }
 
+  /// 지금 줄 다음에 더 읽을 줄이 있는지 ([다음] 버튼).
+  bool get hasNext => lineIndex < lines.length - 1;
+
   ArrivalState copyWith({
     bool? isLoading,
     Place? place,

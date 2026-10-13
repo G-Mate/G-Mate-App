@@ -13,7 +13,8 @@ import 'widgets/keep_all_text.dart';
 class ArrivalPage extends StatelessWidget {
   const ArrivalPage({super.key});
 
-  static const _progressHeight = 6.0;
+  static const _dotSize = 8.0;
+  static const _activeDotWidth = 24.0;
   static const _subtitleLineHeight = 1.4;
 
   @override
@@ -31,6 +32,7 @@ class ArrivalPage extends StatelessWidget {
         final text = context.textStyles;
         final colors = context.colors;
         final semantic = context.appColors;
+        final cubit = context.read<ArrivalCubit>();
         final lines = state.lines;
         final current = state.lineIndex;
         final next = current + 1 < lines.length ? lines[current + 1] : null;
@@ -49,35 +51,29 @@ class ArrivalPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // 몇 번째 줄인지는 작은 점과 글자로만 보여 준다 (자막에 시선이 가도록).
               Row(
                 children: [
-                  Text(
-                    '${current + 1}',
-                    style: text.titleMedium?.copyWith(color: colors.primary),
-                  ),
-                  Text(
-                    ' / ${lines.length}',
-                    style: text.titleMedium?.copyWith(
-                      color: semantic.textDisabled,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  // 한 칸이 한 줄. 지나온 줄과 지금 줄을 파랑으로 채운다.
-                  for (var i = 0; i < lines.length; i++) ...[
-                    if (i > 0) const SizedBox(width: AppSpacing.xs),
-                    Expanded(
-                      child: AnimatedContainer(
-                        duration: AppDuration.slow,
-                        height: _progressHeight,
-                        decoration: BoxDecoration(
-                          color: i <= current
-                              ? colors.primary
-                              : colors.outlineVariant,
-                          borderRadius: BorderRadius.circular(AppRadius.full),
-                        ),
+                  for (var i = 0; i < lines.length; i++)
+                    AnimatedContainer(
+                      duration: AppDuration.slow,
+                      margin: const EdgeInsets.only(right: AppSpacing.xs),
+                      width: i == current ? _activeDotWidth : _dotSize,
+                      height: _dotSize,
+                      decoration: BoxDecoration(
+                        color: i <= current
+                            ? colors.primary
+                            : colors.outlineVariant,
+                        borderRadius: BorderRadius.circular(AppRadius.full),
                       ),
                     ),
-                  ],
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(
+                    '${current + 1} / ${lines.length}',
+                    style: text.labelSmall?.copyWith(
+                      color: semantic.textSecondary,
+                    ),
+                  ),
                 ],
               ),
               const Spacer(),
@@ -98,22 +94,29 @@ class ArrivalPage extends StatelessWidget {
               ],
               const Spacer(),
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  GmButton(
-                    label: '다시 듣기',
-                    icon: Icons.replay_rounded,
-                    variant: GmButtonVariant.secondary,
-                    size: GmButtonSize.large,
-                    onPressed: context.read<ArrivalCubit>().replay,
-                  ),
-                  const SizedBox(width: AppSpacing.md),
                   GmButton(
                     label: '처음으로',
                     icon: Icons.home_outlined,
                     variant: GmButtonVariant.outline,
                     size: GmButtonSize.large,
                     onPressed: () => context.go(AppRoutes.home),
+                  ),
+                  const Spacer(),
+                  GmButton(
+                    label: '다시 듣기',
+                    icon: Icons.replay_rounded,
+                    variant: GmButtonVariant.secondary,
+                    size: GmButtonSize.large,
+                    onPressed: cubit.replay,
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  // 정한 시간이 지나면 저절로 넘어가지만, 기다리지 않고 넘길 수 있다.
+                  GmButton(
+                    label: '다음',
+                    icon: Icons.arrow_forward_rounded,
+                    size: GmButtonSize.large,
+                    onPressed: state.hasNext ? cubit.next : null,
                   ),
                 ],
               ),
