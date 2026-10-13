@@ -148,7 +148,11 @@ class _PlaceRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(placeIcon(place), size: AppSize.iconMd, color: colors.primary),
+            GmIcon(
+              placeIcon(place),
+              size: AppSize.iconLg,
+              color: colors.primary,
+            ),
             const SizedBox(width: AppSpacing.lg),
             Expanded(
               child: Column(

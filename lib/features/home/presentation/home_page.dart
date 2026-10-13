@@ -41,7 +41,7 @@ class HomePage extends StatelessWidget {
         children: [
           Expanded(
             child: GmMenuTile(
-              icon: Icons.near_me_outlined,
+              icon: GmIcons.navigate,
               title: '길 찾기',
               description: '가고 싶은 곳까지 데려다 드려요',
               index: '01',
@@ -53,7 +53,7 @@ class HomePage extends StatelessWidget {
           // 투어 선택 화면이 생기면 onTap을 연결한다.
           const Expanded(
             child: GmMenuTile(
-              icon: Icons.flag_outlined,
+              icon: GmIcons.tour,
               title: '학교 투어',
               description: '코스를 따라 학교를 둘러봐요',
               badge: '준비 중',

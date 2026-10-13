@@ -18,7 +18,7 @@ enum GmButtonVariant {
 }
 
 enum GmButtonSize {
-  /// 안내 모드 주 버튼 (88dp).
+  /// 안내 모드 주 버튼 (72dp).
   large,
 
   /// 기본 (64dp).
@@ -60,8 +60,8 @@ class GmButton extends StatelessWidget {
   };
 
   double get _iconSize => switch (size) {
-    GmButtonSize.large => AppSize.iconMd,
-    GmButtonSize.medium => AppSize.iconSm + 4,
+    GmButtonSize.large => AppSize.iconSm + 4,
+    GmButtonSize.medium => AppSize.iconSm,
     GmButtonSize.small => AppSize.iconSm,
   };
 
@@ -72,7 +72,7 @@ class GmButton extends StatelessWidget {
     final text = context.textStyles;
 
     final labelStyle = switch (size) {
-      GmButtonSize.large => text.labelLarge,
+      GmButtonSize.large => text.labelMedium,
       GmButtonSize.medium => text.labelMedium,
       GmButtonSize.small => text.labelSmall,
     };
@@ -112,9 +112,7 @@ class GmButton extends StatelessWidget {
       ),
       shape: WidgetStatePropertyAll(
         RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            size == GmButtonSize.large ? AppRadius.lg : AppRadius.md,
-          ),
+          borderRadius: BorderRadius.circular(AppRadius.md),
         ),
       ),
       side: WidgetStatePropertyAll(side),

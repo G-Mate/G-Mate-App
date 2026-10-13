@@ -14,6 +14,7 @@ class PlaceConfirmPage extends StatelessWidget {
   const PlaceConfirmPage({super.key});
 
   static const _summaryMaxLines = 4;
+  static const _iconSize = 96.0;
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +62,9 @@ class _Content extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
+                  GmIcon(
                     placeIcon(place),
-                    size: AppSize.iconXl,
+                    size: PlaceConfirmPage._iconSize,
                     color: context.colors.primary,
                   ),
                   const Spacer(),

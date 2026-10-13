@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_semantic_colors.dart';
 import '../theme/app_tokens.dart';
+import 'gm_icon.dart';
 
 /// 회색 배경 위의 흰 면 카드. 그림자 없이 1px 선으로만 면을 나눈다.
 /// [onTap]이 있으면 누를 수 있다.
@@ -61,7 +62,7 @@ class GmMenuTile extends StatelessWidget {
     this.badge,
   });
 
-  final IconData icon;
+  final GmIcons icon;
   final String title;
   final String? description;
 
@@ -79,6 +80,7 @@ class GmMenuTile extends StatelessWidget {
 
   /// 흰 면 위 보조 글자의 진하기.
   static const _onPrimaryMutedAlpha = 0.72;
+  static const _iconSize = 64.0;
 
   @override
   Widget build(BuildContext context) {
@@ -119,10 +121,13 @@ class GmMenuTile extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
+                    GmIcon(
                       icon,
-                      size: AppSize.iconLg,
+                      size: _iconSize,
                       color: enabled ? accent : semantic.textDisabled,
+                      fillOpacity: emphasized
+                          ? 0.22
+                          : GmIcon.defaultFillOpacity,
                     ),
                     const Spacer(),
                     if (corner != null)
@@ -147,7 +152,7 @@ class GmMenuTile extends StatelessWidget {
                           children: [
                             Text(
                               title,
-                              style: text.displaySmall?.copyWith(color: fg),
+                              style: text.headlineLarge?.copyWith(color: fg),
                             ),
                             if (description != null) ...[
                               const SizedBox(height: AppSpacing.xs),
@@ -159,8 +164,8 @@ class GmMenuTile extends StatelessWidget {
                           ],
                         ),
                       ),
-                      Icon(
-                        Icons.arrow_forward,
+                      GmIcon(
+                        GmIcons.arrowForward,
                         size: AppSize.iconLg,
                         color: enabled ? accent : semantic.textDisabled,
                       ),
@@ -196,7 +201,7 @@ class GmPlaceCard extends StatelessWidget {
 
   /// 이름 아래 작은 글자 (예: '3층 · 교실').
   final String meta;
-  final IconData icon;
+  final GmIcons icon;
   final ImageProvider? image;
   final VoidCallback? onTap;
   final bool selected;
@@ -231,7 +236,11 @@ class GmPlaceCard extends StatelessWidget {
             ],
           ),
         ),
-        Icon(Icons.arrow_forward, size: AppSize.iconMd, color: colors.primary),
+        GmIcon(
+          GmIcons.arrowForward,
+          size: AppSize.iconMd,
+          color: colors.primary,
+        ),
       ],
     );
 
@@ -263,7 +272,7 @@ class GmPlaceCard extends StatelessWidget {
         children: [
           Align(
             alignment: Alignment.topLeft,
-            child: Icon(icon, size: AppSize.iconLg, color: colors.primary),
+            child: GmIcon(icon, size: AppSize.iconXl, color: colors.primary),
           ),
           Align(alignment: Alignment.bottomLeft, child: label),
         ],

@@ -42,6 +42,8 @@ class GuidingPage extends StatelessWidget {
 
         return GmSplitLayout(
           hero: GmHeroPanel(
+            // 오른쪽에 실제 층 지도가 있으니 장식 평면도는 끈다.
+            showFloorPlan: false,
             top: GmStatusIndicator(
               label: failed ? '이동 멈춤' : '이동 중',
               type: failed ? GmStatusType.warning : GmStatusType.success,
