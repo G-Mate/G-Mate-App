@@ -4,13 +4,17 @@ import 'package:g_mate/features/admin/presentation/bloc/admin_place_edit_cubit.d
 import 'package:g_mate/features/place/data/in_memory_place_repository.dart';
 import 'package:g_mate/features/place/domain/place.dart';
 
+import '../../helpers/test_app.dart';
+
 void main() {
   late FakeRobotController robot;
   late InMemoryPlaceRepository places;
+  late FakePlaceImagePicker picker;
 
   setUp(() {
     robot = FakeRobotController();
     places = InMemoryPlaceRepository();
+    picker = FakePlaceImagePicker();
   });
   tearDown(() => robot.dispose());
 
@@ -19,6 +23,7 @@ void main() {
       robot: robot,
       places: places,
       placeKey: 'science_lab',
+      imagePicker: picker,
     );
     await cubit.load();
     return cubit;
@@ -80,6 +85,22 @@ void main() {
       (await places.getPlace('science_lab'))!.lineInterval,
       const Duration(seconds: 8),
     );
+    await cubit.close();
+  });
+
+  test('사진을 고르면 장소 사진이 되고, 지우면 빠진다', () async {
+    final cubit = await load();
+    expect(cubit.state.place!.imagePath, isNull);
+
+    await cubit.pickImage();
+    expect(cubit.state.place!.imagePath, '/photos/place.jpg');
+
+    picker.path = null;
+    await cubit.pickImage();
+    expect(cubit.state.place!.imagePath, '/photos/place.jpg');
+
+    cubit.removeImage();
+    expect(cubit.state.place!.imagePath, isNull);
     await cubit.close();
   });
 }

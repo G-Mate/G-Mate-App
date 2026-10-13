@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/design_system.dart';
@@ -26,43 +28,101 @@ class FloorMap extends StatelessWidget {
   /// 로봇 점이 다음 위치로 옮겨 가는 시간.
   static const _moveAnimation = Duration(milliseconds: 800);
 
+  /// 머리줄(층 이름, 범례) 높이.
+  static const _headerExtent = 40.0;
+
   @override
   Widget build(BuildContext context) {
+    // 카드 전체가 Hero다. 장소 확인의 평면도 미리보기에서 카드 바탕이 차오르며
+    // 이 자리까지 커진다([_flight]).
+    return Hero(
+      tag: GmFloorPlan.heroTag,
+      flightShuttleBuilder: _flight,
+      child: _card(
+        context,
+        reveal: 1,
+        // 이동 상태가 바뀔 때 로봇 점이 부드럽게 따라가도록.
+        plan: TweenAnimationBuilder<double>(
+          tween: Tween(end: progress),
+          duration: _moveAnimation,
+          curve: Curves.easeInOut,
+          builder: (context, value, _) =>
+              GmFloorPlan(destination: destination, progress: value),
+        ),
+      ),
+    );
+  }
+
+  /// [reveal]이 0이면 바탕·여백·머리줄 없이 평면도만, 1이면 완성된 카드.
+  Widget _card(
+    BuildContext context, {
+    required double reveal,
+    required Widget plan,
+  }) {
     final colors = context.colors;
     final text = context.textStyles;
-
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: EdgeInsets.all(AppSpacing.lg * reveal),
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: colors.surface.withValues(alpha: colors.surface.a * reveal),
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(child: Text('$floor층', style: text.titleLarge)),
-              _Legend(color: colors.primary, label: '지금 위치'),
-              const SizedBox(width: AppSpacing.lg),
-              _Legend(color: colors.onSurface, label: destination),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Expanded(
-            child: Hero(
-              tag: GmFloorPlan.heroTag,
-              // 이동 상태가 바뀔 때 로봇 점이 부드럽게 따라가도록.
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(end: progress),
-                duration: _moveAnimation,
-                curve: Curves.easeInOut,
-                builder: (context, value, _) =>
-                    GmFloorPlan(destination: destination, progress: value),
+          SizedBox(
+            height: _headerExtent * reveal,
+            child: Opacity(
+              opacity: reveal,
+              // 칸이 좁을 때(날아오는 중)는 머리줄을 줄여서 그린다.
+              child: LayoutBuilder(
+                builder: (context, constraints) => FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: SizedBox(
+                    width: math.max(constraints.maxWidth, _headerMinWidth),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text('$floor층', style: text.titleLarge),
+                        ),
+                        _Legend(color: colors.primary, label: '지금 위치'),
+                        const SizedBox(width: AppSpacing.lg),
+                        _Legend(color: colors.onSurface, label: destination),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
+          SizedBox(height: AppSpacing.md * reveal),
+          Expanded(child: plan),
         ],
+      ),
+    );
+  }
+
+  /// 머리줄을 이보다 좁게는 그리지 않고 줄여서 맞춘다.
+  static const _headerMinWidth = 560.0;
+
+  Widget _flight(
+    BuildContext flightContext,
+    Animation<double> animation,
+    HeroFlightDirection direction,
+    BuildContext fromContext,
+    BuildContext toContext,
+  ) {
+    final curved = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeInOutCubic,
+    );
+    return AnimatedBuilder(
+      animation: curved,
+      builder: (context, _) => _card(
+        context,
+        reveal: curved.value,
+        plan: GmFloorPlan(destination: destination, progress: progress),
       ),
     );
   }

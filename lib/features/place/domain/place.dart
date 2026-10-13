@@ -54,6 +54,7 @@ class Place extends Equatable {
     required this.originalSpeech,
     this.keywords = const [],
     this.lineInterval = defaultLineInterval,
+    this.imagePath,
   });
 
   /// 도착 화면에서 한 줄을 다 읽은 뒤 다음 줄로 저절로 넘어가기까지 기다리는
@@ -84,6 +85,9 @@ class Place extends Equatable {
   /// 본 설명 한 줄을 다 읽은 뒤 다음 줄로 저절로 넘어가기까지 기다리는 시간.
   /// 방문객은 [다음]을 눌러 기다리지 않고 넘길 수 있다.
   final Duration lineInterval;
+
+  /// 장소 사진 파일 경로. 없으면 화면은 장소 아이콘 그림을 쓴다.
+  final String? imagePath;
 
   /// 관리 모드에서 현재 위치를 새 장소로 저장할 때 만드는 기본 장소.
   /// 멘트는 기본 문장으로 채우고, 본 설명은 장소 편집에서 적는다.
@@ -129,6 +133,8 @@ class Place extends Equatable {
     List<String>? keywords,
     PlaceSpeech? speech,
     Duration? lineInterval,
+    String? imagePath,
+    bool clearImage = false,
   }) => Place(
     key: key,
     name: name ?? this.name,
@@ -138,6 +144,7 @@ class Place extends Equatable {
     speech: speech ?? this.speech,
     originalSpeech: originalSpeech,
     lineInterval: lineInterval ?? this.lineInterval,
+    imagePath: clearImage ? null : imagePath ?? this.imagePath,
   );
 
   @override
@@ -150,5 +157,6 @@ class Place extends Equatable {
     speech,
     originalSpeech,
     lineInterval,
+    imagePath,
   ];
 }

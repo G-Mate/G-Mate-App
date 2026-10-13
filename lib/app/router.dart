@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/robot/robot_controller.dart';
 import '../features/admin/domain/admin_pin_repository.dart';
+import '../features/admin/domain/place_image_picker.dart';
 import '../features/admin/presentation/admin_pin_page.dart';
 import '../features/admin/presentation/admin_place_edit_page.dart';
 import '../features/admin/presentation/admin_places_page.dart';
@@ -73,11 +74,11 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
         key: state.pageKey,
         transitionDuration: guideTransition,
         reverseTransitionDuration: guideTransition,
-        // 평면도가 먼저 날아가고, 새 화면은 그 뒤에 서서히 나타난다.
+        // 화면은 먼저 빠르게 바뀌고, 그 위로 지도 카드가 커지며 자리 잡는다.
         transitionsBuilder: (context, animation, _, child) => FadeTransition(
           opacity: CurvedAnimation(
             parent: animation,
-            curve: const Interval(0.35, 1, curve: Curves.easeOut),
+            curve: const Interval(0, 0.3, curve: Curves.easeOut),
           ),
           child: child,
         ),
@@ -126,6 +127,7 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
           path: ':key',
           builder: (context, state) => BlocProvider(
             create: (_) => AdminPlaceEditCubit(
+              imagePicker: getIt<PlaceImagePicker>(),
               robot: getIt<RobotController>(),
               places: getIt<PlaceRepository>(),
               placeKey: state.pathParameters['key']!,

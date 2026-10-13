@@ -81,6 +81,7 @@ class PlaceSelectPage extends StatelessWidget {
                                 name: p.name,
                                 meta: p.meta,
                                 icon: placeIcon(p),
+                                image: placeImage(p),
                                 onTap: () =>
                                     context.push(AppRoutes.placeConfirm(p.key)),
                               );

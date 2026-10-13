@@ -177,6 +177,8 @@ class GmSplitLayout extends StatelessWidget {
     return GmBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        // 키오스크 화면은 키보드가 올라와도 배치를 밀어 올리지 않는다.
+        resizeToAvoidBottomInset: false,
         body: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:flutter/widgets.dart';
+
 import '../../../core/widgets/gm_icon.dart';
 import '../domain/place.dart';
 
@@ -20,3 +24,9 @@ const _byKey = {
   'library': GmIcons.library,
   'auditorium': GmIcons.auditorium,
 };
+
+/// 장소 사진. 등록하지 않았으면 null (화면은 아이콘 그림을 쓴다).
+ImageProvider? placeImage(Place place) {
+  final path = place.imagePath;
+  return path == null ? null : FileImage(File(path));
+}

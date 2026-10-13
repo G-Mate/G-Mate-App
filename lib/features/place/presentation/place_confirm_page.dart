@@ -152,7 +152,10 @@ class _PlaceIntro extends StatelessWidget {
                   delegate: _ImageHeader(
                     maxExtent: maxImage,
                     minExtent: _minImageExtent,
-                    child: GmPlaceArt(icon: placeIcon(place)),
+                    child: switch (placeImage(place)) {
+                      final image? => Image(image: image, fit: BoxFit.cover),
+                      null => GmPlaceArt(icon: placeIcon(place)),
+                    },
                   ),
                 ),
                 SliverPadding(
