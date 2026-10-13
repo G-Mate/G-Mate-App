@@ -14,5 +14,6 @@ export 'widgets/gm_dense_theme.dart';
 export 'widgets/gm_empty_state.dart';
 export 'widgets/gm_hero_panel.dart';
 export 'widgets/gm_icon.dart';
+export 'widgets/gm_route_preview.dart';
 export 'widgets/gm_scaffold.dart';
 export 'widgets/gm_status_banner.dart';

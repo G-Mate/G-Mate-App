@@ -14,7 +14,7 @@ class PlaceSelectPage extends StatelessWidget {
   const PlaceSelectPage({super.key});
 
   static const _columns = 3;
-  static const _cardAspectRatio = 1.5;
+  static const _cardAspectRatio = 1.35;
   static const _searchWidth = 360.0;
 
   @override

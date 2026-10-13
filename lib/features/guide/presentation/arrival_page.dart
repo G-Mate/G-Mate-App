@@ -98,27 +98,22 @@ class ArrivalPage extends StatelessWidget {
               ],
               const Spacer(),
               Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Expanded(
-                    child: GmButton(
-                      label: '다시 듣기',
-                      icon: Icons.replay_rounded,
-                      variant: GmButtonVariant.secondary,
-                      size: GmButtonSize.large,
-                      expanded: true,
-                      onPressed: context.read<ArrivalCubit>().replay,
-                    ),
+                  GmButton(
+                    label: '다시 듣기',
+                    icon: Icons.replay_rounded,
+                    variant: GmButtonVariant.secondary,
+                    size: GmButtonSize.large,
+                    onPressed: context.read<ArrivalCubit>().replay,
                   ),
                   const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: GmButton(
-                      label: '처음으로',
-                      icon: Icons.home_outlined,
-                      variant: GmButtonVariant.outline,
-                      size: GmButtonSize.large,
-                      expanded: true,
-                      onPressed: () => context.go(AppRoutes.home),
-                    ),
+                  GmButton(
+                    label: '처음으로',
+                    icon: Icons.home_outlined,
+                    variant: GmButtonVariant.outline,
+                    size: GmButtonSize.large,
+                    onPressed: () => context.go(AppRoutes.home),
                   ),
                 ],
               ),

@@ -1,7 +1,7 @@
 # 디자인 시스템
 
 temi 머리 태블릿(가로 10인치대)을 허리 높이에서 서서 보고 누르는 키오스크 화면 기준입니다.
-방향은 **어두운 남색 키오스크**입니다(TV·셋톱 UI 참고). 화면 전체를 짙은 남색 그라데이션(`GmBackground`)으로 깔고 오른쪽 아래에 파랑 빛을 번지게 합니다. 카드·칩·입력 칸은 빛이 비치는 반투명 유리 면(`AppColors.glass`)에 밝은 1px 테두리, 주 메뉴 하나만 밝은 파랑(페리윙클 `#5C6CFA`) 면에 파랑 빛 그림자로 띄웁니다. 글자와 아이콘은 흰색 계열입니다. 왼쪽 패널은 바탕보다 한 톤 어둡게 깔고, 홈에는 큰 시계와 날짜, 다른 화면에는 가는 선 평면도를 둡니다. 아이콘은 직접 그린 `GmIcon`(둥근 선 + 옅은 면의 두 톤)을 씁니다.
+방향은 **어두운 남색 키오스크**입니다(TV·셋톱 UI 참고). 화면 전체를 짙은 남색 그라데이션(`GmBackground`)으로 깔고 오른쪽 아래에 파랑 빛을 번지게 합니다. 카드·칩·입력 칸은 빛이 비치는 반투명 유리 면(`AppColors.glass`)에 밝은 1px 테두리, 주 메뉴 하나만 밝은 파랑(페리윙클 `#5C6CFA`) 면에 파랑 빛 그림자로 띄웁니다. 글자와 아이콘은 흰색 계열입니다. 왼쪽 패널은 바탕보다 한 톤 어둡게 깔고, 홈에는 큰 시계와 날짜를 둡니다. 가는 선 평면도(`GmRoutePreview`, 현재 위치 → 목적지)는 장소 확인 화면에만 둡니다. 글자는 두 줄 제목의 첫 줄을 가늘고 옅게(400), 둘째 줄을 굵게(800) 대비시키고, 작은 머리말 앞에는 짧은 파랑 선(`GmOverline`)을 붙입니다. 장소 카드는 사진이 들어갈 자리라 유리 면 대신 불투명한 남색 면을 씁니다. 아이콘은 직접 그린 `GmIcon`(둥근 선 + 옅은 면의 두 톤)을 씁니다.
 글꼴은 Pretendard(SIL OFL 1.1, `assets/fonts/pretendard/`)를 앱에 넣어 씁니다. 색을 조정할 때는 `app_colors.dart`만 바꾸면 됩니다.
 
 ## 쓰는 법
@@ -22,13 +22,13 @@ import 'package:g_mate/core/design_system.dart';
 | --- | --- |
 | `lib/core/theme/app_colors.dart` | 바탕 그라데이션 `#1C2A70`→`#0E1640`과 빛 `#3D5BFF`, 패널 남색, 강조 파랑 `#5C6CFA`, 카드 면·유리 면, 흰 글자색, 성공·주의·위험 |
 | `lib/core/theme/app_typography.dart` | 글자 크기 체계. 본문 22, 버튼 26, 화면 제목 34, 환영 문구 44~64 |
-| `lib/core/theme/app_dimens.dart` | 간격(4dp 단위), 모서리, 버튼 높이(72/64/48), 아이콘 크기, 애니메이션 시간, 그림자 |
+| `lib/core/theme/app_dimens.dart` | 간격(4dp 단위), 모서리, 버튼 높이(64/56/48), 아이콘 크기, 애니메이션 시간, 그림자 |
 | `lib/core/theme/app_semantic_colors.dart` | `ColorScheme`에 없는 의미 색 (`ThemeExtension`) |
 | `lib/core/theme/app_theme.dart` | 위 토큰으로 만든 `ThemeData` (버튼, 카드, 칩, 입력창, 다이얼로그 등) |
 
 ## 키오스크 기준
 
-- 방문객 화면의 누르는 요소는 최소 64dp, 주 버튼은 72dp입니다. 48dp(`GmButtonSize.small`)는 관리 모드에서만 씁니다.
+- 방문객 화면의 누르는 요소는 최소 56dp, 주 버튼은 64dp입니다. 버튼은 가로로 늘이지 않고 내용 너비로 오른쪽에 둡니다. 48dp(`GmButtonSize.small`)는 관리 모드에서만 씁니다.
 - 관리 모드 화면은 가까이서 조작하므로 `GmDenseTheme`(`AppTheme.dense`)으로 감싸 글자·입력 칸·칩을 한 단계(0.8배) 줄입니다.
 - 본문은 22sp 이상입니다. 60cm~1m 떨어져서 읽을 수 있는 크기입니다.
 - 화면 좌우 여백은 48dp입니다 (`GmScaffold`가 넣어 줍니다).
@@ -44,6 +44,8 @@ import 'package:g_mate/core/design_system.dart';
 | `GmButton` | 버튼. `primary`/`secondary`/`outline`/`danger`, 크기 `large`/`medium`/`small`, 아이콘, `loading` |
 | `GmMenuTile` | 홈 화면의 큰 메뉴 카드. 왼쪽 위 선 아이콘, 오른쪽 위 번호(`index`) 또는 짧은 글자(`badge`), 아래 큰 제목·작은 설명·화살표. `emphasized`면 파랑 단색 면(주 메뉴 하나에만) |
 | `GmHeroPanel` | 화면 한쪽을 채우는 남색 단색 패널. 머리말·큰 제목·부제·하단 위젯, 오른쪽 위 가는 선 평면도(`showFloorPlan`, 이동 중 화면은 끔). 맨 위에는 `GmHeroBackButton`을 둘 수 있음 |
+| `GmRoutePreview` | 현재 위치에서 목적지까지 어림한 가는 선 평면도 (장소 확인 화면의 남색 패널, `GmHeroPanel.art`) |
+| `GmOverline` | 짧은 파랑 선 + 작은 글자 머리말 (남색 패널, 화면 머리말) |
 | `GmIcon` | 직접 그린 아이콘 `GmIcons`(길 찾기, 투어, 과학실, 컴퓨터실, 교무실, 행정실, 도서관, 강당, 교실, 장소, 화살표). 24 격자, 둥근 선 + 옅은 면 |
 | `GmSplitLayout` | 왼쪽 남색 패널 + 오른쪽 본문 화면 틀 (홈, 장소 확인, 도착, PIN) |
 | `GmPlaceCard` | 장소 카드: 사진이 있으면 사진 + 이름 + 층·분류, 없으면 왼쪽 위 선 아이콘과 아래 이름·층·분류·화살표만 둔 글자 중심 카드 |

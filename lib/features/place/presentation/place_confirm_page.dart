@@ -14,7 +14,7 @@ class PlaceConfirmPage extends StatelessWidget {
   const PlaceConfirmPage({super.key});
 
   static const _summaryMaxLines = 4;
-  static const _iconSize = 96.0;
+  static const _iconSize = 56.0;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +51,7 @@ class _Content extends StatelessWidget {
         overline: place.meta,
         title: place.name,
         subtitle: '이곳으로 안내할까요?',
+        art: GmRoutePreview(destination: place.name),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -80,26 +81,20 @@ class _Content extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Expanded(
-                child: GmButton(
-                  label: '다른 곳 고르기',
-                  variant: GmButtonVariant.outline,
-                  size: GmButtonSize.large,
-                  expanded: true,
-                  onPressed: () => _back(context),
-                ),
+              GmButton(
+                label: '다른 곳 고르기',
+                variant: GmButtonVariant.outline,
+                size: GmButtonSize.large,
+                onPressed: () => _back(context),
               ),
               const SizedBox(width: AppSpacing.md),
-              Expanded(
-                flex: 2,
-                child: GmButton(
-                  label: '안내 시작',
-                  icon: Icons.arrow_forward_rounded,
-                  size: GmButtonSize.large,
-                  expanded: true,
-                  onPressed: () => context.go(AppRoutes.guiding(place.key)),
-                ),
+              GmButton(
+                label: '안내 시작',
+                icon: Icons.arrow_forward_rounded,
+                size: GmButtonSize.large,
+                onPressed: () => context.go(AppRoutes.guiding(place.key)),
               ),
             ],
           ),

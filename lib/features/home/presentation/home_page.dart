@@ -32,8 +32,6 @@ class HomePage extends StatelessWidget {
               ),
         },
         child: const GmHeroPanel(
-          // 홈은 시계가 패널을 채우니 평면도 장식은 끈다.
-          showFloorPlan: false,
           overline: '광주소프트웨어마이스터고등학교',
           title: '무엇을\n도와드릴까요?',
           subtitle: '원하는 메뉴를 눌러 주세요',

@@ -18,10 +18,10 @@ enum GmButtonVariant {
 }
 
 enum GmButtonSize {
-  /// 안내 모드 주 버튼 (72dp).
+  /// 안내 모드 주 버튼 (64dp).
   large,
 
-  /// 기본 (64dp).
+  /// 기본 (56dp).
   medium,
 
   /// 관리 모드 전용 (48dp). 방문객 화면에는 쓰지 않는다.
@@ -73,7 +73,7 @@ class GmButton extends StatelessWidget {
 
     final labelStyle = switch (size) {
       GmButtonSize.large => text.labelMedium,
-      GmButtonSize.medium => text.labelMedium,
+      GmButtonSize.medium => text.labelSmall,
       GmButtonSize.small => text.labelSmall,
     };
 

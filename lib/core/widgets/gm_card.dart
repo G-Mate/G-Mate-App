@@ -80,7 +80,7 @@ class GmMenuTile extends StatelessWidget {
 
   /// 흰 면 위 보조 글자의 진하기.
   static const _onPrimaryMutedAlpha = 0.72;
-  static const _iconSize = 64.0;
+  static const _iconSize = 44.0;
   static const _glowAlpha = 0.45;
 
   @override
@@ -204,10 +204,10 @@ class GmMenuTile extends StatelessWidget {
   }
 }
 
-/// 장소 카드: (사진) + 선 아이콘 + 이름 + 층·분류.
+/// 장소 카드: 위쪽 사진 자리 + 이름 + 층·분류.
 ///
-/// 사진이 있으면 위에 사진을 두고, 없으면 왼쪽 위 선 아이콘과 아래쪽 이름만
-/// 남긴 글자 중심 카드로 그린다.
+/// 사진이 들어갈 카드라 유리 면 대신 불투명한 남색 면을 쓴다. 사진이 없으면
+/// 사진 자리에 작은 [icon]을 가운데 둔다.
 class GmPlaceCard extends StatelessWidget {
   const GmPlaceCard({
     super.key,
@@ -232,84 +232,92 @@ class GmPlaceCard extends StatelessWidget {
   /// true면 부모가 정한 높이를 채운다 (그리드 칸 안에서 쓸 때).
   final bool fillHeight;
 
-  /// 사진이 없을 때 [fillHeight]가 아니면 쓰는 카드 높이.
-  static const _textOnlyHeight = 200.0;
+  static const _photoIconSize = 40.0;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final text = context.textStyles;
 
-    final Widget label = Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(name, style: text.headlineSmall),
-              const SizedBox(height: AppSpacing.xxs),
-              Text(
-                meta,
-                style: text.bodySmall?.copyWith(
+    final Widget photo = SizedBox(
+      width: double.infinity,
+      child: image != null
+          ? Image(image: image!, fit: BoxFit.cover)
+          : ColoredBox(
+              color: colors.surfaceContainerHighest,
+              child: Center(
+                child: GmIcon(
+                  icon,
+                  size: _photoIconSize,
                   color: context.appColors.textSecondary,
                 ),
               ),
-            ],
-          ),
-        ),
-        GmIcon(
-          GmIcons.arrowForward,
-          size: AppSize.iconMd,
-          color: colors.primary,
-        ),
-      ],
+            ),
     );
 
-    final Widget content;
-    if (image != null) {
-      final photo = ClipRRect(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        child: SizedBox(
-          width: double.infinity,
-          child: Image(image: image!, fit: BoxFit.cover),
-        ),
-      );
-      content = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    final Widget label = Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.md,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // 그리드 칸처럼 높이가 정해져 있으면 사진이 남은 높이를 채우고,
-          // 아니면 16:10 비율로 그린다.
-          if (fillHeight)
-            Expanded(child: photo)
-          else
-            AspectRatio(aspectRatio: 16 / 10, child: photo),
-          const SizedBox(height: AppSpacing.md),
-          label,
-        ],
-      );
-    } else {
-      final Widget body = Stack(
-        fit: StackFit.expand,
-        children: [
-          Align(
-            alignment: Alignment.topLeft,
-            child: GmIcon(icon, size: AppSize.iconXl, color: colors.onSurface),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(name, style: text.titleLarge),
+                Text(
+                  meta,
+                  style: text.bodySmall?.copyWith(
+                    color: context.appColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
           ),
-          Align(alignment: Alignment.bottomLeft, child: label),
+          GmIcon(
+            GmIcons.arrowForward,
+            size: AppSize.iconSm,
+            color: colors.onSurface,
+          ),
         ],
-      );
-      content = fillHeight
-          ? body
-          : SizedBox(height: _textOnlyHeight, child: body);
-    }
+      ),
+    );
 
     return Semantics(
       button: true,
       label: '$name, $meta',
       excludeSemantics: true,
-      child: GmCard(onTap: onTap, selected: selected, child: content),
+      child: Material(
+        color: colors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          side: selected
+              ? BorderSide(color: colors.primary, width: 2)
+              : BorderSide.none,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 그리드 칸처럼 높이가 정해져 있으면 사진이 남은 높이를 채우고,
+              // 아니면 16:10 비율로 그린다.
+              if (fillHeight)
+                Expanded(child: photo)
+              else
+                AspectRatio(aspectRatio: 16 / 10, child: photo),
+              label,
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
