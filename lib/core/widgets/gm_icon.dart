@@ -36,6 +36,9 @@ enum GmIcons {
   /// 그 밖의 장소 (위치 핀)
   place,
 
+  /// 학교 개요 (학교 건물)
+  school,
+
   /// 앞으로 (화살표)
   arrowForward,
 }
@@ -294,6 +297,26 @@ class _GmIconPainter extends CustomPainter {
         outline(
           Path()..addOval(
             Rect.fromCircle(center: const Offset(12, 9.8), radius: 2.4),
+          ),
+        );
+
+      case GmIcons.school:
+        shape(Path()..addRRect(rr(4.5, 10, 15, 10, 1.8)));
+        outline(
+          Path()
+            ..moveTo(3, 10.8)
+            ..lineTo(12, 4.5)
+            ..lineTo(21, 10.8)
+            ..moveTo(10.3, 20)
+            ..lineTo(10.3, 15.6)
+            ..quadraticBezierTo(10.3, 14.6, 11.3, 14.6)
+            ..lineTo(12.7, 14.6)
+            ..quadraticBezierTo(13.7, 14.6, 13.7, 15.6)
+            ..lineTo(13.7, 20),
+        );
+        outline(
+          Path()..addOval(
+            Rect.fromCircle(center: const Offset(12, 10.6), radius: 1.4),
           ),
         );
 

@@ -64,7 +64,6 @@ class GuidingPage extends StatelessWidget {
                         GmButton(
                           label: '다시 시도',
                           icon: Icons.replay_rounded,
-                          size: GmButtonSize.large,
                           onPressed: () =>
                               bloc.add(const GuideRetryRequested()),
                         ),
@@ -72,17 +71,29 @@ class GuidingPage extends StatelessWidget {
                           label: '처음으로',
                           icon: Icons.home_outlined,
                           variant: GmButtonVariant.outline,
-                          size: GmButtonSize.large,
                           onPressed: () => bloc.add(const GuideStopRequested()),
                         ),
                       ],
                     )
-                  : GmButton(
-                      label: '안내 중지',
-                      icon: Icons.stop_rounded,
-                      variant: GmButtonVariant.danger,
-                      size: GmButtonSize.large,
-                      onPressed: () => bloc.add(const GuideStopRequested()),
+                  // 도착했는데 로봇이 완료를 못 알리면 [안내 완료]로 직접 넘긴다.
+                  : Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
+                      children: [
+                        GmButton(
+                          label: '안내 완료',
+                          icon: Icons.check_rounded,
+                          variant: GmButtonVariant.secondary,
+                          onPressed: () =>
+                              bloc.add(const GuideCompleteRequested()),
+                        ),
+                        GmButton(
+                          label: '안내 중지',
+                          icon: Icons.stop_rounded,
+                          variant: GmButtonVariant.danger,
+                          onPressed: () => bloc.add(const GuideStopRequested()),
+                        ),
+                      ],
                     ),
             ),
             child: FloorMap(

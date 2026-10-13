@@ -63,7 +63,9 @@ class ArrivalCubit extends Cubit<ArrivalState> {
   void _speakCurrent() {
     _advanceTimer?.cancel();
     final lineIndex = (_cursor - _offset).clamp(0, state.lines.length - 1);
-    emit(state.copyWith(lineIndex: lineIndex, isSpeaking: true));
+    emit(
+      state.copyWith(lineIndex: lineIndex, isSpeaking: true, isLineDone: false),
+    );
     unawaited(_robot.speak(_queue[_cursor]));
   }
 
@@ -82,6 +84,7 @@ class ArrivalCubit extends Cubit<ArrivalState> {
       _cursor++;
       _speakCurrent();
     } else {
+      emit(state.copyWith(isLineDone: true));
       _advanceTimer = Timer(state.place!.lineInterval, () {
         _cursor++;
         _speakCurrent();

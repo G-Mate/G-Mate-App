@@ -48,15 +48,16 @@ class GmScaffold extends StatelessWidget {
             children: [
               if (hasHeader)
                 Padding(
+                  // 뒤로 가기 버튼의 왼쪽 끝을 본문 여백 선에 맞춘다.
                   padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.md,
                     AppSpacing.screenHorizontal,
-                    AppSpacing.xs,
+                    AppSpacing.screenVertical,
+                    AppSpacing.screenHorizontal,
+                    0,
                   ),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(
-                      minHeight: AppSize.buttonLarge,
+                      minHeight: AppSize.touchTargetMin,
                     ),
                     child: Row(
                       children: [
@@ -74,22 +75,25 @@ class GmScaffold extends StatelessWidget {
                             icon: const Icon(Icons.arrow_back_rounded),
                           )
                         else
+                          const SizedBox.shrink(),
+                        if (onBack != null)
                           const SizedBox(width: AppSpacing.lg),
-                        const SizedBox(width: AppSpacing.xs),
                         if (title != null)
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                if (eyebrow != null)
+                                if (eyebrow != null) ...[
                                   GmOverline(
                                     eyebrow!,
                                     color: context.appColors.textSecondary,
                                   ),
+                                  const SizedBox(height: AppSpacing.xs),
+                                ],
                                 Text(
                                   title!,
-                                  style: context.textStyles.headlineMedium,
+                                  style: context.textStyles.headlineLarge,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ],
@@ -110,7 +114,7 @@ class GmScaffold extends StatelessWidget {
                     ? Padding(
                         padding: EdgeInsets.fromLTRB(
                           AppSpacing.screenHorizontal,
-                          hasHeader ? AppSpacing.md : AppSpacing.screenVertical,
+                          hasHeader ? AppSpacing.xl : AppSpacing.screenVertical,
                           AppSpacing.screenHorizontal,
                           bottomBar == null
                               ? AppSpacing.screenVertical

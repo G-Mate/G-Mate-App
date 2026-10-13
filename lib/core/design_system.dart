@@ -16,4 +16,5 @@ export 'widgets/gm_floor_plan.dart';
 export 'widgets/gm_hero_panel.dart';
 export 'widgets/gm_icon.dart';
 export 'widgets/gm_scaffold.dart';
+export 'widgets/gm_search_field.dart';
 export 'widgets/gm_status_banner.dart';

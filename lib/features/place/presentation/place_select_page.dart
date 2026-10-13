@@ -14,8 +14,7 @@ class PlaceSelectPage extends StatelessWidget {
   const PlaceSelectPage({super.key});
 
   static const _columns = 3;
-  static const _cardAspectRatio = 1.35;
-  static const _searchWidth = 360.0;
+  static const _cardAspectRatio = 1.5;
 
   @override
   Widget build(BuildContext context) {
@@ -25,19 +24,7 @@ class PlaceSelectPage extends StatelessWidget {
       eyebrow: '길 찾기',
       title: '어디로 갈까요?',
       onBack: () => context.go(AppRoutes.home),
-      actions: [
-        SizedBox(
-          width: _searchWidth,
-          child: TextField(
-            onChanged: cubit.search,
-            style: context.textStyles.bodyMedium,
-            decoration: const InputDecoration(
-              hintText: '장소 이름으로 찾기',
-              prefixIcon: Icon(Icons.search_rounded, size: AppSize.iconMd),
-            ),
-          ),
-        ),
-      ],
+      actions: [GmSearchField(hintText: '장소 이름으로 찾기', onChanged: cubit.search)],
       body: BlocBuilder<PlaceSelectCubit, PlaceSelectState>(
         builder: (context, state) {
           if (state.isLoading) {

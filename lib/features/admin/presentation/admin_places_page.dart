@@ -51,26 +51,31 @@ class AdminPlacesPage extends StatelessWidget {
               message: '로봇을 장소로 데려간 뒤 [현재 위치 저장]을 눌러 주세요',
             );
           }
-          return Material(
-            color: context.colors.surface,
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            clipBehavior: Clip.antiAlias,
-            child: ListView.separated(
-              itemCount: state.places.length,
-              separatorBuilder: (_, _) => const Divider(
-                indent: AppSpacing.lg,
-                endIndent: AppSpacing.lg,
+          // 목록 카드는 줄 수만큼만 높이를 갖고, 많으면 화면 안에서 스크롤한다.
+          return Align(
+            alignment: Alignment.topCenter,
+            child: Material(
+              color: context.colors.surface,
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              clipBehavior: Clip.antiAlias,
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: state.places.length,
+                separatorBuilder: (_, _) => const Divider(
+                  indent: AppSpacing.lg,
+                  endIndent: AppSpacing.lg,
+                ),
+                itemBuilder: (context, i) {
+                  final place = state.places[i];
+                  return _PlaceRow(
+                    place: place,
+                    isOnRobot: state.isOnRobot(place),
+                    onTap: () => _edit(context, cubit, place.key),
+                    onPreview: () => cubit.preview(place),
+                    onTestMove: () => _testMove(context, cubit, place),
+                  );
+                },
               ),
-              itemBuilder: (context, i) {
-                final place = state.places[i];
-                return _PlaceRow(
-                  place: place,
-                  isOnRobot: state.isOnRobot(place),
-                  onTap: () => _edit(context, cubit, place.key),
-                  onPreview: () => cubit.preview(place),
-                  onTestMove: () => _testMove(context, cubit, place),
-                );
-              },
             ),
           );
         },

@@ -81,7 +81,7 @@ class GmMenuTile extends StatelessWidget {
   /// 흰 면 위 보조 글자의 진하기.
   static const _onPrimaryMutedAlpha = 0.72;
   static const _iconSize = 44.0;
-  static const _glowAlpha = 0.45;
+  static const _glowAlpha = 0.4;
 
   @override
   Widget build(BuildContext context) {
@@ -117,8 +117,8 @@ class GmMenuTile extends StatelessWidget {
               ? [
                   BoxShadow(
                     color: AppColors.primary.withValues(alpha: _glowAlpha),
-                    blurRadius: 40,
-                    offset: const Offset(0, 16),
+                    blurRadius: 28,
+                    offset: const Offset(0, 10),
                   ),
                 ]
               : null,
@@ -174,7 +174,7 @@ class GmMenuTile extends StatelessWidget {
                             children: [
                               Text(
                                 title,
-                                style: text.headlineLarge?.copyWith(color: fg),
+                                style: text.displaySmall?.copyWith(color: fg),
                               ),
                               if (description != null) ...[
                                 const SizedBox(height: AppSpacing.xs),

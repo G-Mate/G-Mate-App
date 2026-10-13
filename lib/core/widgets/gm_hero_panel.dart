@@ -40,7 +40,7 @@ class GmHeroPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final lines = title.split('\n');
-    final display = text.displaySmall?.copyWith(color: Colors.white);
+    final display = text.displayMedium?.copyWith(color: Colors.white);
 
     return DecoratedBox(
       // 바탕 위에 한 톤 어두운 반투명 남색을 깔아 화면을 둘로 나눈다.

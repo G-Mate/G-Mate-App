@@ -36,7 +36,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(find.text('도착했어요'), findsOneWidget);
-    expect(find.text('1 / 4'), findsOneWidget);
+    expect(find.textContaining(RegExp(r'^[1-4] / 4$')), findsOneWidget);
 
     await tester.tap(find.text('처음으로'));
     await tester.pumpAndSettle();

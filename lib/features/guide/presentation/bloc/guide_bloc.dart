@@ -25,6 +25,7 @@ class GuideBloc extends Bloc<GuideEvent, GuideState> {
     on<GuideStarted>(_onStarted);
     on<GuideStopRequested>(_onStopRequested);
     on<GuideRetryRequested>(_onRetryRequested);
+    on<GuideCompleteRequested>(_onCompleteRequested);
     on<_GuideRobotEventReceived>(_onRobotEvent);
     _subscription = _robot.events.listen(
       (event) => add(_GuideRobotEventReceived(event)),
@@ -57,6 +58,15 @@ class GuideBloc extends Bloc<GuideEvent, GuideState> {
   ) async {
     await _robot.stopMovement();
     emit(state.copyWith(phase: GuidePhase.stopped));
+  }
+
+  /// temi가 오류로 완료를 알리지 못해도 방문객이 도착을 확인하면 넘어간다.
+  Future<void> _onCompleteRequested(
+    GuideCompleteRequested event,
+    Emitter<GuideState> emit,
+  ) async {
+    await _robot.stopMovement();
+    emit(state.copyWith(phase: GuidePhase.arrived, progress: 1));
   }
 
   Future<void> _onRetryRequested(
