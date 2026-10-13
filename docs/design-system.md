@@ -51,7 +51,7 @@ import 'package:g_mate/core/design_system.dart';
 | `GmSplitLayout` | 왼쪽 남색 패널 + 오른쪽 본문 화면 틀 (홈, 장소 확인, 도착, PIN) |
 | `GmPlaceCard` | 장소 카드: 16:10 사진 자리(없으면 `GmPlaceArt`) + 이름 + 층·분류. 화살표 없음 |
 | `GmPlaceArt` | 사진이 없을 때 장소 아이콘을 크게 옅게 깔고 왼쪽 아래 밖으로 넘쳐 잘리게 둔 그림 |
-| `GmBackButton` | 모든 화면이 같이 쓰는 뒤로 가기(유리 알약 + 화살표·'뒤로') |
+| `GmBackButton` | 모든 화면이 같이 쓰는 뒤로 가기 (둥근 유리 아이콘 버튼 56dp) |
 | `GmCard` | 흰 카드. 누를 수 있고 `selected` 표시 지원 (장소 카드 등) |
 | `GmChoiceChip` | 카테고리 필터 |
 | `GmStatusBanner` | 로봇 상태·안내 메시지 띠. `info`/`success`/`warning`/`danger` |

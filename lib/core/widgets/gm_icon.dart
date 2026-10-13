@@ -77,7 +77,7 @@ class GmIcon extends StatelessWidget {
       painter: _GmIconPainter(
         icon: icon,
         stroke: stroke,
-        fill: stroke.withValues(alpha: stroke.a * fillOpacity),
+        fillOpacity: fillOpacity,
       ),
     );
     return Semantics(
@@ -92,12 +92,12 @@ class _GmIconPainter extends CustomPainter {
   _GmIconPainter({
     required this.icon,
     required this.stroke,
-    required this.fill,
+    required this.fillOpacity,
   });
 
   final GmIcons icon;
   final Color stroke;
-  final Color fill;
+  final double fillOpacity;
 
   /// 24 격자 기준 선 굵기.
   static const _strokeWidth = 1.7;
@@ -105,17 +105,23 @@ class _GmIconPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.save();
+    // 반투명 색이면 선과 면이 겹치는 곳이 진하게 겹쳐 보인다. 불투명하게
+    // 한 겹에 그린 뒤 그 겹 전체에 투명도를 준다.
+    final solid = stroke.withValues(alpha: 1);
+    canvas.saveLayer(
+      Offset.zero & size,
+      Paint()..color = Color.fromRGBO(0, 0, 0, stroke.a),
+    );
     canvas.scale(size.width / _grid, size.height / _grid);
 
     final line = Paint()
-      ..color = stroke
+      ..color = solid
       ..style = PaintingStyle.stroke
       ..strokeWidth = _strokeWidth
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
     final face = Paint()
-      ..color = fill
+      ..color = solid.withValues(alpha: fillOpacity)
       ..style = PaintingStyle.fill;
 
     void shape(Path p, {bool filled = true}) {
@@ -335,5 +341,7 @@ class _GmIconPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_GmIconPainter old) =>
-      old.icon != icon || old.stroke != stroke || old.fill != fill;
+      old.icon != icon ||
+      old.stroke != stroke ||
+      old.fillOpacity != fillOpacity;
 }

@@ -13,9 +13,9 @@ class GmPlaceArt extends StatelessWidget {
   final GmIcons icon;
 
   /// 칸 높이 대비 아이콘 크기와, 왼쪽·아래로 넘치는 정도.
-  static const _iconScale = 1.0;
-  static const _overflowLeft = 0.08;
-  static const _overflowBottom = 0.3;
+  static const _iconScale = 0.9;
+  static const _overflowLeft = 0.06;
+  static const _overflowBottom = 0.12;
   static const _iconAlpha = 0.09;
 
   @override

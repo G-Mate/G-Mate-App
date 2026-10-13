@@ -119,8 +119,8 @@ class GmFloorPlanTourState extends State<GmFloorPlanTour>
     super.dispose();
   }
 
-  /// 되풀이를 멈추고 전체 보기로 부드럽게 물러난다. 다음 화면 지도로
-  /// 이어지기(Hero) 전에 부른다.
+  /// 되풀이를 멈추고 전체 보기로 부드럽게 물러나며 가장자리 흐림을 걷는다.
+  /// 다음 화면 지도로 이어지기(Hero) 전에 부른다.
   Future<void> settle() async {
     _controller.stop();
     await _settle.animateTo(1, curve: Curves.easeOutCubic);
@@ -144,18 +144,22 @@ class GmFloorPlanTourState extends State<GmFloorPlanTour>
       animation: Listenable.merge([_controller, _settle]),
       builder: (context, _) {
         final (focus, zoom) = _camera(_controller.value);
-        return GmFloorPlan(
-          destination: widget.destination,
-          cameraFocus: focus,
-          cameraZoom: zoom + (1 - zoom) * _settle.value,
-          startLabel: widget.startLabel,
+        // 가장자리 흐림도 물러나면서 걷혀, 날아갈 때는 깔끔한 평면도가 된다.
+        return GmFloorPlanFade(
+          strength: 1 - _settle.value,
+          child: GmFloorPlan(
+            destination: widget.destination,
+            cameraFocus: focus,
+            cameraZoom: zoom + (1 - zoom) * _settle.value,
+            startLabel: widget.startLabel,
+          ),
         );
       },
     );
   }
 }
 
-/// 가장자리가 흐려지며 바탕에 녹아드는 평면도 (장소 확인 미리보기, Hero 비행 중).
+/// 가장자리가 흐려지며 바탕에 녹아드는 평면도 (장소 확인 미리보기).
 ///
 /// [strength]가 0이면 흐림 없이 그대로 보여 준다.
 class GmFloorPlanFade extends StatelessWidget {
@@ -181,28 +185,6 @@ class GmFloorPlanFade extends StatelessWidget {
         stops: const [0, _solidRadius, 1],
       ).createShader(rect),
       child: child,
-    );
-  }
-
-  /// 두 화면의 평면도 Hero가 쓰는 비행 모양: 날아가는 동안 가장자리 흐림이
-  /// 장소 확인 쪽에서 이동 중 쪽으로 자연스럽게 바뀐다.
-  static Widget flightShuttle(
-    BuildContext flightContext,
-    Animation<double> animation,
-    HeroFlightDirection direction,
-    BuildContext fromContext,
-    BuildContext toContext,
-  ) {
-    final toHero = toContext.widget as Hero;
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) => GmFloorPlanFade(
-        strength: direction == HeroFlightDirection.push
-            ? 1 - animation.value
-            : animation.value,
-        child: child!,
-      ),
-      child: toHero.child,
     );
   }
 }

@@ -84,10 +84,7 @@ class _ContentState extends State<_Content> {
             height: _previewHeight,
             child: Hero(
               tag: GmFloorPlan.heroTag,
-              flightShuttleBuilder: GmFloorPlanFade.flightShuttle,
-              child: GmFloorPlanFade(
-                child: GmFloorPlanTour(key: _tourKey, destination: place.name),
-              ),
+              child: GmFloorPlanTour(key: _tourKey, destination: place.name),
             ),
           ),
         ),

@@ -147,14 +147,12 @@ class GmOverline extends StatelessWidget {
 
 /// 남색 패널 위에 두는 뒤로 가기 버튼. 모든 화면이 [GmBackButton] 하나를 쓴다.
 class GmHeroBackButton extends StatelessWidget {
-  const GmHeroBackButton({super.key, required this.onPressed, this.label});
+  const GmHeroBackButton({super.key, required this.onPressed});
 
   final VoidCallback onPressed;
-  final String? label;
 
   @override
-  Widget build(BuildContext context) =>
-      GmBackButton(onPressed: onPressed, label: label ?? '뒤로');
+  Widget build(BuildContext context) => GmBackButton(onPressed: onPressed);
 }
 
 /// 왼쪽 남색 패널 + 오른쪽 본문으로 나뉜 화면 틀.
