@@ -129,7 +129,6 @@ class _MenuCarouselState extends State<MenuCarousel> {
                       icon: item.icon,
                       title: item.title,
                       description: item.description,
-                      index: '0${i % _count + 1}',
                       badge: item.badge,
                       emphasized: item.emphasized,
                       // 가운데가 아닌 카드는 누르면 가운데로 옮겨 온다.

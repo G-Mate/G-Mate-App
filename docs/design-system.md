@@ -43,7 +43,7 @@ import 'package:g_mate/core/design_system.dart';
 | `GmSearchField` | 화면 머리말 오른쪽의 알약 모양 검색 칸 (64dp, 한 줄만, 엔터는 검색) |
 | `GmScaffold` | 화면 틀. 뒤로 가기 버튼 왼쪽 끝을 본문 여백 선(48dp)에 맞춤. 뒤로 가기·작은 머리말·제목·오른쪽 동작, 여백 잡힌 본문, 하단 고정 버튼 줄 |
 | `GmButton` | 버튼. `primary`/`secondary`/`outline`/`danger`, 크기 `large`/`medium`/`small`, 아이콘, `loading` |
-| `GmMenuTile` | 홈 화면의 큰 메뉴 카드. 왼쪽 위 선 아이콘, 오른쪽 위 번호(`index`) 또는 짧은 글자(`badge`), 아래 큰 제목·작은 설명·화살표. `emphasized`면 파랑 단색 면(주 메뉴 하나에만) |
+| `GmMenuTile` | 홈 화면의 큰 메뉴 카드. 왼쪽 위 선 아이콘, 오른쪽 위 짧은 글자(`badge`, 예: 준비 중), 아래 큰 제목·작은 설명·화살표. `emphasized`면 파랑 단색 면(주 메뉴 하나에만) |
 | `GmHeroPanel` | 화면 한쪽을 채우는 남색 단색 패널. 머리말·큰 제목·부제·하단 위젯, 오른쪽 위 가는 선 평면도(`showFloorPlan`, 이동 중 화면은 끔). 맨 위에는 `GmHeroBackButton`을 둘 수 있음 |
 | `GmFloorPlan` | 예시 층 평면도(교실 칸, 복도, 경로, 로봇 위치). 카메라 초점·배율을 받을 수 있고 `heroTag`로 장소 확인 ↔ 이동 중 지도를 잇는다. `GmFloorPlanTour`는 카메라가 되풀이해 움직이는 미리보기 |
 | `GmOverline` | 짧은 파랑 선 + 작은 글자 머리말 (남색 패널, 화면 머리말) |

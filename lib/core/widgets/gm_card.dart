@@ -48,7 +48,7 @@ class GmCard extends StatelessWidget {
 
 /// 홈 화면의 큰 메뉴 카드 ([길 찾기], [학교 투어]).
 ///
-/// 왼쪽 위에 선 아이콘, 오른쪽 위에 번호(또는 [badge]), 아래쪽에 큰 제목과
+/// 왼쪽 위에 선 아이콘, 오른쪽 위에 [badge](예: '준비 중'), 아래쪽에 큰 제목과
 /// 작은 설명. 장식 없이 글자 크기 대비로만 위계를 만든다.
 /// [emphasized]면 파랑 단색 면으로 칠해 주 메뉴임을 보여 준다.
 class GmMenuTile extends StatelessWidget {
@@ -58,7 +58,6 @@ class GmMenuTile extends StatelessWidget {
     required this.title,
     this.onTap,
     this.description,
-    this.index,
     this.emphasized = false,
     this.badge,
   });
@@ -67,16 +66,13 @@ class GmMenuTile extends StatelessWidget {
   final String title;
   final String? description;
 
-  /// 오른쪽 위 작은 번호 (예: '01').
-  final String? index;
-
   /// null이면 아직 쓸 수 없는 메뉴로 보고 화살표를 흐리게 표시한다.
   final VoidCallback? onTap;
 
   /// true면 파랑 단색 면에 흰 글자로 그린다 (화면의 주 메뉴 하나에만 쓴다).
   final bool emphasized;
 
-  /// 번호 대신 오른쪽 위에 둘 짧은 글자 (예: '준비 중').
+  /// 오른쪽 위에 둘 짧은 글자 (예: '준비 중').
   final String? badge;
 
   /// 흰 면 위 보조 글자의 진하기.
@@ -96,7 +92,7 @@ class GmMenuTile extends StatelessWidget {
         ? colors.onPrimary.withValues(alpha: _onPrimaryMutedAlpha)
         : semantic.textSecondary;
     final Color accent = colors.onSurface;
-    final corner = badge ?? index;
+    final corner = badge;
 
     return Semantics(
       button: true,
