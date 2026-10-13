@@ -49,14 +49,21 @@ class ArrivalPage extends StatelessWidget {
         final next = current + 1 < lines.length ? lines[current + 1] : null;
 
         return GmSplitLayout(
+          // 투어 설명 화면과 같이 상태는 위에, [안내 중지]는 아래에 둔다.
           hero: GmHeroPanel(
-            overline: '도착했어요',
-            title: place.name,
-            subtitle: place.meta,
-            footer: GmStatusIndicator(
+            top: GmStatusIndicator(
               label: state.isSpeaking ? '설명을 들려 드리는 중' : '설명을 다 들려 드렸어요',
               type: state.isSpeaking ? GmStatusType.info : GmStatusType.success,
               onDark: true,
+            ),
+            overline: '도착했어요',
+            title: place.name,
+            subtitle: place.meta,
+            footer: GmButton(
+              label: '안내 중지',
+              icon: Icons.stop_rounded,
+              variant: GmButtonVariant.outline,
+              onPressed: () => context.go(AppRoutes.home),
             ),
           ),
           child: Column(
@@ -142,14 +149,8 @@ class ArrivalPage extends StatelessWidget {
                 ),
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  GmButton(
-                    label: '처음으로',
-                    icon: Icons.home_outlined,
-                    variant: GmButtonVariant.outline,
-                    onPressed: () => context.go(AppRoutes.home),
-                  ),
-                  const Spacer(),
                   GmButton(
                     label: '다시 듣기',
                     icon: Icons.replay_rounded,
