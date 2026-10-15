@@ -12,6 +12,7 @@ void main() {
     '이동 중': AppRoutes.guiding('science_lab'),
     '도착·설명': AppRoutes.arrival('science_lab'),
     '관리 모드 PIN': AppRoutes.adminPin,
+    '관리 모드 메인': AppRoutes.adminHome,
     '장소 관리': AppRoutes.adminPlaces,
     '장소 편집': AppRoutes.adminPlaceEdit('science_lab'),
     '음성 설정': AppRoutes.adminTts,

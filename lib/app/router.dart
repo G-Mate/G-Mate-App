@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/robot/robot_controller.dart';
 import '../features/admin/domain/admin_pin_repository.dart';
 import '../features/admin/domain/place_image_picker.dart';
+import '../features/admin/presentation/admin_home_page.dart';
 import '../features/admin/presentation/admin_pin_page.dart';
 import '../features/admin/presentation/admin_place_edit_page.dart';
 import '../features/admin/presentation/admin_places_page.dart';
@@ -205,6 +206,10 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
         create: (_) => AdminPinCubit(getIt<AdminPinRepository>()),
         child: const AdminPinPage(),
       ),
+    ),
+    GoRoute(
+      path: AppRoutes.adminHome,
+      builder: (context, state) => const AdminHomePage(),
     ),
     GoRoute(
       path: AppRoutes.adminPlaces,

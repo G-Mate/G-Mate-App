@@ -19,6 +19,7 @@ abstract final class AppRoutes {
 
   // 관리 모드
   static const adminPin = '/admin';
+  static const adminHome = '/admin/home';
   static const adminPlaces = '/admin/places';
   static String adminPlaceEdit(String key) => '/admin/places/$key';
   static const adminTts = '/admin/tts';
