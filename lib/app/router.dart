@@ -277,6 +277,7 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
                 tours: getIt<TourRepository>(),
                 places: getIt<PlaceRepository>(),
                 tourKey: key == AppRoutes.newTourKey ? null : key,
+                imagePicker: getIt<PlaceImagePicker>(),
               )..load(),
               child: const AdminTourEditPage(),
             );

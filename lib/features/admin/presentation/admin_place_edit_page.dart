@@ -103,56 +103,17 @@ class _BasicInfo extends StatelessWidget {
   final Place place;
   final AdminPlaceEditCubit cubit;
 
-  static const _photoWidth = 200.0;
-
   @override
   Widget build(BuildContext context) {
-    final image = placeImage(place);
     return ListView(
       children: [
         // 장소 사진: 장소 선택 카드와 장소 확인 화면에 쓰인다 (16:10).
-        AdminField(
-          label: '사진',
+        AdminPhotoField(
+          image: placeImage(place),
+          placeholder: GmPlaceArt(icon: placeIcon(place)),
           hint: '없으면 장소 아이콘 그림으로 보여요',
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              SizedBox(
-                width: _photoWidth,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                  child: AspectRatio(
-                    aspectRatio: GmPlaceCard.photoAspectRatio,
-                    child: image != null
-                        ? Image(image: image, fit: BoxFit.cover)
-                        : GmPlaceArt(icon: placeIcon(place)),
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  GmButton(
-                    label: image == null ? '사진 고르기' : '사진 바꾸기',
-                    icon: Icons.photo_library_outlined,
-                    size: GmButtonSize.small,
-                    variant: GmButtonVariant.secondary,
-                    onPressed: cubit.pickImage,
-                  ),
-                  if (image != null) ...[
-                    const SizedBox(height: AppSpacing.xs),
-                    GmButton(
-                      label: '사진 지우기',
-                      size: GmButtonSize.small,
-                      variant: GmButtonVariant.outline,
-                      onPressed: cubit.removeImage,
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
+          onPick: cubit.pickImage,
+          onRemove: cubit.removeImage,
         ),
         AdminField(
           label: '표시 이름',

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../place/domain/place_repository.dart';
 import '../../../tour/domain/tour.dart';
 import '../../../tour/domain/tour_repository.dart';
+import '../../domain/place_image_picker.dart';
 import 'admin_tour_edit_state.dart';
 
 /// 코스 편집: 이름·소개·걸리는 시간과 들를 곳(순서 포함)을 고치고 저장한다.
@@ -13,6 +14,7 @@ class AdminTourEditCubit extends Cubit<AdminTourEditState> {
     required this._tours,
     required this._places,
     required this.tourKey,
+    required this._imagePicker,
     DateTime Function()? now,
   }) : _now = now ?? DateTime.now,
        super(const AdminTourEditState());
@@ -20,6 +22,7 @@ class AdminTourEditCubit extends Cubit<AdminTourEditState> {
   final TourRepository _tours;
   final PlaceRepository _places;
   final String? tourKey;
+  final PlaceImagePicker _imagePicker;
   final DateTime Function() _now;
 
   Future<void> load() async {
@@ -55,6 +58,16 @@ class AdminTourEditCubit extends Cubit<AdminTourEditState> {
 
   void changeDuration(Duration duration) =>
       _update(_tour.copyWith(duration: duration));
+
+  /// [사진 고르기]: 사진첩에서 고른 사진을 코스 대표 사진으로 둔다.
+  Future<void> pickImage() async {
+    final path = await _imagePicker.pick();
+    if (path == null || isClosed) return;
+    _update(_tour.copyWith(imagePath: path));
+  }
+
+  /// [사진 지우기]: 사진을 빼고 아이콘 그림으로 되돌린다.
+  void removeImage() => _update(_tour.copyWith(clearImage: true));
 
   /// [placeKey]를 들를 곳 끝에 넣는다. 이미 있으면 넣지 않는다.
   void addStop(String placeKey) {

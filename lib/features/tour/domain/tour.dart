@@ -58,13 +58,15 @@ class Tour extends Equatable {
     String? description,
     Duration? duration,
     List<TourStop>? stops,
+    String? imagePath,
+    bool clearImage = false,
   }) => Tour(
     key: key,
     name: name ?? this.name,
     description: description ?? this.description,
     duration: duration ?? this.duration,
     stops: stops ?? this.stops,
-    imagePath: imagePath,
+    imagePath: clearImage ? null : imagePath ?? this.imagePath,
   );
 
   @override

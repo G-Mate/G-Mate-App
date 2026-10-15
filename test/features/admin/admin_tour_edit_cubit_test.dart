@@ -5,16 +5,23 @@ import 'package:g_mate/features/tour/data/in_memory_tour_repository.dart';
 import 'package:g_mate/features/tour/data/seed_tours.dart';
 import 'package:g_mate/features/tour/domain/tour.dart';
 
+import '../../helpers/test_app.dart';
+
 void main() {
   late InMemoryTourRepository tours;
+  late FakePlaceImagePicker picker;
 
-  setUp(() => tours = InMemoryTourRepository());
+  setUp(() {
+    tours = InMemoryTourRepository();
+    picker = FakePlaceImagePicker(path: '/photos/tour.jpg');
+  });
 
   Future<AdminTourEditCubit> build(String? key) async {
     final cubit = AdminTourEditCubit(
       tours: tours,
       places: InMemoryPlaceRepository(),
       tourKey: key,
+      imagePicker: picker,
       now: () => DateTime.fromMillisecondsSinceEpoch(42),
     );
     await cubit.load();
@@ -71,5 +78,26 @@ void main() {
     expect(all, hasLength(seedTours.length + 1));
     expect(all.last.key, 'tour_42');
     expect(keysOf(all.last), ['library']);
+  });
+
+  test('사진을 고르면 코스 사진이 되고, 지우면 빠지며, 저장하면 남는다', () async {
+    final cubit = await build(seedTours.first.key);
+    await cubit.pickImage();
+    expect(cubit.state.tour!.imagePath, '/photos/tour.jpg');
+
+    cubit.removeImage();
+    expect(cubit.state.tour!.imagePath, isNull);
+
+    picker.path = null;
+    await cubit.pickImage();
+    expect(cubit.state.tour!.imagePath, isNull);
+
+    picker.path = '/photos/tour2.jpg';
+    await cubit.pickImage();
+    await cubit.save();
+    expect(
+      (await tours.getTour(seedTours.first.key))!.imagePath,
+      '/photos/tour2.jpg',
+    );
   });
 }

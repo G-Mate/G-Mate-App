@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +8,7 @@ import '../../../core/design_system.dart';
 import '../../place/domain/place.dart';
 import '../../place/presentation/place_icons.dart';
 import '../../tour/domain/tour.dart';
+import '../../tour/presentation/tour_widgets.dart';
 import 'bloc/admin_tour_edit_cubit.dart';
 import 'bloc/admin_tour_edit_state.dart';
 import 'widgets/admin_section.dart';
@@ -76,6 +79,17 @@ class AdminTourEditPage extends StatelessWidget {
                   title: '기본 정보',
                   child: ListView(
                     children: [
+                      // 코스 사진: 투어 코스 선택 카드에 쓰인다.
+                      AdminPhotoField(
+                        image: switch (tour.imagePath) {
+                          final path? => FileImage(File(path)),
+                          null => null,
+                        },
+                        placeholder: GmPlaceArt(icon: tourIcon(tour)),
+                        hint: '없으면 코스 아이콘 그림으로 보여요',
+                        onPick: cubit.pickImage,
+                        onRemove: cubit.removeImage,
+                      ),
                       AdminField(
                         label: '코스 이름',
                         child: TextFormField(
