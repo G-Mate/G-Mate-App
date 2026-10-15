@@ -6,7 +6,7 @@ import '../../../app/routes.dart';
 import '../../../core/design_system.dart';
 import '../../../core/utils/korean.dart';
 import '../../guide/presentation/widgets/floor_map.dart';
-import '../../guide/presentation/widgets/keep_all_text.dart';
+import '../../guide/presentation/widgets/explanation_view.dart';
 import '../domain/tour.dart';
 import 'bloc/tour_bloc.dart';
 import 'tour_widgets.dart';
@@ -61,10 +61,9 @@ class TourRunPage extends StatelessWidget {
                   child: AnimatedSwitcher(
                     duration: AppDuration.slow,
                     child: explaining
-                        ? _Subtitles(
+                        ? _Explanation(
                             key: ValueKey('lines-${state.stopIndex}'),
-                            lines: visit.lines,
-                            current: state.lineIndex,
+                            state: state,
                           )
                         : FloorMap(
                             key: ValueKey('map-${state.stopIndex}'),
@@ -74,10 +73,6 @@ class TourRunPage extends StatelessWidget {
                           ),
                   ),
                 ),
-                if (explaining) ...[
-                  const SizedBox(height: AppSpacing.lg),
-                  _ExplainButtons(state: state),
-                ],
               ],
             ),
           );
@@ -240,109 +235,31 @@ class _StopSteps extends StatelessWidget {
   }
 }
 
-/// 설명 자막: 지금 줄을 크게, 그 아래 다음 줄을 작고 옅게 미리 보여 준다.
-/// 줄이 바뀔 때는 아래에서 올라오며 바뀐다 (도착 화면과 같다).
-class _Subtitles extends StatelessWidget {
-  const _Subtitles({super.key, required this.lines, required this.current});
-
-  final List<String> lines;
-  final int current;
-
-  static const _lineHeight = 1.35;
-  static const _lineSwitch = Duration(milliseconds: 450);
-  static const _nextAlpha = 0.4;
-  static const _rise = 0.35;
-
-  @override
-  Widget build(BuildContext context) {
-    final text = context.textStyles;
-    final colors = context.colors;
-    final next = current + 1 < lines.length ? lines[current + 1] : null;
-
-    return AnimatedSwitcher(
-      duration: _lineSwitch,
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      layoutBuilder: (currentChild, previous) => Stack(
-        alignment: Alignment.center,
-        children: [...previous, ?currentChild],
-      ),
-      transitionBuilder: (child, animation) {
-        final incoming = child.key == ValueKey(current);
-        return FadeTransition(
-          opacity: animation,
-          child: SlideTransition(
-            position: Tween(
-              begin: Offset(0, incoming ? _rise : -_rise),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          ),
-        );
-      },
-      child: Column(
-        key: ValueKey(current),
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          KeepAllText(
-            lines[current],
-            alignment: WrapAlignment.center,
-            style: text.displaySmall?.copyWith(height: _lineHeight),
-          ),
-          if (next != null) ...[
-            const SizedBox(height: AppSpacing.xl),
-            Text(
-              next,
-              maxLines: 1,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              style: text.bodySmall?.copyWith(
-                color: colors.onSurface.withValues(alpha: _nextAlpha),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// 설명 중 버튼 줄: [다시 듣기] … [다음 장소]. 다 읽으면 [다음 장소]가
-/// 파랑으로 바뀐다. 마지막 곳에서는 [투어 마치기].
-class _ExplainButtons extends StatelessWidget {
-  const _ExplainButtons({required this.state});
+/// 장소 설명: 길 찾기 도착 화면과 같은 [ExplanationView]. 마지막 줄에서는
+/// [다음 장소](마지막 곳이면 [투어 마치기])를 두고, 다 읽으면 파랑으로 바뀐다.
+class _Explanation extends StatelessWidget {
+  const _Explanation({super.key, required this.state});
 
   final TourState state;
 
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<TourBloc>();
-    final semantic = context.appColors;
-    final text = context.textStyles;
     final visit = state.visit!;
-
-    return Row(
-      children: [
-        Text(
-          '설명 ${state.lineIndex + 1} / ${visit.lines.length}',
-          style: text.labelSmall?.copyWith(color: semantic.textSecondary),
-        ),
-        const Spacer(),
-        GmButton(
-          label: '다시 듣기',
-          icon: Icons.replay_rounded,
-          variant: GmButtonVariant.secondary,
-          onPressed: () => bloc.add(const TourReplayRequested()),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        GmButton(
-          label: state.isLastStop ? '투어 마치기' : '다음 장소',
-          variant: state.isSpeaking
-              ? GmButtonVariant.outline
-              : GmButtonVariant.primary,
-          onPressed: () => bloc.add(const TourNextRequested()),
-        ),
-      ],
+    return ExplanationView(
+      lines: visit.lines,
+      current: state.lineIndex,
+      isLineDone: state.isLineDone,
+      interval: visit.place.lineInterval,
+      onReplay: () => bloc.add(const TourReplayRequested()),
+      onNext: () => bloc.add(const TourNextLineRequested()),
+      lastAction: GmButton(
+        label: state.isLastStop ? '투어 마치기' : '다음 장소',
+        variant: state.isSpeaking
+            ? GmButtonVariant.outline
+            : GmButtonVariant.primary,
+        onPressed: () => bloc.add(const TourNextRequested()),
+      ),
     );
   }
 }

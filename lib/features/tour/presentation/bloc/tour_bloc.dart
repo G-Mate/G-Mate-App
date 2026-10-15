@@ -28,6 +28,7 @@ class TourBloc extends Bloc<TourEvent, TourState> {
     on<TourStarted>(_onStarted);
     on<TourArrivalConfirmed>(_onArrivalConfirmed);
     on<TourNextRequested>(_onNextRequested);
+    on<TourNextLineRequested>(_onNextLineRequested);
     on<TourReplayRequested>(_onReplayRequested);
     on<TourRetryRequested>(_onRetryRequested);
     on<TourStopRequested>(_onStopRequested);
@@ -78,6 +79,7 @@ class TourBloc extends Bloc<TourEvent, TourState> {
         stopIndex: index,
         lineIndex: 0,
         isSpeaking: false,
+        isLineDone: false,
         progress: 0,
       ),
     );
@@ -93,6 +95,7 @@ class TourBloc extends Bloc<TourEvent, TourState> {
         phase: TourPhase.explaining,
         lineIndex: from,
         isSpeaking: true,
+        isLineDone: false,
         progress: 1,
       ),
     );
@@ -123,6 +126,14 @@ class TourBloc extends Bloc<TourEvent, TourState> {
     }
     await _robot.stopMovement();
     await _moveTo(state.stopIndex + 1, emit);
+  }
+
+  void _onNextLineRequested(
+    TourNextLineRequested event,
+    Emitter<TourState> emit,
+  ) {
+    if (state.phase != TourPhase.explaining || !state.hasNextLine) return;
+    _explain(emit, from: state.lineIndex + 1);
   }
 
   void _onReplayRequested(TourReplayRequested event, Emitter<TourState> emit) {
@@ -174,6 +185,7 @@ class TourBloc extends Bloc<TourEvent, TourState> {
               text == visit.lines[state.lineIndex]:
         final next = state.lineIndex + 1;
         if (next < visit.lines.length) {
+          emit(state.copyWith(isLineDone: true));
           _advanceTimer = Timer(
             visit.place.lineInterval,
             () => add(_TourLineAdvanced(next)),

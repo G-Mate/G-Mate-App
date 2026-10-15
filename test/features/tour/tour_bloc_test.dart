@@ -167,4 +167,17 @@ void main() {
     expect(spoken, isNot(contains('둘째 줄')));
     await bloc.close();
   });
+
+  test('다음을 누르면 쉬지 않고 바로 다음 줄을 읽는다', () async {
+    final bloc = build(interval: const Duration(seconds: 10))
+      ..add(const TourStarted());
+    await bloc.stream.firstWhere((s) => s.phase == TourPhase.explaining);
+    await bloc.stream.firstWhere((s) => s.isLineDone);
+
+    bloc.add(const TourNextLineRequested());
+    final second = await bloc.stream.firstWhere((s) => s.lineIndex == 1);
+    expect(second.isLineDone, isFalse);
+    expect(second.hasNextLine, isFalse);
+    await bloc.close();
+  });
 }

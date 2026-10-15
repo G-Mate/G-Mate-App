@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:g_mate/app/routes.dart';
+import 'package:g_mate/features/guide/presentation/widgets/explanation_view.dart';
 import 'package:g_mate/features/home/presentation/home_page.dart';
 
 import '../helpers/test_app.dart';
@@ -30,8 +31,14 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pumpAndSettle();
       expect(find.text(name), findsWidgets);
-      expect(find.textContaining('설명 '), findsOneWidget);
-      await tester.tap(find.text(name == '도서관' ? '투어 마치기' : '다음 장소'));
+      expect(find.byType(ExplanationView), findsOneWidget);
+      // 설명은 [다음]으로 한 줄씩 넘기고, 마지막 줄에서 다음 곳으로 간다.
+      final last = name == '도서관' ? '투어 마치기' : '다음 장소';
+      while (find.text(last).evaluate().isEmpty) {
+        await tester.tap(find.textContaining(RegExp(r'^다음( ·|$)')));
+        await tester.pumpAndSettle();
+      }
+      await tester.tap(find.text(last));
       await tester.pump();
     }
 

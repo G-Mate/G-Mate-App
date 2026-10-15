@@ -23,6 +23,11 @@ final class TourNextRequested extends TourEvent {
 }
 
 /// [다시 듣기]: 지금 곳의 설명을 처음부터 다시 읽는다.
+/// [다음]: 쉬는 시간을 기다리지 않고 다음 줄을 읽는다.
+final class TourNextLineRequested extends TourEvent {
+  const TourNextLineRequested();
+}
+
 final class TourReplayRequested extends TourEvent {
   const TourReplayRequested();
 }

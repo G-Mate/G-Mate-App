@@ -31,6 +31,7 @@ class TourState extends Equatable {
     this.stopIndex = 0,
     this.lineIndex = 0,
     this.isSpeaking = false,
+    this.isLineDone = false,
     this.progress = 0,
   });
 
@@ -47,6 +48,9 @@ class TourState extends Equatable {
   /// 로봇이 설명을 읽는 중인지. 다 읽으면 false.
   final bool isSpeaking;
 
+  /// 지금 줄을 다 읽고 다음 줄로 넘어가기를 기다리는 중인지.
+  final bool isLineDone;
+
   /// 지금 곳까지 경로를 얼마나 왔는지 (0~1).
   final double progress;
 
@@ -55,6 +59,12 @@ class TourState extends Equatable {
   /// 마지막 곳인지 ([다음 장소] 대신 [투어 마치기]).
   bool get isLastStop => stopIndex >= visits.length - 1;
 
+  /// 지금 곳 설명에 다음 줄이 있는지.
+  bool get hasNextLine {
+    final visit = this.visit;
+    return visit != null && lineIndex + 1 < visit.lines.length;
+  }
+
   TourState copyWith({
     TourPhase? phase,
     Tour? tour,
@@ -62,6 +72,7 @@ class TourState extends Equatable {
     int? stopIndex,
     int? lineIndex,
     bool? isSpeaking,
+    bool? isLineDone,
     double? progress,
   }) => TourState(
     phase: phase ?? this.phase,
@@ -70,6 +81,7 @@ class TourState extends Equatable {
     stopIndex: stopIndex ?? this.stopIndex,
     lineIndex: lineIndex ?? this.lineIndex,
     isSpeaking: isSpeaking ?? this.isSpeaking,
+    isLineDone: isLineDone ?? this.isLineDone,
     progress: progress ?? this.progress,
   );
 
@@ -81,6 +93,7 @@ class TourState extends Equatable {
     stopIndex,
     lineIndex,
     isSpeaking,
+    isLineDone,
     progress,
   ];
 }
