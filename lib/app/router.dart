@@ -199,10 +199,8 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
     GoRoute(
       path: AppRoutes.schoolOverview,
       builder: (context, state) => BlocProvider(
-        create: (_) => SchoolOverviewCubit(
-          info: getIt<SchoolInfoRepository>(),
-          places: getIt<PlaceRepository>(),
-        )..load(),
+        create: (_) =>
+            SchoolOverviewCubit(getIt<SchoolInfoRepository>())..load(),
         child: const SchoolOverviewPage(),
       ),
     ),

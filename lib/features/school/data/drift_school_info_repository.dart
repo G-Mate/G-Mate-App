@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:drift/drift.dart';
 
 import '../../../core/database/app_database.dart';
@@ -19,47 +17,24 @@ class DriftSchoolInfoRepository implements SchoolInfoRepository {
       ..where((t) => t.id.equals(AppDatabase.singleRowId));
     final row = await query.getSingleOrNull();
     // 기본 내용을 넣기 전에 만든 DB라면 처음 학교 소개를 보여 준다.
-    return row == null ? seedSchoolInfo : _toInfo(row);
+    return row == null
+        ? seedSchoolInfo
+        : SchoolInfo(
+            name: row.name,
+            document: row.document,
+            imagePath: row.imagePath,
+          );
   }
 
   @override
-  Future<void> saveSchoolInfo(SchoolInfo info) =>
-      _db.into(_db.schoolInfos).insertOnConflictUpdate(_toRow(info));
-
-  static SchoolInfo _toInfo(SchoolInfoRow row) => SchoolInfo(
-    name: row.name,
-    intro: row.intro,
-    sections: [
-      for (final section in jsonDecode(row.sections) as List<Object?>)
-        _sectionFromJson(section! as Map<String, Object?>),
-    ],
-    floorLabels: {
-      for (final e
-          in (jsonDecode(row.floorLabels) as Map<String, Object?>).entries)
-        int.parse(e.key): e.value! as String,
-    },
-    imagePath: row.imagePath,
-  );
-
-  static SchoolSection _sectionFromJson(Map<String, Object?> map) =>
-      SchoolSection(
-        title: map['title']! as String,
-        body: map['body']! as String,
-      );
-
-  static SchoolInfosCompanion _toRow(SchoolInfo info) =>
-      SchoolInfosCompanion.insert(
-        id: const Value(AppDatabase.singleRowId),
-        name: info.name,
-        intro: info.intro,
-        sections: Value(
-          jsonEncode([
-            for (final s in info.sections) {'title': s.title, 'body': s.body},
-          ]),
+  Future<void> saveSchoolInfo(SchoolInfo info) => _db
+      .into(_db.schoolInfos)
+      .insertOnConflictUpdate(
+        SchoolInfosCompanion.insert(
+          id: const Value(AppDatabase.singleRowId),
+          name: info.name,
+          document: Value(info.document),
+          imagePath: Value(info.imagePath),
         ),
-        floorLabels: jsonEncode({
-          for (final e in info.floorLabels.entries) '${e.key}': e.value,
-        }),
-        imagePath: Value(info.imagePath),
       );
 }

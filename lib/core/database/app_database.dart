@@ -40,17 +40,15 @@ class Tours extends Table {
 }
 
 /// 학교 소개. 한 줄만 둔다 (id = [AppDatabase.singleRowId]).
+///
+/// 스키마 3에서 소개 글·숫자·층 설명 열을 문서 한 편([document])으로 바꿨다.
 @DataClassName('SchoolInfoRow')
 class SchoolInfos extends Table {
   IntColumn get id => integer()();
   TextColumn get name => text()();
-  TextColumn get intro => text()();
 
-  /// `[{"title", "body"}]` JSON. 스키마 3에서 숫자(stats) 대신 넣음.
-  TextColumn get sections => text().withDefault(const Constant('[]'))();
-
-  /// `{"층 번호": "설명"}` JSON.
-  TextColumn get floorLabels => text()();
+  /// 줄 단위 문서 (`# ` 소제목, `- ` 목록).
+  TextColumn get document => text().withDefault(const Constant(''))();
   TextColumn get imagePath => text().nullable()();
 
   @override
@@ -111,10 +109,16 @@ class AppDatabase extends _$AppDatabase {
         );
       }
       if (from < 3) {
-        // 학교 개요를 문서 형식으로 바꾸며 숫자(stats) 열을 단락(sections)
-        // 열로 바꾼다. 숫자는 옮기지 않는다 (임시 내용이었다).
+        // 학교 개요를 문서 형식으로 바꾼다. 옛 소개 글을 문서 첫 문단으로
+        // 옮기고, 숫자와 층 설명 열은 버린다 (임시 내용이었다).
         await m.alterTable(
-          TableMigration(schoolInfos, newColumns: [schoolInfos.sections]),
+          TableMigration(
+            schoolInfos,
+            columnTransformer: {
+              schoolInfos.document: const CustomExpression<String>('intro'),
+            },
+            newColumns: [schoolInfos.document],
+          ),
         );
       }
     },

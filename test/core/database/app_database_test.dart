@@ -144,7 +144,7 @@ void main() {
     expect(places.length, seedPlaces.length);
   });
 
-  test('스키마 1 DB를 열면 명령 기다리는 시간 칸을 더하고 학교 소개는 단락 형식으로 바꾼다', () async {
+  test('스키마 1 DB를 열면 명령 기다리는 시간 칸을 더하고 학교 소개는 문서 형식으로 바꾼다', () async {
     final dir = await Directory.systemTemp.createTemp('g_mate_db_v1');
     addTearDown(() => dir.delete(recursive: true));
     final file = File('${dir.path}/g_mate.sqlite');
@@ -182,9 +182,7 @@ void main() {
     await upgraded.close();
 
     expect(school.name, '옛 학교');
-    expect(school.intro, '옛 소개');
-    expect(school.sections, isEmpty);
-    expect(school.floorLabels, {1: '행정'});
+    expect(school.document, '옛 소개');
 
     expect(settings.gender, VoiceGender.male);
     expect(settings.volume, 8);

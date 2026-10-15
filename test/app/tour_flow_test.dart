@@ -70,19 +70,13 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
-  testWidgets('학교 개요에서 층별 장소를 누르면 장소 확인으로 간다', (tester) async {
+  testWidgets('학교 개요는 학교 이름과 소개 문서를 보여 준다', (tester) async {
     useTabletView(tester);
     await registerTestDependencies();
     await tester.pumpWidget(testApp(AppRoutes.schoolOverview));
     await tester.pumpAndSettle();
+    expect(find.text('광주소프트웨어마이스터고등학교'), findsOneWidget);
+    expect(find.text('한눈에 보기'), findsOneWidget);
     expect(find.text('층별 안내'), findsOneWidget);
-    expect(find.text('3층'), findsOneWidget);
-
-    await tester.tap(find.text('도서관'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
-    expect(find.text('이곳으로 안내할까요?'), findsOneWidget);
-    // 장소 확인의 음성 안내(읽던 말)를 끝낸다.
-    await tester.pump(const Duration(seconds: 1));
   });
 }
