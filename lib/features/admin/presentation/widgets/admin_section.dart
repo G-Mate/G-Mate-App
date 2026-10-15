@@ -161,7 +161,7 @@ class AdminPhotoField extends StatelessWidget {
   static const _photoWidth = 200.0;
 
   /// 사진 옆에 버튼을 둘 만큼 넓지 않으면 버튼을 사진 아래로 내린다.
-  static const _sideBySideWidth = 440.0;
+  static const _sideBySideWidth = 400.0;
 
   @override
   Widget build(BuildContext context) {

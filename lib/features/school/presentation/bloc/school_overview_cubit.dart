@@ -59,9 +59,6 @@ class SchoolOverviewState extends Equatable {
   /// 위층부터 차례로 놓은 층별 안내.
   final List<FloorDirectory> floors;
 
-  /// 길 찾기로 갈 수 있는 장소 수.
-  int get placeCount => floors.fold(0, (sum, f) => sum + f.places.length);
-
   @override
   List<Object?> get props => [isLoading, info, floors];
 }

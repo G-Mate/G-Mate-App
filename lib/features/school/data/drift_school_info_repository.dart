@@ -29,12 +29,9 @@ class DriftSchoolInfoRepository implements SchoolInfoRepository {
   static SchoolInfo _toInfo(SchoolInfoRow row) => SchoolInfo(
     name: row.name,
     intro: row.intro,
-    stats: [
-      for (final stat in jsonDecode(row.stats) as List<Object?>)
-        SchoolStat(
-          value: (stat! as Map<String, Object?>)['value']! as String,
-          label: (stat as Map<String, Object?>)['label']! as String,
-        ),
+    sections: [
+      for (final section in jsonDecode(row.sections) as List<Object?>)
+        _sectionFromJson(section! as Map<String, Object?>),
     ],
     floorLabels: {
       for (final e
@@ -44,14 +41,22 @@ class DriftSchoolInfoRepository implements SchoolInfoRepository {
     imagePath: row.imagePath,
   );
 
+  static SchoolSection _sectionFromJson(Map<String, Object?> map) =>
+      SchoolSection(
+        title: map['title']! as String,
+        body: map['body']! as String,
+      );
+
   static SchoolInfosCompanion _toRow(SchoolInfo info) =>
       SchoolInfosCompanion.insert(
         id: const Value(AppDatabase.singleRowId),
         name: info.name,
         intro: info.intro,
-        stats: jsonEncode([
-          for (final s in info.stats) {'value': s.value, 'label': s.label},
-        ]),
+        sections: Value(
+          jsonEncode([
+            for (final s in info.sections) {'title': s.title, 'body': s.body},
+          ]),
+        ),
         floorLabels: jsonEncode({
           for (final e in info.floorLabels.entries) '${e.key}': e.value,
         }),

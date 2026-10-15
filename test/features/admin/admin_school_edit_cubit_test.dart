@@ -22,13 +22,16 @@ void main() {
     return cubit;
   }
 
-  test('고친 내용을 저장하고, 빈 숫자와 빈 층 설명은 뺀다', () async {
+  test('고친 내용을 저장하고, 빈 단락과 빈 층 설명은 뺀다', () async {
     final cubit = await build();
     cubit
       ..changeName(' 새 학교 ')
-      ..changeIntro('첫 줄\n둘째 줄')
-      ..changeStatValue(0, '2016')
-      ..addStat()
+      ..changeIntro('소개 글')
+      ..changeSectionBody(0, '2016년에 문을 열었어요.')
+      ..addSection()
+      ..addSection()
+      ..changeSectionTitle(2, '동아리')
+      ..changeSectionBody(2, '첫 줄\n둘째 줄')
       ..changeFloorLabel(1, ' ')
       ..changeFloorLabel(4, '체육관');
     await cubit.pickImage();
@@ -36,28 +39,28 @@ void main() {
 
     final saved = await repo.getSchoolInfo();
     expect(saved.name, '새 학교');
-    expect(saved.intro, '첫 줄\n둘째 줄');
-    expect(saved.stats, [
-      const SchoolStat(value: '2016', label: '개교'),
-      seedSchoolInfo.stats[1],
+    expect(saved.intro, '소개 글');
+    expect(saved.sections, [
+      SchoolSection(
+        title: seedSchoolInfo.sections.first.title,
+        body: '2016년에 문을 열었어요.',
+      ),
+      const SchoolSection(title: '동아리', body: '첫 줄\n둘째 줄'),
     ]);
     expect(saved.floorLabels, {2: '교무·도서', 3: '교실·실습실', 4: '체육관'});
     expect(saved.imagePath, '/photos/school.jpg');
     expect(cubit.state.isSaved, isTrue);
   });
 
-  test('숫자는 정한 개수까지만 넣고, 지우면 그 줄만 빠진다', () async {
+  test('단락을 지우면 그 단락과 번호만 빠진다', () async {
     final cubit = await build();
-    while (cubit.state.canAddStat) {
-      cubit.addStat();
-    }
-    expect(cubit.state.info!.stats, hasLength(SchoolInfo.maxStats));
-    cubit.addStat();
-    expect(cubit.state.info!.stats, hasLength(SchoolInfo.maxStats));
+    cubit
+      ..addSection()
+      ..changeSectionTitle(1, '둘째');
+    final ids = cubit.state.sectionIds;
 
-    final ids = cubit.state.statIds;
-    cubit.removeStat(0);
-    expect(cubit.state.info!.stats.first, seedSchoolInfo.stats[1]);
-    expect(cubit.state.statIds, ids.sublist(1));
+    cubit.removeSection(0);
+    expect(cubit.state.info!.sections.single.title, '둘째');
+    expect(cubit.state.sectionIds, ids.sublist(1));
   });
 }

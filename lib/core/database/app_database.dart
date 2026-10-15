@@ -46,8 +46,8 @@ class SchoolInfos extends Table {
   TextColumn get name => text()();
   TextColumn get intro => text()();
 
-  /// `[{"value", "label"}]` JSON.
-  TextColumn get stats => text()();
+  /// `[{"title", "body"}]` JSON. 스키마 3에서 숫자(stats) 대신 넣음.
+  TextColumn get sections => text().withDefault(const Constant('[]'))();
 
   /// `{"층 번호": "설명"}` JSON.
   TextColumn get floorLabels => text()();
@@ -95,7 +95,7 @@ class AppDatabase extends _$AppDatabase {
   static const singleRowId = 0;
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -108,6 +108,13 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(
           speechSettingsTable,
           speechSettingsTable.commandWaitMs,
+        );
+      }
+      if (from < 3) {
+        // 학교 개요를 문서 형식으로 바꾸며 숫자(stats) 열을 단락(sections)
+        // 열로 바꾼다. 숫자는 옮기지 않는다 (임시 내용이었다).
+        await m.alterTable(
+          TableMigration(schoolInfos, newColumns: [schoolInfos.sections]),
         );
       }
     },

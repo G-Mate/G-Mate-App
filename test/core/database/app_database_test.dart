@@ -144,7 +144,7 @@ void main() {
     expect(places.length, seedPlaces.length);
   });
 
-  test('스키마 1 DB를 열면 명령 기다리는 시간 칸을 기본값으로 더한다', () async {
+  test('스키마 1 DB를 열면 명령 기다리는 시간 칸을 더하고 학교 소개는 단락 형식으로 바꾼다', () async {
     final dir = await Directory.systemTemp.createTemp('g_mate_db_v1');
     addTearDown(() => dir.delete(recursive: true));
     final file = File('${dir.path}/g_mate.sqlite');
@@ -160,6 +160,16 @@ void main() {
         raw.execute(
           "INSERT INTO speech_settings VALUES (0, 'male', 1.5, 2, 8)",
         );
+        // 스키마 2까지의 학교 소개 표 (숫자 stats 열이 있었다).
+        raw.execute(
+          'CREATE TABLE school_infos (id INTEGER NOT NULL PRIMARY KEY, '
+          'name TEXT NOT NULL, intro TEXT NOT NULL, stats TEXT NOT NULL, '
+          'floor_labels TEXT NOT NULL, image_path TEXT)',
+        );
+        raw.execute(
+          "INSERT INTO school_infos VALUES (0, '옛 학교', '옛 소개', "
+          "'[{\"value\":\"2015\",\"label\":\"개교\"}]', '{\"1\":\"행정\"}', NULL)",
+        );
         raw.execute('PRAGMA user_version = 1');
       },
     );
@@ -168,7 +178,13 @@ void main() {
 
     final upgraded = AppDatabase(NativeDatabase(file));
     final settings = await DriftSpeechSettingsRepository(upgraded).load();
+    final school = await DriftSchoolInfoRepository(upgraded).getSchoolInfo();
     await upgraded.close();
+
+    expect(school.name, '옛 학교');
+    expect(school.intro, '옛 소개');
+    expect(school.sections, isEmpty);
+    expect(school.floorLabels, {1: '행정'});
 
     expect(settings.gender, VoiceGender.male);
     expect(settings.volume, 8);

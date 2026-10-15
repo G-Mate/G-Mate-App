@@ -1028,14 +1028,17 @@ class $SchoolInfosTable extends SchoolInfos
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _statsMeta = const VerificationMeta('stats');
+  static const VerificationMeta _sectionsMeta = const VerificationMeta(
+    'sections',
+  );
   @override
-  late final GeneratedColumn<String> stats = GeneratedColumn<String>(
-    'stats',
+  late final GeneratedColumn<String> sections = GeneratedColumn<String>(
+    'sections',
     aliasedName,
     false,
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
   );
   static const VerificationMeta _floorLabelsMeta = const VerificationMeta(
     'floorLabels',
@@ -1064,7 +1067,7 @@ class $SchoolInfosTable extends SchoolInfos
     id,
     name,
     intro,
-    stats,
+    sections,
     floorLabels,
     imagePath,
   ];
@@ -1099,13 +1102,11 @@ class $SchoolInfosTable extends SchoolInfos
     } else if (isInserting) {
       context.missing(_introMeta);
     }
-    if (data.containsKey('stats')) {
+    if (data.containsKey('sections')) {
       context.handle(
-        _statsMeta,
-        stats.isAcceptableOrUnknown(data['stats']!, _statsMeta),
+        _sectionsMeta,
+        sections.isAcceptableOrUnknown(data['sections']!, _sectionsMeta),
       );
-    } else if (isInserting) {
-      context.missing(_statsMeta);
     }
     if (data.containsKey('floor_labels')) {
       context.handle(
@@ -1145,9 +1146,9 @@ class $SchoolInfosTable extends SchoolInfos
         DriftSqlType.string,
         data['${effectivePrefix}intro'],
       )!,
-      stats: attachedDatabase.typeMapping.read(
+      sections: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}stats'],
+        data['${effectivePrefix}sections'],
       )!,
       floorLabels: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -1171,8 +1172,8 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
   final String name;
   final String intro;
 
-  /// `[{"value", "label"}]` JSON.
-  final String stats;
+  /// `[{"title", "body"}]` JSON. 스키마 3에서 숫자(stats) 대신 넣음.
+  final String sections;
 
   /// `{"층 번호": "설명"}` JSON.
   final String floorLabels;
@@ -1181,7 +1182,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
     required this.id,
     required this.name,
     required this.intro,
-    required this.stats,
+    required this.sections,
     required this.floorLabels,
     this.imagePath,
   });
@@ -1191,7 +1192,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
     map['intro'] = Variable<String>(intro);
-    map['stats'] = Variable<String>(stats);
+    map['sections'] = Variable<String>(sections);
     map['floor_labels'] = Variable<String>(floorLabels);
     if (!nullToAbsent || imagePath != null) {
       map['image_path'] = Variable<String>(imagePath);
@@ -1204,7 +1205,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
       id: Value(id),
       name: Value(name),
       intro: Value(intro),
-      stats: Value(stats),
+      sections: Value(sections),
       floorLabels: Value(floorLabels),
       imagePath: imagePath == null && nullToAbsent
           ? const Value.absent()
@@ -1221,7 +1222,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       intro: serializer.fromJson<String>(json['intro']),
-      stats: serializer.fromJson<String>(json['stats']),
+      sections: serializer.fromJson<String>(json['sections']),
       floorLabels: serializer.fromJson<String>(json['floorLabels']),
       imagePath: serializer.fromJson<String?>(json['imagePath']),
     );
@@ -1233,7 +1234,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
       'intro': serializer.toJson<String>(intro),
-      'stats': serializer.toJson<String>(stats),
+      'sections': serializer.toJson<String>(sections),
       'floorLabels': serializer.toJson<String>(floorLabels),
       'imagePath': serializer.toJson<String?>(imagePath),
     };
@@ -1243,14 +1244,14 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
     int? id,
     String? name,
     String? intro,
-    String? stats,
+    String? sections,
     String? floorLabels,
     Value<String?> imagePath = const Value.absent(),
   }) => SchoolInfoRow(
     id: id ?? this.id,
     name: name ?? this.name,
     intro: intro ?? this.intro,
-    stats: stats ?? this.stats,
+    sections: sections ?? this.sections,
     floorLabels: floorLabels ?? this.floorLabels,
     imagePath: imagePath.present ? imagePath.value : this.imagePath,
   );
@@ -1259,7 +1260,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       intro: data.intro.present ? data.intro.value : this.intro,
-      stats: data.stats.present ? data.stats.value : this.stats,
+      sections: data.sections.present ? data.sections.value : this.sections,
       floorLabels: data.floorLabels.present
           ? data.floorLabels.value
           : this.floorLabels,
@@ -1273,7 +1274,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('intro: $intro, ')
-          ..write('stats: $stats, ')
+          ..write('sections: $sections, ')
           ..write('floorLabels: $floorLabels, ')
           ..write('imagePath: $imagePath')
           ..write(')'))
@@ -1282,7 +1283,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
 
   @override
   int get hashCode =>
-      Object.hash(id, name, intro, stats, floorLabels, imagePath);
+      Object.hash(id, name, intro, sections, floorLabels, imagePath);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1290,7 +1291,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
           other.id == this.id &&
           other.name == this.name &&
           other.intro == this.intro &&
-          other.stats == this.stats &&
+          other.sections == this.sections &&
           other.floorLabels == this.floorLabels &&
           other.imagePath == this.imagePath);
 }
@@ -1299,14 +1300,14 @@ class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
   final Value<int> id;
   final Value<String> name;
   final Value<String> intro;
-  final Value<String> stats;
+  final Value<String> sections;
   final Value<String> floorLabels;
   final Value<String?> imagePath;
   const SchoolInfosCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.intro = const Value.absent(),
-    this.stats = const Value.absent(),
+    this.sections = const Value.absent(),
     this.floorLabels = const Value.absent(),
     this.imagePath = const Value.absent(),
   });
@@ -1314,18 +1315,17 @@ class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
     this.id = const Value.absent(),
     required String name,
     required String intro,
-    required String stats,
+    this.sections = const Value.absent(),
     required String floorLabels,
     this.imagePath = const Value.absent(),
   }) : name = Value(name),
        intro = Value(intro),
-       stats = Value(stats),
        floorLabels = Value(floorLabels);
   static Insertable<SchoolInfoRow> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? intro,
-    Expression<String>? stats,
+    Expression<String>? sections,
     Expression<String>? floorLabels,
     Expression<String>? imagePath,
   }) {
@@ -1333,7 +1333,7 @@ class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (intro != null) 'intro': intro,
-      if (stats != null) 'stats': stats,
+      if (sections != null) 'sections': sections,
       if (floorLabels != null) 'floor_labels': floorLabels,
       if (imagePath != null) 'image_path': imagePath,
     });
@@ -1343,7 +1343,7 @@ class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
     Value<int>? id,
     Value<String>? name,
     Value<String>? intro,
-    Value<String>? stats,
+    Value<String>? sections,
     Value<String>? floorLabels,
     Value<String?>? imagePath,
   }) {
@@ -1351,7 +1351,7 @@ class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
       id: id ?? this.id,
       name: name ?? this.name,
       intro: intro ?? this.intro,
-      stats: stats ?? this.stats,
+      sections: sections ?? this.sections,
       floorLabels: floorLabels ?? this.floorLabels,
       imagePath: imagePath ?? this.imagePath,
     );
@@ -1369,8 +1369,8 @@ class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
     if (intro.present) {
       map['intro'] = Variable<String>(intro.value);
     }
-    if (stats.present) {
-      map['stats'] = Variable<String>(stats.value);
+    if (sections.present) {
+      map['sections'] = Variable<String>(sections.value);
     }
     if (floorLabels.present) {
       map['floor_labels'] = Variable<String>(floorLabels.value);
@@ -1387,7 +1387,7 @@ class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('intro: $intro, ')
-          ..write('stats: $stats, ')
+          ..write('sections: $sections, ')
           ..write('floorLabels: $floorLabels, ')
           ..write('imagePath: $imagePath')
           ..write(')'))
@@ -2318,7 +2318,7 @@ typedef $$SchoolInfosTableCreateCompanionBuilder =
       Value<int> id,
       required String name,
       required String intro,
-      required String stats,
+      Value<String> sections,
       required String floorLabels,
       Value<String?> imagePath,
     });
@@ -2327,7 +2327,7 @@ typedef $$SchoolInfosTableUpdateCompanionBuilder =
       Value<int> id,
       Value<String> name,
       Value<String> intro,
-      Value<String> stats,
+      Value<String> sections,
       Value<String> floorLabels,
       Value<String?> imagePath,
     });
@@ -2356,8 +2356,8 @@ class $$SchoolInfosTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get stats => $composableBuilder(
-    column: $table.stats,
+  ColumnFilters<String> get sections => $composableBuilder(
+    column: $table.sections,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2396,8 +2396,8 @@ class $$SchoolInfosTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get stats => $composableBuilder(
-    column: $table.stats,
+  ColumnOrderings<String> get sections => $composableBuilder(
+    column: $table.sections,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -2430,8 +2430,8 @@ class $$SchoolInfosTableAnnotationComposer
   GeneratedColumn<String> get intro =>
       $composableBuilder(column: $table.intro, builder: (column) => column);
 
-  GeneratedColumn<String> get stats =>
-      $composableBuilder(column: $table.stats, builder: (column) => column);
+  GeneratedColumn<String> get sections =>
+      $composableBuilder(column: $table.sections, builder: (column) => column);
 
   GeneratedColumn<String> get floorLabels => $composableBuilder(
     column: $table.floorLabels,
@@ -2476,14 +2476,14 @@ class $$SchoolInfosTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String> intro = const Value.absent(),
-                Value<String> stats = const Value.absent(),
+                Value<String> sections = const Value.absent(),
                 Value<String> floorLabels = const Value.absent(),
                 Value<String?> imagePath = const Value.absent(),
               }) => SchoolInfosCompanion(
                 id: id,
                 name: name,
                 intro: intro,
-                stats: stats,
+                sections: sections,
                 floorLabels: floorLabels,
                 imagePath: imagePath,
               ),
@@ -2492,14 +2492,14 @@ class $$SchoolInfosTableTableManager
                 Value<int> id = const Value.absent(),
                 required String name,
                 required String intro,
-                required String stats,
+                Value<String> sections = const Value.absent(),
                 required String floorLabels,
                 Value<String?> imagePath = const Value.absent(),
               }) => SchoolInfosCompanion.insert(
                 id: id,
                 name: name,
                 intro: intro,
-                stats: stats,
+                sections: sections,
                 floorLabels: floorLabels,
                 imagePath: imagePath,
               ),
