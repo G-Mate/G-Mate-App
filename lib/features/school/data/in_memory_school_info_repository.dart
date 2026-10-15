@@ -6,8 +6,11 @@ import 'seed_school_info.dart';
 class InMemorySchoolInfoRepository implements SchoolInfoRepository {
   InMemorySchoolInfoRepository({this._info = seedSchoolInfo});
 
-  final SchoolInfo _info;
+  SchoolInfo _info;
 
   @override
   Future<SchoolInfo> getSchoolInfo() async => _info;
+
+  @override
+  Future<void> saveSchoolInfo(SchoolInfo info) async => _info = info;
 }

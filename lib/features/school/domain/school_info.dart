@@ -33,6 +33,24 @@ class SchoolInfo extends Equatable {
   /// 학교 사진 파일 경로. 없으면 화면은 학교 아이콘 그림을 쓴다.
   final String? imagePath;
 
+  /// 관리 모드에서 넣을 수 있는 숫자 개수 (화면에는 '안내 장소'가 하나 더 붙는다).
+  static const maxStats = 3;
+
+  SchoolInfo copyWith({
+    String? name,
+    String? intro,
+    List<SchoolStat>? stats,
+    Map<int, String>? floorLabels,
+    String? imagePath,
+    bool clearImage = false,
+  }) => SchoolInfo(
+    name: name ?? this.name,
+    intro: intro ?? this.intro,
+    stats: stats ?? this.stats,
+    floorLabels: floorLabels ?? this.floorLabels,
+    imagePath: clearImage ? null : imagePath ?? this.imagePath,
+  );
+
   @override
   List<Object?> get props => [name, intro, stats, floorLabels, imagePath];
 }

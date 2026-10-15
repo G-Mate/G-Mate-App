@@ -10,6 +10,7 @@ import '../features/admin/presentation/admin_pin_change_page.dart';
 import '../features/admin/presentation/admin_pin_page.dart';
 import '../features/admin/presentation/admin_place_edit_page.dart';
 import '../features/admin/presentation/admin_places_page.dart';
+import '../features/admin/presentation/admin_school_edit_page.dart';
 import '../features/admin/presentation/admin_tour_edit_page.dart';
 import '../features/admin/presentation/admin_tours_page.dart';
 import '../features/admin/presentation/admin_tts_page.dart';
@@ -17,6 +18,7 @@ import '../features/admin/presentation/bloc/admin_pin_change_cubit.dart';
 import '../features/admin/presentation/bloc/admin_pin_cubit.dart';
 import '../features/admin/presentation/bloc/admin_place_edit_cubit.dart';
 import '../features/admin/presentation/bloc/admin_places_cubit.dart';
+import '../features/admin/presentation/bloc/admin_school_edit_cubit.dart';
 import '../features/admin/presentation/bloc/admin_tour_edit_cubit.dart';
 import '../features/admin/presentation/bloc/admin_tours_cubit.dart';
 import '../features/admin/presentation/bloc/admin_tts_cubit.dart';
@@ -256,6 +258,16 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
       builder: (context, state) => BlocProvider(
         create: (_) => AdminPinChangeCubit(getIt<AdminPinRepository>()),
         child: const AdminPinChangePage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.adminSchool,
+      builder: (context, state) => BlocProvider(
+        create: (_) => AdminSchoolEditCubit(
+          info: getIt<SchoolInfoRepository>(),
+          imagePicker: getIt<PlaceImagePicker>(),
+        )..load(),
+        child: const AdminSchoolEditPage(),
       ),
     ),
     GoRoute(

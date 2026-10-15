@@ -22,6 +22,7 @@ class DriftSchoolInfoRepository implements SchoolInfoRepository {
     return row == null ? seedSchoolInfo : _toInfo(row);
   }
 
+  @override
   Future<void> saveSchoolInfo(SchoolInfo info) =>
       _db.into(_db.schoolInfos).insertOnConflictUpdate(_toRow(info));
 

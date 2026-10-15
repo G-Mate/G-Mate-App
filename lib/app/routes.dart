@@ -23,6 +23,7 @@ abstract final class AppRoutes {
   static const adminPlaces = '/admin/places';
   static String adminPlaceEdit(String key) => '/admin/places/$key';
   static const adminTts = '/admin/tts';
+  static const adminSchool = '/admin/school';
   static const adminPinChange = '/admin/pin-change';
   static const adminTours = '/admin/tours';
   static const adminTourNew = '/admin/tours/$newTourKey';

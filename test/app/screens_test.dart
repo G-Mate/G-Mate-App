@@ -17,6 +17,7 @@ void main() {
     '장소 편집': AppRoutes.adminPlaceEdit('science_lab'),
     '음성 설정': AppRoutes.adminTts,
     'PIN 변경': AppRoutes.adminPinChange,
+    '학교 개요 편집': AppRoutes.adminSchool,
     '투어 관리': AppRoutes.adminTours,
     '코스 편집': AppRoutes.adminTourEdit('full_tour'),
     '새 코스': AppRoutes.adminTourNew,
