@@ -75,5 +75,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('이곳으로 안내할까요?'), findsOneWidget);
+    // 장소 확인의 음성 안내(읽던 말)를 끝낸다.
+    await tester.pump(const Duration(seconds: 1));
   });
 }

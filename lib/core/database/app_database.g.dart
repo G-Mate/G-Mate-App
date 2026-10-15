@@ -1446,8 +1446,27 @@ class $SpeechSettingsTableTable extends SpeechSettingsTable
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _commandWaitMsMeta = const VerificationMeta(
+    'commandWaitMs',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, gender, speed, pitch, volume];
+  late final GeneratedColumn<int> commandWaitMs = GeneratedColumn<int>(
+    'command_wait_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(defaultCommandWaitMs),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    gender,
+    speed,
+    pitch,
+    volume,
+    commandWaitMs,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1495,6 +1514,15 @@ class $SpeechSettingsTableTable extends SpeechSettingsTable
     } else if (isInserting) {
       context.missing(_volumeMeta);
     }
+    if (data.containsKey('command_wait_ms')) {
+      context.handle(
+        _commandWaitMsMeta,
+        commandWaitMs.isAcceptableOrUnknown(
+          data['command_wait_ms']!,
+          _commandWaitMsMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1524,6 +1552,10 @@ class $SpeechSettingsTableTable extends SpeechSettingsTable
         DriftSqlType.int,
         data['${effectivePrefix}volume'],
       )!,
+      commandWaitMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}command_wait_ms'],
+      )!,
     );
   }
 
@@ -1540,12 +1572,16 @@ class SpeechSettingsRow extends DataClass
   final double speed;
   final int pitch;
   final int volume;
+
+  /// 음성 명령을 안내하기 전에 기다리는 시간 (밀리초). 스키마 2에서 추가.
+  final int commandWaitMs;
   const SpeechSettingsRow({
     required this.id,
     required this.gender,
     required this.speed,
     required this.pitch,
     required this.volume,
+    required this.commandWaitMs,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1555,6 +1591,7 @@ class SpeechSettingsRow extends DataClass
     map['speed'] = Variable<double>(speed);
     map['pitch'] = Variable<int>(pitch);
     map['volume'] = Variable<int>(volume);
+    map['command_wait_ms'] = Variable<int>(commandWaitMs);
     return map;
   }
 
@@ -1565,6 +1602,7 @@ class SpeechSettingsRow extends DataClass
       speed: Value(speed),
       pitch: Value(pitch),
       volume: Value(volume),
+      commandWaitMs: Value(commandWaitMs),
     );
   }
 
@@ -1579,6 +1617,7 @@ class SpeechSettingsRow extends DataClass
       speed: serializer.fromJson<double>(json['speed']),
       pitch: serializer.fromJson<int>(json['pitch']),
       volume: serializer.fromJson<int>(json['volume']),
+      commandWaitMs: serializer.fromJson<int>(json['commandWaitMs']),
     );
   }
   @override
@@ -1590,6 +1629,7 @@ class SpeechSettingsRow extends DataClass
       'speed': serializer.toJson<double>(speed),
       'pitch': serializer.toJson<int>(pitch),
       'volume': serializer.toJson<int>(volume),
+      'commandWaitMs': serializer.toJson<int>(commandWaitMs),
     };
   }
 
@@ -1599,12 +1639,14 @@ class SpeechSettingsRow extends DataClass
     double? speed,
     int? pitch,
     int? volume,
+    int? commandWaitMs,
   }) => SpeechSettingsRow(
     id: id ?? this.id,
     gender: gender ?? this.gender,
     speed: speed ?? this.speed,
     pitch: pitch ?? this.pitch,
     volume: volume ?? this.volume,
+    commandWaitMs: commandWaitMs ?? this.commandWaitMs,
   );
   SpeechSettingsRow copyWithCompanion(SpeechSettingsTableCompanion data) {
     return SpeechSettingsRow(
@@ -1613,6 +1655,9 @@ class SpeechSettingsRow extends DataClass
       speed: data.speed.present ? data.speed.value : this.speed,
       pitch: data.pitch.present ? data.pitch.value : this.pitch,
       volume: data.volume.present ? data.volume.value : this.volume,
+      commandWaitMs: data.commandWaitMs.present
+          ? data.commandWaitMs.value
+          : this.commandWaitMs,
     );
   }
 
@@ -1623,13 +1668,15 @@ class SpeechSettingsRow extends DataClass
           ..write('gender: $gender, ')
           ..write('speed: $speed, ')
           ..write('pitch: $pitch, ')
-          ..write('volume: $volume')
+          ..write('volume: $volume, ')
+          ..write('commandWaitMs: $commandWaitMs')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, gender, speed, pitch, volume);
+  int get hashCode =>
+      Object.hash(id, gender, speed, pitch, volume, commandWaitMs);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1638,7 +1685,8 @@ class SpeechSettingsRow extends DataClass
           other.gender == this.gender &&
           other.speed == this.speed &&
           other.pitch == this.pitch &&
-          other.volume == this.volume);
+          other.volume == this.volume &&
+          other.commandWaitMs == this.commandWaitMs);
 }
 
 class SpeechSettingsTableCompanion extends UpdateCompanion<SpeechSettingsRow> {
@@ -1647,12 +1695,14 @@ class SpeechSettingsTableCompanion extends UpdateCompanion<SpeechSettingsRow> {
   final Value<double> speed;
   final Value<int> pitch;
   final Value<int> volume;
+  final Value<int> commandWaitMs;
   const SpeechSettingsTableCompanion({
     this.id = const Value.absent(),
     this.gender = const Value.absent(),
     this.speed = const Value.absent(),
     this.pitch = const Value.absent(),
     this.volume = const Value.absent(),
+    this.commandWaitMs = const Value.absent(),
   });
   SpeechSettingsTableCompanion.insert({
     this.id = const Value.absent(),
@@ -1660,6 +1710,7 @@ class SpeechSettingsTableCompanion extends UpdateCompanion<SpeechSettingsRow> {
     required double speed,
     required int pitch,
     required int volume,
+    this.commandWaitMs = const Value.absent(),
   }) : gender = Value(gender),
        speed = Value(speed),
        pitch = Value(pitch),
@@ -1670,6 +1721,7 @@ class SpeechSettingsTableCompanion extends UpdateCompanion<SpeechSettingsRow> {
     Expression<double>? speed,
     Expression<int>? pitch,
     Expression<int>? volume,
+    Expression<int>? commandWaitMs,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1677,6 +1729,7 @@ class SpeechSettingsTableCompanion extends UpdateCompanion<SpeechSettingsRow> {
       if (speed != null) 'speed': speed,
       if (pitch != null) 'pitch': pitch,
       if (volume != null) 'volume': volume,
+      if (commandWaitMs != null) 'command_wait_ms': commandWaitMs,
     });
   }
 
@@ -1686,6 +1739,7 @@ class SpeechSettingsTableCompanion extends UpdateCompanion<SpeechSettingsRow> {
     Value<double>? speed,
     Value<int>? pitch,
     Value<int>? volume,
+    Value<int>? commandWaitMs,
   }) {
     return SpeechSettingsTableCompanion(
       id: id ?? this.id,
@@ -1693,6 +1747,7 @@ class SpeechSettingsTableCompanion extends UpdateCompanion<SpeechSettingsRow> {
       speed: speed ?? this.speed,
       pitch: pitch ?? this.pitch,
       volume: volume ?? this.volume,
+      commandWaitMs: commandWaitMs ?? this.commandWaitMs,
     );
   }
 
@@ -1714,6 +1769,9 @@ class SpeechSettingsTableCompanion extends UpdateCompanion<SpeechSettingsRow> {
     if (volume.present) {
       map['volume'] = Variable<int>(volume.value);
     }
+    if (commandWaitMs.present) {
+      map['command_wait_ms'] = Variable<int>(commandWaitMs.value);
+    }
     return map;
   }
 
@@ -1724,7 +1782,8 @@ class SpeechSettingsTableCompanion extends UpdateCompanion<SpeechSettingsRow> {
           ..write('gender: $gender, ')
           ..write('speed: $speed, ')
           ..write('pitch: $pitch, ')
-          ..write('volume: $volume')
+          ..write('volume: $volume, ')
+          ..write('commandWaitMs: $commandWaitMs')
           ..write(')'))
         .toString();
   }
@@ -2485,6 +2544,7 @@ typedef $$SpeechSettingsTableTableCreateCompanionBuilder =
       required double speed,
       required int pitch,
       required int volume,
+      Value<int> commandWaitMs,
     });
 typedef $$SpeechSettingsTableTableUpdateCompanionBuilder =
     SpeechSettingsTableCompanion Function({
@@ -2493,6 +2553,7 @@ typedef $$SpeechSettingsTableTableUpdateCompanionBuilder =
       Value<double> speed,
       Value<int> pitch,
       Value<int> volume,
+      Value<int> commandWaitMs,
     });
 
 class $$SpeechSettingsTableTableFilterComposer
@@ -2526,6 +2587,11 @@ class $$SpeechSettingsTableTableFilterComposer
 
   ColumnFilters<int> get volume => $composableBuilder(
     column: $table.volume,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get commandWaitMs => $composableBuilder(
+    column: $table.commandWaitMs,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2563,6 +2629,11 @@ class $$SpeechSettingsTableTableOrderingComposer
     column: $table.volume,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get commandWaitMs => $composableBuilder(
+    column: $table.commandWaitMs,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SpeechSettingsTableTableAnnotationComposer
@@ -2588,6 +2659,11 @@ class $$SpeechSettingsTableTableAnnotationComposer
 
   GeneratedColumn<int> get volume =>
       $composableBuilder(column: $table.volume, builder: (column) => column);
+
+  GeneratedColumn<int> get commandWaitMs => $composableBuilder(
+    column: $table.commandWaitMs,
+    builder: (column) => column,
+  );
 }
 
 class $$SpeechSettingsTableTableTableManager
@@ -2638,12 +2714,14 @@ class $$SpeechSettingsTableTableTableManager
                 Value<double> speed = const Value.absent(),
                 Value<int> pitch = const Value.absent(),
                 Value<int> volume = const Value.absent(),
+                Value<int> commandWaitMs = const Value.absent(),
               }) => SpeechSettingsTableCompanion(
                 id: id,
                 gender: gender,
                 speed: speed,
                 pitch: pitch,
                 volume: volume,
+                commandWaitMs: commandWaitMs,
               ),
           createCompanionCallback:
               ({
@@ -2652,12 +2730,14 @@ class $$SpeechSettingsTableTableTableManager
                 required double speed,
                 required int pitch,
                 required int volume,
+                Value<int> commandWaitMs = const Value.absent(),
               }) => SpeechSettingsTableCompanion.insert(
                 id: id,
                 gender: gender,
                 speed: speed,
                 pitch: pitch,
                 volume: volume,
+                commandWaitMs: commandWaitMs,
               ),
           withReferenceMapper: (p0) => p0
               .map(
