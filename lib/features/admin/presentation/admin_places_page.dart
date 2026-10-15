@@ -32,6 +32,11 @@ class AdminPlacesPage extends StatelessWidget {
           icon: const Icon(Icons.record_voice_over_outlined),
           label: const Text('음성 설정'),
         ),
+        TextButton.icon(
+          onPressed: () => context.push(AppRoutes.adminPinChange),
+          icon: const Icon(Icons.password_rounded),
+          label: const Text('PIN 변경'),
+        ),
         GmButton(
           label: '현재 위치 저장',
           icon: Icons.add_location_alt_outlined,
