@@ -45,7 +45,7 @@ class AdminHomePage extends StatelessWidget {
           icon: Icons.password_rounded,
           title: 'PIN 변경',
           description: '관리 모드에 들어가는 PIN',
-          route: null,
+          route: AppRoutes.adminPinChange,
         ),
       ],
     ),

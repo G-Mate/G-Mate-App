@@ -23,6 +23,7 @@ abstract final class AppRoutes {
   static const adminPlaces = '/admin/places';
   static String adminPlaceEdit(String key) => '/admin/places/$key';
   static const adminTts = '/admin/tts';
+  static const adminPinChange = '/admin/pin-change';
 
   /// 개발용 디자인 시스템 미리보기.
   static const designGallery = '/design-gallery';
