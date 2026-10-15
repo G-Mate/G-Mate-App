@@ -8,7 +8,7 @@ import '../../../core/design_system.dart';
 class AdminHomePage extends StatelessWidget {
   const AdminHomePage({super.key});
 
-  /// 묶음 이름과 그 안의 항목. route가 null이면 아직 준비 중인 항목이다.
+  /// 묶음 이름과 그 안의 항목.
   static const groups = [
     (
       title: '안내 내용',
@@ -23,7 +23,7 @@ class AdminHomePage extends StatelessWidget {
           icon: Icons.flag_outlined,
           title: '투어 관리',
           description: '투어 코스와 들르는 순서',
-          route: null,
+          route: AppRoutes.adminTours,
         ),
       ],
     ),
@@ -82,10 +82,7 @@ class AdminHomePage extends StatelessWidget {
                       icon: item.icon,
                       title: item.title,
                       description: item.description,
-                      onTap: switch (item.route) {
-                        final route? => () => context.push(route),
-                        null => null,
-                      },
+                      onTap: () => context.push(item.route),
                     ),
                   ],
                 ],
@@ -116,7 +113,7 @@ class _GroupLabel extends StatelessWidget {
   );
 }
 
-/// 설정 한 줄: 아이콘 칸, 이름·설명, 오른쪽 화살표 (준비 중이면 표시만).
+/// 설정 한 줄: 아이콘 칸, 이름·설명, 오른쪽 화살표.
 class _SettingRow extends StatelessWidget {
   const _SettingRow({
     required this.icon,
@@ -128,9 +125,7 @@ class _SettingRow extends StatelessWidget {
   final IconData icon;
   final String title;
   final String description;
-
-  /// null이면 아직 준비 중이라 누를 수 없다.
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
 
   static const _iconBox = 48.0;
 
@@ -139,60 +134,48 @@ class _SettingRow extends StatelessWidget {
     final colors = context.colors;
     final text = context.textStyles;
     final semantic = context.appColors;
-    final enabled = onTap != null;
 
     return InkWell(
       onTap: onTap,
-      child: Opacity(
-        opacity: enabled ? 1 : 0.5,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.md,
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: _iconBox,
-                height: _iconBox,
-                decoration: BoxDecoration(
-                  color: colors.primary.withValues(
-                    alpha: GmIcon.defaultFillOpacity,
-                  ),
-                  borderRadius: BorderRadius.circular(AppRadius.md),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.md,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: _iconBox,
+              height: _iconBox,
+              decoration: BoxDecoration(
+                color: colors.primary.withValues(
+                  alpha: GmIcon.defaultFillOpacity,
                 ),
-                child: Icon(icon, size: AppSize.iconSm, color: colors.primary),
+                borderRadius: BorderRadius.circular(AppRadius.md),
               ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: text.titleMedium),
-                    Text(
-                      description,
-                      style: text.bodySmall?.copyWith(
-                        color: semantic.textSecondary,
-                      ),
+              child: Icon(icon, size: AppSize.iconSm, color: colors.primary),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: text.titleMedium),
+                  Text(
+                    description,
+                    style: text.bodySmall?.copyWith(
+                      color: semantic.textSecondary,
                     ),
-                  ],
-                ),
-              ),
-              if (enabled)
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: AppSize.iconMd,
-                  color: semantic.textDisabled,
-                )
-              else
-                Text(
-                  '준비 중',
-                  style: text.labelSmall?.copyWith(
-                    color: semantic.textSecondary,
                   ),
-                ),
-            ],
-          ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: AppSize.iconMd,
+              color: semantic.textDisabled,
+            ),
+          ],
         ),
       ),
     );

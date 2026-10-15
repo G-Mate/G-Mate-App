@@ -27,6 +27,14 @@ class Tour extends Equatable {
     this.imagePath,
   });
 
+  /// 관리 모드에서 고를 수 있는 걸리는 시간 범위와 칸 (분).
+  static const minDuration = Duration(minutes: 5);
+  static const maxDuration = Duration(minutes: 60);
+  static const durationStep = Duration(minutes: 5);
+
+  /// 새로 만든 코스의 걸리는 시간.
+  static const defaultDuration = Duration(minutes: 10);
+
   final String key;
 
   /// 화면에 보이는 코스 이름 (예: '첫 방문 코스').
@@ -44,6 +52,20 @@ class Tour extends Equatable {
 
   /// 화면에 보이는 걸리는 시간 (예: '약 15분').
   String get durationLabel => '약 ${duration.inMinutes}분';
+
+  Tour copyWith({
+    String? name,
+    String? description,
+    Duration? duration,
+    List<TourStop>? stops,
+  }) => Tour(
+    key: key,
+    name: name ?? this.name,
+    description: description ?? this.description,
+    duration: duration ?? this.duration,
+    stops: stops ?? this.stops,
+    imagePath: imagePath,
+  );
 
   @override
   List<Object?> get props => [

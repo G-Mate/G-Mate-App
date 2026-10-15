@@ -15,6 +15,7 @@ import 'package:g_mate/features/speech/data/drift_speech_settings_repository.dar
 import 'package:g_mate/features/speech/domain/speech_settings.dart';
 import 'package:g_mate/features/tour/data/drift_tour_repository.dart';
 import 'package:g_mate/features/tour/data/seed_tours.dart';
+import 'package:g_mate/features/tour/domain/tour.dart';
 
 void main() {
   // 파일 DB 테스트는 메모리 DB와 따로 열고 닫으므로 여러 번 연다는 경고를 끈다.
@@ -38,6 +39,26 @@ void main() {
       expect(await tours.getTours(), seedTours);
       expect(await tours.getTour(seedTours.first.key), seedTours.first);
       expect(await tours.getTour('none'), isNull);
+    });
+
+    test('코스를 고치고 지울 수 있고, 새 코스는 목록 끝에 붙는다', () async {
+      final tours = DriftTourRepository(db);
+      final edited = seedTours.first.copyWith(
+        name: '바꾼 코스',
+        stops: const [TourStop(placeKey: 'library')],
+      );
+      await tours.saveTour(edited);
+      const added = Tour(
+        key: 'tour_new',
+        name: '새 코스',
+        description: '',
+        duration: Duration(minutes: 5),
+        stops: [TourStop(placeKey: 'science_lab')],
+      );
+      await tours.saveTour(added);
+      await tours.deleteTour(seedTours[1].key);
+
+      expect(await tours.getTours(), [edited, seedTours[2], added]);
     });
 
     test('기본 학교 소개를 담는다', () async {
