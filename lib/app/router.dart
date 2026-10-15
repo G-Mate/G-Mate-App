@@ -34,6 +34,8 @@ import '../features/school/domain/school_info_repository.dart';
 import '../features/school/presentation/bloc/school_overview_cubit.dart';
 import '../features/school/presentation/school_overview_page.dart';
 import '../features/speech/domain/speech_settings_repository.dart';
+import '../features/speech/presentation/bloc/voice_guide_cubit.dart';
+import '../features/speech/presentation/voice_scripts.dart';
 import '../features/tour/domain/get_tour_visits.dart';
 import '../features/tour/domain/tour_repository.dart';
 import '../features/tour/presentation/bloc/tour_bloc.dart';
@@ -56,8 +58,16 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
   routes: [
     GoRoute(
       path: AppRoutes.home,
-      builder: (context, state) => BlocProvider(
-        create: (_) => RobotStatusCubit(getIt<RobotController>())..start(),
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => RobotStatusCubit(getIt<RobotController>())..start(),
+          ),
+          BlocProvider(
+            create: (_) =>
+                _voice()..start(VoiceScripts.home(HomePage.firstCardSpeech)),
+          ),
+        ],
         child: const HomePage(),
       ),
     ),
@@ -65,18 +75,28 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
     // 길 찾기
     GoRoute(
       path: AppRoutes.placeSelect,
-      builder: (context, state) => BlocProvider(
-        create: (_) => PlaceSelectCubit(getIt<PlaceRepository>())..load(),
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => PlaceSelectCubit(getIt<PlaceRepository>())..load(),
+          ),
+          BlocProvider(create: (_) => _voice()),
+        ],
         child: const PlaceSelectPage(),
       ),
       routes: [
         GoRoute(
           path: ':key',
-          builder: (context, state) => BlocProvider(
-            create: (_) => PlaceDetailCubit(
-              getIt<PlaceRepository>(),
-              state.pathParameters['key']!,
-            )..load(),
+          builder: (context, state) => MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => PlaceDetailCubit(
+                  getIt<PlaceRepository>(),
+                  state.pathParameters['key']!,
+                )..load(),
+              ),
+              BlocProvider(create: (_) => _voice()),
+            ],
             child: const PlaceConfirmPage(),
           ),
         ),
@@ -98,25 +118,37 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
           ),
           child: child,
         ),
-        child: BlocProvider(
-          create: (_) => GuideBloc(
-            robot: getIt<RobotController>(),
-            places: getIt<PlaceRepository>(),
-            placeKey: state.pathParameters['key']!,
-            initialPlace: state.extra is Place ? state.extra! as Place : null,
-          )..add(const GuideStarted()),
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => GuideBloc(
+                robot: getIt<RobotController>(),
+                places: getIt<PlaceRepository>(),
+                placeKey: state.pathParameters['key']!,
+                initialPlace: state.extra is Place
+                    ? state.extra! as Place
+                    : null,
+              )..add(const GuideStarted()),
+            ),
+            BlocProvider(create: (_) => _voice()),
+          ],
           child: const GuidingPage(),
         ),
       ),
     ),
     GoRoute(
       path: '/arrival/:key',
-      builder: (context, state) => BlocProvider(
-        create: (_) => ArrivalCubit(
-          robot: getIt<RobotController>(),
-          places: getIt<PlaceRepository>(),
-          placeKey: state.pathParameters['key']!,
-        )..start(),
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => ArrivalCubit(
+              robot: getIt<RobotController>(),
+              places: getIt<PlaceRepository>(),
+              placeKey: state.pathParameters['key']!,
+            )..start(),
+          ),
+          BlocProvider(create: (_) => _voice()),
+        ],
         child: const ArrivalPage(),
       ),
     ),
@@ -244,6 +276,12 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
       builder: (context, state) => const DesignGalleryPage(),
     ),
   ],
+);
+
+/// 화면마다 새로 만드는 음성 안내. 대본은 화면이 데이터를 불러온 뒤 넘긴다.
+VoiceGuideCubit _voice() => VoiceGuideCubit(
+  robot: getIt<RobotController>(),
+  settings: getIt<SpeechSettingsRepository>(),
 );
 
 TourDetailCubit _tourDetail(String key) => TourDetailCubit(

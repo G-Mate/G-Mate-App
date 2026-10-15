@@ -124,6 +124,19 @@ class _AdminTtsPageState extends State<AdminTtsPage> {
                         onChanged: (v) =>
                             cubit.change(s.copyWith(volume: v.round())),
                       ),
+                      AdminSliderField(
+                        label: '명령 기다리는 시간',
+                        value: s.commandWait.inSeconds.toDouble(),
+                        min: SpeechSettings.minCommandWait.inSeconds.toDouble(),
+                        max: SpeechSettings.maxCommandWait.inSeconds.toDouble(),
+                        divisions:
+                            SpeechSettings.maxCommandWait.inSeconds -
+                            SpeechSettings.minCommandWait.inSeconds,
+                        display: '${s.commandWait.inSeconds}초',
+                        onChanged: (v) => cubit.change(
+                          s.copyWith(commandWait: Duration(seconds: v.round())),
+                        ),
+                      ),
                     ],
                   ),
                 ),

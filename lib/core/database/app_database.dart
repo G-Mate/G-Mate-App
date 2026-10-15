@@ -69,9 +69,16 @@ class SpeechSettingsTable extends Table {
   IntColumn get pitch => integer()();
   IntColumn get volume => integer()();
 
+  /// 음성 명령을 안내하기 전에 기다리는 시간 (밀리초). 스키마 2에서 추가.
+  IntColumn get commandWaitMs =>
+      integer().withDefault(const Constant(defaultCommandWaitMs))();
+
   @override
   Set<Column> get primaryKey => {id};
 }
+
+/// 음성 명령 기다리는 시간 기본값 (밀리초). `SpeechSettings.defaultCommandWait`와 같다.
+const defaultCommandWaitMs = 3000;
 
 /// 처음 DB를 만들 때 기본 내용을 넣는 함수.
 typedef DatabaseSeeder = Future<void> Function(AppDatabase db);
@@ -88,13 +95,21 @@ class AppDatabase extends _$AppDatabase {
   static const singleRowId = 0;
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async {
       await m.createAll();
       await _seed?.call(this);
+    },
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.addColumn(
+          speechSettingsTable,
+          speechSettingsTable.commandWaitMs,
+        );
+      }
     },
   );
 }

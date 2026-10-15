@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/drift.dart'
+    show OpeningDetails, QueryExecutor, QueryExecutorUser, driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:g_mate/app/database_seed.dart';
@@ -142,4 +143,53 @@ void main() {
     expect(places.first, edited);
     expect(places.length, seedPlaces.length);
   });
+
+  test('스키마 1 DB를 열면 명령 기다리는 시간 칸을 기본값으로 더한다', () async {
+    final dir = await Directory.systemTemp.createTemp('g_mate_db_v1');
+    addTearDown(() => dir.delete(recursive: true));
+    final file = File('${dir.path}/g_mate.sqlite');
+    // 스키마 1의 음성 설정 표를 직접 만든다.
+    final v1 = NativeDatabase(
+      file,
+      setup: (raw) {
+        raw.execute(
+          'CREATE TABLE speech_settings (id INTEGER NOT NULL PRIMARY KEY, '
+          'gender TEXT NOT NULL, speed REAL NOT NULL, pitch INTEGER NOT NULL, '
+          'volume INTEGER NOT NULL)',
+        );
+        raw.execute(
+          "INSERT INTO speech_settings VALUES (0, 'male', 1.5, 2, 8)",
+        );
+        raw.execute('PRAGMA user_version = 1');
+      },
+    );
+    await v1.ensureOpen(_NoUser());
+    await v1.close();
+
+    final upgraded = AppDatabase(NativeDatabase(file));
+    final settings = await DriftSpeechSettingsRepository(upgraded).load();
+    await upgraded.close();
+
+    expect(settings.gender, VoiceGender.male);
+    expect(settings.volume, 8);
+    expect(settings.commandWait, SpeechSettings.defaultCommandWait);
+  });
+
+  test('명령 기다리는 시간을 저장하고 다시 읽는다', () async {
+    final repo = DriftSpeechSettingsRepository(db);
+    await repo.save(const SpeechSettings(commandWait: Duration(seconds: 7)));
+    expect((await repo.load()).commandWait, const Duration(seconds: 7));
+  });
+}
+
+/// 스키마 1 파일을 만들 때만 쓰는 빈 사용자.
+class _NoUser extends QueryExecutorUser {
+  @override
+  int get schemaVersion => 1;
+
+  @override
+  Future<void> beforeOpen(
+    QueryExecutor executor,
+    OpeningDetails details,
+  ) async {}
 }

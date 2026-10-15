@@ -3,7 +3,9 @@ package com.gmate.g_mate
 import android.os.Handler
 import android.os.Looper
 import com.robotemi.sdk.Robot
+import com.robotemi.sdk.SttLanguage
 import com.robotemi.sdk.TtsRequest
+import com.robotemi.sdk.listeners.OnConversationStatusChangedListener
 import com.robotemi.sdk.listeners.OnGoToLocationStatusChangedListener
 import com.robotemi.sdk.listeners.OnLocationsUpdatedListener
 import com.robotemi.sdk.listeners.OnRobotReadyListener
@@ -26,6 +28,8 @@ class TemiBridge(messenger: BinaryMessenger) :
     OnRobotReadyListener,
     OnGoToLocationStatusChangedListener,
     OnLocationsUpdatedListener,
+    OnConversationStatusChangedListener,
+    Robot.AsrListener,
     Robot.TtsListener {
 
     private val methodChannel = MethodChannel(messenger, RobotChannels.METHOD)
@@ -48,6 +52,8 @@ class TemiBridge(messenger: BinaryMessenger) :
         robot.addOnGoToLocationStatusChangedListener(this)
         robot.addOnLocationsUpdatedListener(this)
         robot.addTtsListener(this)
+        robot.addAsrListener(this)
+        robot.addOnConversationStatusChangedListener(this)
     }
 
     /** 화면이 가려질 때(Activity onStop) temi 리스너를 뗀다. */
@@ -56,6 +62,8 @@ class TemiBridge(messenger: BinaryMessenger) :
         robot.removeOnGoToLocationStatusChangedListener(this)
         robot.removeOnLocationsUpdateListener(this)
         robot.removeTtsListener(this)
+        robot.removeAsrListener(this)
+        robot.removeOnConversationStatusChangedListener(this)
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -86,6 +94,23 @@ class TemiBridge(messenger: BinaryMessenger) :
                     return
                 }
                 robot.speak(TtsRequest.create(text, false))
+                result.success(null)
+            }
+            "cancelAllTtsRequests" -> {
+                robot.cancelAllTtsRequests()
+                result.success(null)
+            }
+            "askQuestion" -> {
+                val text = call.argument<String>("text")
+                if (text == null) {
+                    result.error(BAD_ARGUMENT, "text가 없습니다", null)
+                    return
+                }
+                robot.askQuestion(text)
+                result.success(null)
+            }
+            "finishConversation" -> {
+                robot.finishConversation()
                 result.success(null)
             }
             else -> result.notImplemented()
@@ -138,6 +163,23 @@ class TemiBridge(messenger: BinaryMessenger) :
             else -> return // PENDING, PROCESSING은 Dart에 알리지 않는다.
         }
         emit(mapOf("type" to "ttsStatus", "text" to ttsRequest.speech, "status" to status))
+    }
+
+    override fun onAsrResult(asrResult: String, sttLanguage: SttLanguage) {
+        // 앱이 말을 직접 처리하므로(OVERRIDE_NLU) temi 기본 대화가 이어지지 않게 끝낸다.
+        robot.finishConversation()
+        emit(mapOf("type" to "asrResult", "text" to asrResult))
+    }
+
+    override fun onConversationStatusChanged(status: Int, text: String) {
+        val name = when (status) {
+            OnConversationStatusChangedListener.IDLE -> "idle"
+            OnConversationStatusChangedListener.LISTENING -> "listening"
+            OnConversationStatusChangedListener.THINKING -> "thinking"
+            OnConversationStatusChangedListener.SPEAKING -> "speaking"
+            else -> return
+        }
+        emit(mapOf("type" to "conversationStatus", "status" to name))
     }
 
     /** `{"type": ...}` 형태의 이벤트를 Dart로 보낸다. temi 콜백 스레드와 상관없이 메인 스레드에서 보낸다. */
