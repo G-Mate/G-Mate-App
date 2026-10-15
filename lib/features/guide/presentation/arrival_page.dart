@@ -10,7 +10,8 @@ import 'bloc/arrival_state.dart';
 import 'guiding_page.dart';
 import 'widgets/keep_all_text.dart';
 
-/// 길 찾기 - 도착·설명. 로봇이 읽는 본 설명을 자막처럼 한 줄씩 크게 보여 준다.
+/// 길 찾기 - 도착·설명. 도착하면 도착 멘트와 [설명 듣기]를 보여 주고, 누르면
+/// 로봇이 읽는 본 설명을 자막처럼 한 줄씩 크게 보여 준다.
 ///
 /// 지금 줄 아래에 다음 줄을 흐리게 미리 보여 주고, 줄이 바뀔 때는 아래에서
 /// 올라오며 부드럽게 바뀐다. 한 줄을 다 읽으면 [다음]이 강조되고 저절로
@@ -49,12 +50,26 @@ class ArrivalPage extends StatelessWidget {
         final current = state.lineIndex;
         final next = current + 1 < lines.length ? lines[current + 1] : null;
 
+        final (status, statusType) = switch (state) {
+          ArrivalState(isSpeaking: true, isListening: false) => (
+            '도착을 알려 드리는 중',
+            GmStatusType.info,
+          ),
+          ArrivalState(isSpeaking: true) => ('설명을 들려 드리는 중', GmStatusType.info),
+          ArrivalState(isListening: true) => (
+            '설명을 다 들려 드렸어요',
+            GmStatusType.success,
+          ),
+          _ when state.hasDescription => ('설명을 들을 수 있어요', GmStatusType.success),
+          _ => ('안내를 마쳤어요', GmStatusType.success),
+        };
+
         return GmSplitLayout(
           // 투어 설명 화면과 같이 상태는 위에, [안내 중지]는 아래에 둔다.
           hero: GmHeroPanel(
             top: GmStatusIndicator(
-              label: state.isSpeaking ? '설명을 들려 드리는 중' : '설명을 다 들려 드렸어요',
-              type: state.isSpeaking ? GmStatusType.info : GmStatusType.success,
+              label: status,
+              type: statusType,
               onDark: true,
             ),
             overline: '도착했어요',
@@ -71,121 +86,210 @@ class ArrivalPage extends StatelessWidget {
               },
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 몇 번째 줄인지는 작은 점과 글자로만 보여 준다 (자막에 시선이 가도록).
-              Row(
-                children: [
-                  for (var i = 0; i < lines.length; i++)
-                    AnimatedContainer(
-                      duration: AppDuration.slow,
-                      margin: const EdgeInsets.only(right: AppSpacing.xs),
-                      width: i == current ? _activeDotWidth : _dotSize,
-                      height: _dotSize,
-                      decoration: BoxDecoration(
-                        color: i <= current
-                            ? colors.primary
-                            : colors.outlineVariant,
-                        borderRadius: BorderRadius.circular(AppRadius.full),
-                      ),
-                    ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(
-                    '${current + 1} / ${lines.length}',
-                    style: text.labelSmall?.copyWith(
-                      color: semantic.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: AnimatedSwitcher(
-                  duration: _lineSwitch,
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeInCubic,
-                  layoutBuilder: (currentChild, previous) => Stack(
-                    alignment: Alignment.center,
-                    children: [...previous, ?currentChild],
-                  ),
-                  // 지금 줄은 위로 올라가며 사라지고, 다음 줄은 아래에서
-                  // 올라오며 나타난다.
-                  transitionBuilder: (child, animation) {
-                    final incoming = child.key == ValueKey(current);
-                    return FadeTransition(
-                      opacity: animation,
-                      child: SlideTransition(
-                        position: Tween(
-                          begin: Offset(0, incoming ? _rise : -_rise),
-                          end: Offset.zero,
-                        ).animate(animation),
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: Column(
-                    key: ValueKey(current),
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      KeepAllText(
-                        lines[current],
-                        alignment: WrapAlignment.center,
-                        style: text.displaySmall?.copyWith(
-                          height: _subtitleLineHeight,
-                        ),
-                      ),
-                      if (next != null) ...[
-                        const SizedBox(height: AppSpacing.xl),
-                        // 다음 줄은 작고 옅게 한 줄만 미리 보여 준다.
-                        Text(
-                          next,
-                          maxLines: 1,
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          style: text.bodySmall?.copyWith(
-                            color: colors.onSurface.withValues(
-                              alpha: _nextAlpha,
+          // 도착하면 도착 멘트만 읽고, 본 설명은 방문객이 골라서 듣는다.
+          child: !state.isListening
+              ? _ArrivalPrompt(
+                  message: place.speech.arrival,
+                  lineCount: lines.length,
+                  isSpeaking: state.isSpeaking,
+                  onListen: cubit.listen,
+                  onDone: () => context.go(AppRoutes.home),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // 몇 번째 줄인지는 작은 점과 글자로만 보여 준다 (자막에 시선이 가도록).
+                    Row(
+                      children: [
+                        for (var i = 0; i < lines.length; i++)
+                          AnimatedContainer(
+                            duration: AppDuration.slow,
+                            margin: const EdgeInsets.only(right: AppSpacing.xs),
+                            width: i == current ? _activeDotWidth : _dotSize,
+                            height: _dotSize,
+                            decoration: BoxDecoration(
+                              color: i <= current
+                                  ? colors.primary
+                                  : colors.outlineVariant,
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.full,
+                              ),
                             ),
+                          ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Text(
+                          '${current + 1} / ${lines.length}',
+                          style: text.labelSmall?.copyWith(
+                            color: semantic.textSecondary,
                           ),
                         ),
                       ],
-                    ],
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  GmButton(
-                    label: '다시 듣기',
-                    icon: Icons.replay_rounded,
-                    variant: GmButtonVariant.secondary,
-                    onPressed: cubit.replay,
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  // 마지막 줄에서는 [마침]으로 바뀌어 처음 화면으로 돌아간다.
-                  if (state.hasNext)
-                    _NextButton(
-                      // 줄이 바뀌거나 다 읽으면 남은 시간을 처음부터 센다.
-                      key: ValueKey('next-$current-${state.isLineDone}'),
-                      waiting: state.isLineDone,
-                      interval: place.lineInterval,
-                      onPressed: cubit.next,
-                    )
-                  else
-                    GmButton(
-                      label: '마침',
-                      variant: state.isSpeaking
-                          ? GmButtonVariant.outline
-                          : GmButtonVariant.primary,
-                      onPressed: () => context.go(AppRoutes.home),
                     ),
-                ],
-              ),
-            ],
-          ),
+                    Expanded(
+                      child: AnimatedSwitcher(
+                        duration: _lineSwitch,
+                        switchInCurve: Curves.easeOutCubic,
+                        switchOutCurve: Curves.easeInCubic,
+                        layoutBuilder: (currentChild, previous) => Stack(
+                          alignment: Alignment.center,
+                          children: [...previous, ?currentChild],
+                        ),
+                        // 지금 줄은 위로 올라가며 사라지고, 다음 줄은 아래에서
+                        // 올라오며 나타난다.
+                        transitionBuilder: (child, animation) {
+                          final incoming = child.key == ValueKey(current);
+                          return FadeTransition(
+                            opacity: animation,
+                            child: SlideTransition(
+                              position: Tween(
+                                begin: Offset(0, incoming ? _rise : -_rise),
+                                end: Offset.zero,
+                              ).animate(animation),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: Column(
+                          key: ValueKey(current),
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            KeepAllText(
+                              lines[current],
+                              alignment: WrapAlignment.center,
+                              style: text.displaySmall?.copyWith(
+                                height: _subtitleLineHeight,
+                              ),
+                            ),
+                            if (next != null) ...[
+                              const SizedBox(height: AppSpacing.xl),
+                              // 다음 줄은 작고 옅게 한 줄만 미리 보여 준다.
+                              Text(
+                                next,
+                                maxLines: 1,
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                style: text.bodySmall?.copyWith(
+                                  color: colors.onSurface.withValues(
+                                    alpha: _nextAlpha,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GmButton(
+                          label: '다시 듣기',
+                          icon: Icons.replay_rounded,
+                          variant: GmButtonVariant.secondary,
+                          onPressed: cubit.replay,
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        // 마지막 줄에서는 [마침]으로 바뀌어 처음 화면으로 돌아간다.
+                        if (state.hasNext)
+                          _NextButton(
+                            // 줄이 바뀌거나 다 읽으면 남은 시간을 처음부터 센다.
+                            key: ValueKey('next-$current-${state.isLineDone}'),
+                            waiting: state.isLineDone,
+                            interval: place.lineInterval,
+                            onPressed: cubit.next,
+                          )
+                        else
+                          GmButton(
+                            label: '마침',
+                            variant: state.isSpeaking
+                                ? GmButtonVariant.outline
+                                : GmButtonVariant.primary,
+                            onPressed: () => context.go(AppRoutes.home),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
         );
       },
+    );
+  }
+}
+
+/// 도착하고 아직 설명을 듣지 않은 화면. 도착 멘트를 크게 보여 주고,
+/// 본 설명이 있으면 [설명 듣기]를, 없으면 [마침]만 강조한다.
+class _ArrivalPrompt extends StatelessWidget {
+  const _ArrivalPrompt({
+    required this.message,
+    required this.lineCount,
+    required this.isSpeaking,
+    required this.onListen,
+    required this.onDone,
+  });
+
+  final String message;
+
+  /// 본 설명 줄 수. 0이면 [설명 듣기]를 보여 주지 않는다.
+  final int lineCount;
+  final bool isSpeaking;
+  final VoidCallback onListen;
+  final VoidCallback onDone;
+
+  static const _messageLineHeight = 1.35;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = context.textStyles;
+    final semantic = context.appColors;
+    final hasDescription = lineCount > 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              KeepAllText(
+                message,
+                alignment: WrapAlignment.center,
+                style: text.displaySmall?.copyWith(height: _messageLineHeight),
+              ),
+              if (hasDescription) ...[
+                const SizedBox(height: AppSpacing.lg),
+                Text(
+                  '설명을 들으시려면 [설명 듣기]를 눌러 주세요',
+                  textAlign: TextAlign.center,
+                  style: text.bodyLarge?.copyWith(
+                    color: semantic.textSecondary,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            GmButton(
+              label: '마침',
+              variant: hasDescription
+                  ? GmButtonVariant.secondary
+                  : GmButtonVariant.primary,
+              onPressed: onDone,
+            ),
+            if (hasDescription) ...[
+              const SizedBox(width: AppSpacing.sm),
+              GmButton(
+                label: '설명 듣기',
+                icon: Icons.volume_up_outlined,
+                // 도착 멘트를 읽는 동안에도 누르면 바로 설명으로 넘어간다.
+                onPressed: onListen,
+              ),
+            ],
+          ],
+        ),
+      ],
     );
   }
 }

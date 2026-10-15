@@ -38,6 +38,11 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(find.text('도착했어요'), findsOneWidget);
+    // 설명은 바로 읽지 않고 [설명 듣기]를 눌러야 읽는다.
+    expect(find.textContaining(RegExp(r'^[1-4] / 4$')), findsNothing);
+    await tester.tap(find.text('설명 듣기'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
     expect(find.textContaining(RegExp(r'^[1-4] / 4$')), findsOneWidget);
 
     await tester.tap(find.text('안내 중지'));
