@@ -1,17 +1,9 @@
 import '../domain/school_info.dart';
 
-/// 처음 들어 있는 학교 소개. 실제 소개 글이 정해지면 관리 모드에서 바꾼다.
+/// 처음 들어 있는 학교 개요 설정. 이름은 관리 모드에서 바꾼다.
 const seedSchoolInfo = SchoolInfo(
-  name: '광주소프트웨어마이스터고등학교',
-  document: '''
-소프트웨어 개발자를 길러 내는 학교예요. 학생들은 프로젝트로 서비스를 만들며 배워요.
-
-# 한눈에 보기
-- 2015년에 문을 열었어요.
-- 1학년부터 3학년까지 있어요.
-
-# 층별 안내
-- 1층: 행정실, 강당
-- 2층: 교무실, 도서관
-- 3층: 과학실, 컴퓨터실''',
+  teamName: 'G-Mate',
+  developer: '',
+  planner: '',
+  homepageUrl: 'https://gsm.jge.hs.kr/main/main.php',
 );

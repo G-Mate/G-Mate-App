@@ -144,7 +144,7 @@ void main() {
     expect(places.length, seedPlaces.length);
   });
 
-  test('스키마 1 DB를 열면 명령 기다리는 시간 칸을 더하고 학교 소개는 문서 형식으로 바꾼다', () async {
+  test('스키마 1 DB를 열면 명령 기다리는 시간 칸을 더하고 학교 개요는 홈페이지 설정으로 바꾼다', () async {
     final dir = await Directory.systemTemp.createTemp('g_mate_db_v1');
     addTearDown(() => dir.delete(recursive: true));
     final file = File('${dir.path}/g_mate.sqlite');
@@ -181,8 +181,8 @@ void main() {
     final school = await DriftSchoolInfoRepository(upgraded).getSchoolInfo();
     await upgraded.close();
 
-    expect(school.name, '옛 학교');
-    expect(school.document, '옛 소개');
+    // 옛 소개는 버리고, 팀 이름과 홈페이지 주소는 처음 값으로 채운다.
+    expect(school, seedSchoolInfo);
 
     expect(settings.gender, VoiceGender.male);
     expect(settings.volume, 8);

@@ -5,7 +5,7 @@ import '../domain/school_info.dart';
 import '../domain/school_info_repository.dart';
 import 'seed_school_info.dart';
 
-/// 로컬 DB(drift)에 두는 학교 소개 저장소.
+/// 로컬 DB(drift)에 두는 학교 개요 설정 저장소.
 class DriftSchoolInfoRepository implements SchoolInfoRepository {
   DriftSchoolInfoRepository(this._db);
 
@@ -16,14 +16,17 @@ class DriftSchoolInfoRepository implements SchoolInfoRepository {
     final query = _db.select(_db.schoolInfos)
       ..where((t) => t.id.equals(AppDatabase.singleRowId));
     final row = await query.getSingleOrNull();
-    // 기본 내용을 넣기 전에 만든 DB라면 처음 학교 소개를 보여 준다.
-    return row == null
-        ? seedSchoolInfo
-        : SchoolInfo(
-            name: row.name,
-            document: row.document,
-            imagePath: row.imagePath,
-          );
+    // 기본 내용을 넣기 전에 만든 DB라면 처음 설정을 보여 준다.
+    if (row == null) return seedSchoolInfo;
+    // 옛 DB에서 옮겨 와 팀 이름이나 주소가 비어 있으면 처음 값을 쓴다.
+    return SchoolInfo(
+      teamName: row.teamName.isEmpty ? seedSchoolInfo.teamName : row.teamName,
+      developer: row.developer,
+      planner: row.planner,
+      homepageUrl: row.homepageUrl.isEmpty
+          ? seedSchoolInfo.homepageUrl
+          : row.homepageUrl,
+    );
   }
 
   @override
@@ -32,9 +35,10 @@ class DriftSchoolInfoRepository implements SchoolInfoRepository {
       .insertOnConflictUpdate(
         SchoolInfosCompanion.insert(
           id: const Value(AppDatabase.singleRowId),
-          name: info.name,
-          document: Value(info.document),
-          imagePath: Value(info.imagePath),
+          teamName: Value(info.teamName),
+          developer: Value(info.developer),
+          planner: Value(info.planner),
+          homepageUrl: Value(info.homepageUrl),
         ),
       );
 }

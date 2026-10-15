@@ -3,44 +3,42 @@ import 'package:g_mate/features/admin/presentation/bloc/admin_school_edit_cubit.
 import 'package:g_mate/features/school/data/in_memory_school_info_repository.dart';
 import 'package:g_mate/features/school/data/seed_school_info.dart';
 
-import '../../helpers/test_app.dart';
-
 void main() {
   late InMemorySchoolInfoRepository repo;
-  late FakePlaceImagePicker picker;
 
-  setUp(() {
-    repo = InMemorySchoolInfoRepository();
-    picker = FakePlaceImagePicker(path: '/photos/school.jpg');
-  });
+  setUp(() => repo = InMemorySchoolInfoRepository());
 
   Future<AdminSchoolEditCubit> build() async {
-    final cubit = AdminSchoolEditCubit(info: repo, imagePicker: picker);
+    final cubit = AdminSchoolEditCubit(repo);
     await cubit.load();
     addTearDown(cubit.close);
     return cubit;
   }
 
-  test('제목·문서·사진을 고쳐 저장하고, 앞뒤 빈칸은 뺀다', () async {
+  test('이름과 주소를 고쳐 저장하고, 앞뒤 빈칸은 뺀다', () async {
     final cubit = await build();
     cubit
-      ..changeName(' 새 학교 ')
-      ..changeDocument('\n소개 글\n\n# 동아리\n- 로봇\n\n');
-    await cubit.pickImage();
+      ..changeTeamName(' 지메이트 ')
+      ..changeDeveloper('홍길동, 김철수 ')
+      ..changePlanner(' 이영희')
+      ..changeHomepageUrl(' https://example.com/ ');
     await cubit.save();
 
     final saved = await repo.getSchoolInfo();
-    expect(saved.name, '새 학교');
-    expect(saved.document, '소개 글\n\n# 동아리\n- 로봇');
-    expect(saved.imagePath, '/photos/school.jpg');
+    expect(saved.teamName, '지메이트');
+    expect(saved.developer, '홍길동, 김철수');
+    expect(saved.planner, '이영희');
+    expect(saved.homepageUrl, 'https://example.com/');
     expect(cubit.state.isSaved, isTrue);
   });
 
-  test('사진을 지우면 아이콘 그림으로 돌아간다', () async {
+  test('웹 주소가 아니면 저장하지 않는다', () async {
     final cubit = await build();
-    await cubit.pickImage();
-    cubit.removeImage();
-    expect(cubit.state.info!.imagePath, isNull);
-    expect(cubit.state.info!.document, seedSchoolInfo.document);
+    cubit.changeHomepageUrl('gsm.jge.hs.kr');
+    expect(cubit.state.isUrlValid, isFalse);
+
+    await cubit.save();
+    expect(cubit.state.isSaved, isFalse);
+    expect(await repo.getSchoolInfo(), seedSchoolInfo);
   });
 }

@@ -1,34 +1,37 @@
 import 'package:equatable/equatable.dart';
 
-/// 학교 개요: 사진 한 장과 문서 한 편.
-///
-/// 문서는 줄 단위로 쓴다. `# `로 시작하는 줄은 소제목, `- `로 시작하는 줄은
-/// 목록, 빈 줄은 문단 사이를 띄운다. 나머지 줄은 본문이다.
+/// 학교 개요 화면 설정: 위에 보여 줄 만든 사람들과, 아래에 띄울 학교 홈페이지.
 class SchoolInfo extends Equatable {
   const SchoolInfo({
-    required this.name,
-    required this.document,
-    this.imagePath,
+    required this.teamName,
+    required this.developer,
+    required this.planner,
+    required this.homepageUrl,
   });
 
-  /// 문서 제목으로 쓰는 학교 이름.
-  final String name;
-  final String document;
+  final String teamName;
 
-  /// 학교 사진 파일 경로. 없으면 화면은 학교 아이콘 그림을 쓴다.
-  final String? imagePath;
+  /// 개발자 이름. 여러 명이면 쉼표로 나눠 적는다.
+  final String developer;
+
+  /// 기획자 이름. 여러 명이면 쉼표로 나눠 적는다.
+  final String planner;
+
+  /// 학교 홈페이지 주소 (https).
+  final String homepageUrl;
 
   SchoolInfo copyWith({
-    String? name,
-    String? document,
-    String? imagePath,
-    bool clearImage = false,
+    String? teamName,
+    String? developer,
+    String? planner,
+    String? homepageUrl,
   }) => SchoolInfo(
-    name: name ?? this.name,
-    document: document ?? this.document,
-    imagePath: clearImage ? null : imagePath ?? this.imagePath,
+    teamName: teamName ?? this.teamName,
+    developer: developer ?? this.developer,
+    planner: planner ?? this.planner,
+    homepageUrl: homepageUrl ?? this.homepageUrl,
   );
 
   @override
-  List<Object?> get props => [name, document, imagePath];
+  List<Object?> get props => [teamName, developer, planner, homepageUrl];
 }

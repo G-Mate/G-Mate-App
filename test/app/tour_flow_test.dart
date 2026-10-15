@@ -70,13 +70,14 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
-  testWidgets('학교 개요는 학교 이름과 소개 문서를 보여 준다', (tester) async {
+  testWidgets('학교 개요는 팀 이름과 학교 홈페이지 주소를 쓴다', (tester) async {
     useTabletView(tester);
     await registerTestDependencies();
     await tester.pumpWidget(testApp(AppRoutes.schoolOverview));
     await tester.pumpAndSettle();
-    expect(find.text('광주소프트웨어마이스터고등학교'), findsOneWidget);
-    expect(find.text('한눈에 보기'), findsOneWidget);
-    expect(find.text('층별 안내'), findsOneWidget);
+    expect(find.text('G-Mate'), findsOneWidget);
+    expect(find.text('처음으로'), findsOneWidget);
+    // 테스트에는 웹뷰가 없어서 주소만 보인다.
+    expect(find.text('https://gsm.jge.hs.kr/main/main.php'), findsOneWidget);
   });
 }

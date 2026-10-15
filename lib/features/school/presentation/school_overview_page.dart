@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -7,12 +5,20 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../core/design_system.dart';
 import 'bloc/school_overview_cubit.dart';
-import 'widgets/school_document.dart';
+import 'widgets/school_homepage_view.dart';
 
-/// 학교 개요. 왼쪽에 학교 사진 한 장을 걸어 두고, 오른쪽에 소개 문서를 둔다.
-/// 문서만 위아래로 넘겨 읽고 사진은 그대로 있다.
-class SchoolOverviewPage extends StatelessWidget {
+/// 학교 개요. 위에 팀 이름과 개발자·기획자를 짧게 보여 주고, 아래에 학교
+/// 홈페이지를 띄운다.
+class SchoolOverviewPage extends StatefulWidget {
   const SchoolOverviewPage({super.key});
+
+  @override
+  State<SchoolOverviewPage> createState() => _SchoolOverviewPageState();
+}
+
+class _SchoolOverviewPageState extends State<SchoolOverviewPage> {
+  /// [처음으로]를 누른 횟수. 늘면 홈페이지를 처음 주소로 다시 연다.
+  int _reloadCount = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -26,36 +32,62 @@ class SchoolOverviewPage extends StatelessWidget {
         }
 
         return GmScaffold(
-          eyebrow: '학교 개요',
-          title: info.name,
+          eyebrow: '만든 사람들',
+          title: info.teamName,
           onBack: () => context.go(AppRoutes.home),
-          body: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                flex: 4,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                  child: switch (info.imagePath) {
-                    final path? => Image(
-                      image: FileImage(File(path)),
-                      fit: BoxFit.cover,
-                    ),
-                    null => const GmPlaceArt(icon: GmIcons.school),
-                  },
-                ),
+          actions: [
+            if (info.developer.isNotEmpty)
+              _Credit(role: '개발', names: info.developer),
+            if (info.planner.isNotEmpty)
+              _Credit(role: '기획', names: info.planner),
+            GmButton(
+              label: '처음으로',
+              icon: Icons.home_outlined,
+              variant: GmButtonVariant.outline,
+              onPressed: () => setState(() => _reloadCount++),
+            ),
+          ],
+          body: ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            child: ColoredBox(
+              color: context.colors.surface,
+              child: SchoolHomepageView(
+                url: info.homepageUrl,
+                reloadCount: _reloadCount,
               ),
-              const SizedBox(width: AppSpacing.xxl),
-              Expanded(
-                flex: 6,
-                child: SingleChildScrollView(
-                  child: SchoolDocument(info.document),
-                ),
-              ),
-            ],
+            ),
           ),
         );
       },
+    );
+  }
+}
+
+/// 머리줄 오른쪽의 역할과 이름. 한 줄에 '개발  홍길동, 김철수'처럼 둔다.
+class _Credit extends StatelessWidget {
+  const _Credit({required this.role, required this.names});
+
+  final String role;
+  final String names;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = context.textStyles;
+    return Padding(
+      padding: const EdgeInsets.only(right: AppSpacing.lg),
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: '$role  ',
+              style: text.bodySmall?.copyWith(
+                color: context.appColors.textSecondary,
+              ),
+            ),
+            TextSpan(text: names, style: text.titleSmall),
+          ],
+        ),
+      ),
     );
   }
 }

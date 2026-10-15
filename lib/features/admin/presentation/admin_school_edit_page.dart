@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -9,10 +7,12 @@ import 'bloc/admin_school_edit_cubit.dart';
 import 'bloc/admin_school_edit_state.dart';
 import 'widgets/admin_section.dart';
 
-/// 관리 모드 - 학교 개요 편집. 왼쪽에서 사진과 제목을, 오른쪽에서 소개 문서를
-/// 글 쓰듯 고친다.
+/// 관리 모드 - 학교 개요 편집. 학교 개요 위에 보이는 만든 사람들과, 아래에
+/// 띄우는 학교 홈페이지 주소를 고친다.
 class AdminSchoolEditPage extends StatelessWidget {
   const AdminSchoolEditPage({super.key});
+
+  static const _namesHint = '여러 명이면 쉼표로 나눠 적어요. 비우면 보이지 않아요';
 
   @override
   Widget build(BuildContext context) =>
@@ -35,7 +35,6 @@ class AdminSchoolEditPage extends StatelessWidget {
           );
         }
         final cubit = context.read<AdminSchoolEditCubit>();
-        final text = context.textStyles;
 
         return GmScaffold(
           eyebrow: '관리 모드',
@@ -52,34 +51,42 @@ class AdminSchoolEditPage extends StatelessWidget {
               label: '저장',
               icon: Icons.check_rounded,
               size: GmButtonSize.small,
-              onPressed: info.name.trim().isEmpty ? null : cubit.save,
+              onPressed: state.isUrlValid ? cubit.save : null,
             ),
           ],
           body: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 왼쪽: 화면 왼쪽에 걸리는 사진과 문서 제목
               Expanded(
-                flex: 4,
                 child: AdminSection(
-                  title: '사진과 제목',
+                  title: '만든 사람들',
                   child: ListView(
                     children: [
-                      AdminPhotoField(
-                        image: switch (info.imagePath) {
-                          final path? => FileImage(File(path)),
-                          null => null,
-                        },
-                        placeholder: const GmPlaceArt(icon: GmIcons.school),
-                        hint: '학교 개요 왼쪽에 걸려 있어요',
-                        onPick: cubit.pickImage,
-                        onRemove: cubit.removeImage,
+                      AdminField(
+                        label: '팀 이름',
+                        child: TextFormField(
+                          initialValue: info.teamName,
+                          onChanged: cubit.changeTeamName,
+                        ),
                       ),
                       AdminField(
-                        label: '제목',
+                        label: '개발자',
+                        hint: _namesHint,
                         child: TextFormField(
-                          initialValue: info.name,
-                          onChanged: cubit.changeName,
+                          initialValue: info.developer,
+                          decoration: const InputDecoration(
+                            hintText: '예: 홍길동, 김철수',
+                          ),
+                          onChanged: cubit.changeDeveloper,
+                        ),
+                      ),
+                      AdminField(
+                        label: '기획자',
+                        hint: _namesHint,
+                        child: TextFormField(
+                          initialValue: info.planner,
+                          decoration: const InputDecoration(hintText: '예: 이영희'),
+                          onChanged: cubit.changePlanner,
                         ),
                       ),
                     ],
@@ -87,25 +94,26 @@ class AdminSchoolEditPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
-              // 오른쪽: 문서 본문
               Expanded(
-                flex: 6,
                 child: AdminSection(
-                  title: '문서',
-                  trailing: Text(
-                    "'# '은 소제목, '- '는 목록, 빈 줄은 문단 나눔",
-                    style: text.bodySmall?.copyWith(
-                      color: context.appColors.textSecondary,
-                    ),
-                  ),
-                  child: TextFormField(
-                    initialValue: info.document,
-                    expands: true,
-                    maxLines: null,
-                    keyboardType: TextInputType.multiline,
-                    textAlignVertical: TextAlignVertical.top,
-                    style: text.bodyMedium,
-                    onChanged: cubit.changeDocument,
+                  title: '학교 홈페이지',
+                  child: ListView(
+                    children: [
+                      AdminField(
+                        label: '주소',
+                        hint: '학교 개요 아래에 이 페이지를 띄워요',
+                        child: TextFormField(
+                          initialValue: info.homepageUrl,
+                          keyboardType: TextInputType.url,
+                          decoration: InputDecoration(
+                            errorText: state.isUrlValid
+                                ? null
+                                : 'https://로 시작하는 주소를 적어 주세요',
+                          ),
+                          onChanged: cubit.changeHomepageUrl,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

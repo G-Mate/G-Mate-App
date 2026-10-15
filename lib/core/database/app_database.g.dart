@@ -1010,40 +1010,62 @@ class $SchoolInfosTable extends SchoolInfos
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _documentMeta = const VerificationMeta(
-    'document',
+  static const VerificationMeta _teamNameMeta = const VerificationMeta(
+    'teamName',
   );
   @override
-  late final GeneratedColumn<String> document = GeneratedColumn<String>(
-    'document',
+  late final GeneratedColumn<String> teamName = GeneratedColumn<String>(
+    'team_name',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
-  static const VerificationMeta _imagePathMeta = const VerificationMeta(
-    'imagePath',
+  static const VerificationMeta _developerMeta = const VerificationMeta(
+    'developer',
   );
   @override
-  late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
-    'image_path',
+  late final GeneratedColumn<String> developer = GeneratedColumn<String>(
+    'developer',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _plannerMeta = const VerificationMeta(
+    'planner',
   );
   @override
-  List<GeneratedColumn> get $columns => [id, name, document, imagePath];
+  late final GeneratedColumn<String> planner = GeneratedColumn<String>(
+    'planner',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _homepageUrlMeta = const VerificationMeta(
+    'homepageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> homepageUrl = GeneratedColumn<String>(
+    'homepage_url',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    teamName,
+    developer,
+    planner,
+    homepageUrl,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1059,24 +1081,31 @@ class $SchoolInfosTable extends SchoolInfos
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('name')) {
+    if (data.containsKey('team_name')) {
       context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    if (data.containsKey('document')) {
-      context.handle(
-        _documentMeta,
-        document.isAcceptableOrUnknown(data['document']!, _documentMeta),
+        _teamNameMeta,
+        teamName.isAcceptableOrUnknown(data['team_name']!, _teamNameMeta),
       );
     }
-    if (data.containsKey('image_path')) {
+    if (data.containsKey('developer')) {
       context.handle(
-        _imagePathMeta,
-        imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta),
+        _developerMeta,
+        developer.isAcceptableOrUnknown(data['developer']!, _developerMeta),
+      );
+    }
+    if (data.containsKey('planner')) {
+      context.handle(
+        _plannerMeta,
+        planner.isAcceptableOrUnknown(data['planner']!, _plannerMeta),
+      );
+    }
+    if (data.containsKey('homepage_url')) {
+      context.handle(
+        _homepageUrlMeta,
+        homepageUrl.isAcceptableOrUnknown(
+          data['homepage_url']!,
+          _homepageUrlMeta,
+        ),
       );
     }
     return context;
@@ -1092,18 +1121,22 @@ class $SchoolInfosTable extends SchoolInfos
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      name: attachedDatabase.typeMapping.read(
+      teamName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}name'],
+        data['${effectivePrefix}team_name'],
       )!,
-      document: attachedDatabase.typeMapping.read(
+      developer: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}document'],
+        data['${effectivePrefix}developer'],
       )!,
-      imagePath: attachedDatabase.typeMapping.read(
+      planner: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}image_path'],
-      ),
+        data['${effectivePrefix}planner'],
+      )!,
+      homepageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}homepage_url'],
+      )!,
     );
   }
 
@@ -1115,37 +1148,35 @@ class $SchoolInfosTable extends SchoolInfos
 
 class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
   final int id;
-  final String name;
-
-  /// 줄 단위 문서 (`# ` 소제목, `- ` 목록).
-  final String document;
-  final String? imagePath;
+  final String teamName;
+  final String developer;
+  final String planner;
+  final String homepageUrl;
   const SchoolInfoRow({
     required this.id,
-    required this.name,
-    required this.document,
-    this.imagePath,
+    required this.teamName,
+    required this.developer,
+    required this.planner,
+    required this.homepageUrl,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['name'] = Variable<String>(name);
-    map['document'] = Variable<String>(document);
-    if (!nullToAbsent || imagePath != null) {
-      map['image_path'] = Variable<String>(imagePath);
-    }
+    map['team_name'] = Variable<String>(teamName);
+    map['developer'] = Variable<String>(developer);
+    map['planner'] = Variable<String>(planner);
+    map['homepage_url'] = Variable<String>(homepageUrl);
     return map;
   }
 
   SchoolInfosCompanion toCompanion(bool nullToAbsent) {
     return SchoolInfosCompanion(
       id: Value(id),
-      name: Value(name),
-      document: Value(document),
-      imagePath: imagePath == null && nullToAbsent
-          ? const Value.absent()
-          : Value(imagePath),
+      teamName: Value(teamName),
+      developer: Value(developer),
+      planner: Value(planner),
+      homepageUrl: Value(homepageUrl),
     );
   }
 
@@ -1156,9 +1187,10 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return SchoolInfoRow(
       id: serializer.fromJson<int>(json['id']),
-      name: serializer.fromJson<String>(json['name']),
-      document: serializer.fromJson<String>(json['document']),
-      imagePath: serializer.fromJson<String?>(json['imagePath']),
+      teamName: serializer.fromJson<String>(json['teamName']),
+      developer: serializer.fromJson<String>(json['developer']),
+      planner: serializer.fromJson<String>(json['planner']),
+      homepageUrl: serializer.fromJson<String>(json['homepageUrl']),
     );
   }
   @override
@@ -1166,29 +1198,35 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'name': serializer.toJson<String>(name),
-      'document': serializer.toJson<String>(document),
-      'imagePath': serializer.toJson<String?>(imagePath),
+      'teamName': serializer.toJson<String>(teamName),
+      'developer': serializer.toJson<String>(developer),
+      'planner': serializer.toJson<String>(planner),
+      'homepageUrl': serializer.toJson<String>(homepageUrl),
     };
   }
 
   SchoolInfoRow copyWith({
     int? id,
-    String? name,
-    String? document,
-    Value<String?> imagePath = const Value.absent(),
+    String? teamName,
+    String? developer,
+    String? planner,
+    String? homepageUrl,
   }) => SchoolInfoRow(
     id: id ?? this.id,
-    name: name ?? this.name,
-    document: document ?? this.document,
-    imagePath: imagePath.present ? imagePath.value : this.imagePath,
+    teamName: teamName ?? this.teamName,
+    developer: developer ?? this.developer,
+    planner: planner ?? this.planner,
+    homepageUrl: homepageUrl ?? this.homepageUrl,
   );
   SchoolInfoRow copyWithCompanion(SchoolInfosCompanion data) {
     return SchoolInfoRow(
       id: data.id.present ? data.id.value : this.id,
-      name: data.name.present ? data.name.value : this.name,
-      document: data.document.present ? data.document.value : this.document,
-      imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
+      teamName: data.teamName.present ? data.teamName.value : this.teamName,
+      developer: data.developer.present ? data.developer.value : this.developer,
+      planner: data.planner.present ? data.planner.value : this.planner,
+      homepageUrl: data.homepageUrl.present
+          ? data.homepageUrl.value
+          : this.homepageUrl,
     );
   }
 
@@ -1196,67 +1234,77 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
   String toString() {
     return (StringBuffer('SchoolInfoRow(')
           ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('document: $document, ')
-          ..write('imagePath: $imagePath')
+          ..write('teamName: $teamName, ')
+          ..write('developer: $developer, ')
+          ..write('planner: $planner, ')
+          ..write('homepageUrl: $homepageUrl')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, document, imagePath);
+  int get hashCode =>
+      Object.hash(id, teamName, developer, planner, homepageUrl);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is SchoolInfoRow &&
           other.id == this.id &&
-          other.name == this.name &&
-          other.document == this.document &&
-          other.imagePath == this.imagePath);
+          other.teamName == this.teamName &&
+          other.developer == this.developer &&
+          other.planner == this.planner &&
+          other.homepageUrl == this.homepageUrl);
 }
 
 class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
   final Value<int> id;
-  final Value<String> name;
-  final Value<String> document;
-  final Value<String?> imagePath;
+  final Value<String> teamName;
+  final Value<String> developer;
+  final Value<String> planner;
+  final Value<String> homepageUrl;
   const SchoolInfosCompanion({
     this.id = const Value.absent(),
-    this.name = const Value.absent(),
-    this.document = const Value.absent(),
-    this.imagePath = const Value.absent(),
+    this.teamName = const Value.absent(),
+    this.developer = const Value.absent(),
+    this.planner = const Value.absent(),
+    this.homepageUrl = const Value.absent(),
   });
   SchoolInfosCompanion.insert({
     this.id = const Value.absent(),
-    required String name,
-    this.document = const Value.absent(),
-    this.imagePath = const Value.absent(),
-  }) : name = Value(name);
+    this.teamName = const Value.absent(),
+    this.developer = const Value.absent(),
+    this.planner = const Value.absent(),
+    this.homepageUrl = const Value.absent(),
+  });
   static Insertable<SchoolInfoRow> custom({
     Expression<int>? id,
-    Expression<String>? name,
-    Expression<String>? document,
-    Expression<String>? imagePath,
+    Expression<String>? teamName,
+    Expression<String>? developer,
+    Expression<String>? planner,
+    Expression<String>? homepageUrl,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (name != null) 'name': name,
-      if (document != null) 'document': document,
-      if (imagePath != null) 'image_path': imagePath,
+      if (teamName != null) 'team_name': teamName,
+      if (developer != null) 'developer': developer,
+      if (planner != null) 'planner': planner,
+      if (homepageUrl != null) 'homepage_url': homepageUrl,
     });
   }
 
   SchoolInfosCompanion copyWith({
     Value<int>? id,
-    Value<String>? name,
-    Value<String>? document,
-    Value<String?>? imagePath,
+    Value<String>? teamName,
+    Value<String>? developer,
+    Value<String>? planner,
+    Value<String>? homepageUrl,
   }) {
     return SchoolInfosCompanion(
       id: id ?? this.id,
-      name: name ?? this.name,
-      document: document ?? this.document,
-      imagePath: imagePath ?? this.imagePath,
+      teamName: teamName ?? this.teamName,
+      developer: developer ?? this.developer,
+      planner: planner ?? this.planner,
+      homepageUrl: homepageUrl ?? this.homepageUrl,
     );
   }
 
@@ -1266,14 +1314,17 @@ class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
+    if (teamName.present) {
+      map['team_name'] = Variable<String>(teamName.value);
     }
-    if (document.present) {
-      map['document'] = Variable<String>(document.value);
+    if (developer.present) {
+      map['developer'] = Variable<String>(developer.value);
     }
-    if (imagePath.present) {
-      map['image_path'] = Variable<String>(imagePath.value);
+    if (planner.present) {
+      map['planner'] = Variable<String>(planner.value);
+    }
+    if (homepageUrl.present) {
+      map['homepage_url'] = Variable<String>(homepageUrl.value);
     }
     return map;
   }
@@ -1282,9 +1333,10 @@ class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
   String toString() {
     return (StringBuffer('SchoolInfosCompanion(')
           ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('document: $document, ')
-          ..write('imagePath: $imagePath')
+          ..write('teamName: $teamName, ')
+          ..write('developer: $developer, ')
+          ..write('planner: $planner, ')
+          ..write('homepageUrl: $homepageUrl')
           ..write(')'))
         .toString();
   }
@@ -2211,16 +2263,18 @@ typedef $$ToursTableProcessedTableManager =
 typedef $$SchoolInfosTableCreateCompanionBuilder =
     SchoolInfosCompanion Function({
       Value<int> id,
-      required String name,
-      Value<String> document,
-      Value<String?> imagePath,
+      Value<String> teamName,
+      Value<String> developer,
+      Value<String> planner,
+      Value<String> homepageUrl,
     });
 typedef $$SchoolInfosTableUpdateCompanionBuilder =
     SchoolInfosCompanion Function({
       Value<int> id,
-      Value<String> name,
-      Value<String> document,
-      Value<String?> imagePath,
+      Value<String> teamName,
+      Value<String> developer,
+      Value<String> planner,
+      Value<String> homepageUrl,
     });
 
 class $$SchoolInfosTableFilterComposer
@@ -2237,18 +2291,23 @@ class $$SchoolInfosTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
+  ColumnFilters<String> get teamName => $composableBuilder(
+    column: $table.teamName,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get document => $composableBuilder(
-    column: $table.document,
+  ColumnFilters<String> get developer => $composableBuilder(
+    column: $table.developer,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get imagePath => $composableBuilder(
-    column: $table.imagePath,
+  ColumnFilters<String> get planner => $composableBuilder(
+    column: $table.planner,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get homepageUrl => $composableBuilder(
+    column: $table.homepageUrl,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2267,18 +2326,23 @@ class $$SchoolInfosTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
+  ColumnOrderings<String> get teamName => $composableBuilder(
+    column: $table.teamName,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get document => $composableBuilder(
-    column: $table.document,
+  ColumnOrderings<String> get developer => $composableBuilder(
+    column: $table.developer,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get imagePath => $composableBuilder(
-    column: $table.imagePath,
+  ColumnOrderings<String> get planner => $composableBuilder(
+    column: $table.planner,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get homepageUrl => $composableBuilder(
+    column: $table.homepageUrl,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -2295,14 +2359,19 @@ class $$SchoolInfosTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
+  GeneratedColumn<String> get teamName =>
+      $composableBuilder(column: $table.teamName, builder: (column) => column);
 
-  GeneratedColumn<String> get document =>
-      $composableBuilder(column: $table.document, builder: (column) => column);
+  GeneratedColumn<String> get developer =>
+      $composableBuilder(column: $table.developer, builder: (column) => column);
 
-  GeneratedColumn<String> get imagePath =>
-      $composableBuilder(column: $table.imagePath, builder: (column) => column);
+  GeneratedColumn<String> get planner =>
+      $composableBuilder(column: $table.planner, builder: (column) => column);
+
+  GeneratedColumn<String> get homepageUrl => $composableBuilder(
+    column: $table.homepageUrl,
+    builder: (column) => column,
+  );
 }
 
 class $$SchoolInfosTableTableManager
@@ -2337,26 +2406,30 @@ class $$SchoolInfosTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<String> name = const Value.absent(),
-                Value<String> document = const Value.absent(),
-                Value<String?> imagePath = const Value.absent(),
+                Value<String> teamName = const Value.absent(),
+                Value<String> developer = const Value.absent(),
+                Value<String> planner = const Value.absent(),
+                Value<String> homepageUrl = const Value.absent(),
               }) => SchoolInfosCompanion(
                 id: id,
-                name: name,
-                document: document,
-                imagePath: imagePath,
+                teamName: teamName,
+                developer: developer,
+                planner: planner,
+                homepageUrl: homepageUrl,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required String name,
-                Value<String> document = const Value.absent(),
-                Value<String?> imagePath = const Value.absent(),
+                Value<String> teamName = const Value.absent(),
+                Value<String> developer = const Value.absent(),
+                Value<String> planner = const Value.absent(),
+                Value<String> homepageUrl = const Value.absent(),
               }) => SchoolInfosCompanion.insert(
                 id: id,
-                name: name,
-                document: document,
-                imagePath: imagePath,
+                teamName: teamName,
+                developer: developer,
+                planner: planner,
+                homepageUrl: homepageUrl,
               ),
           withReferenceMapper: (p0) => p0
               .map(
