@@ -2,43 +2,67 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:g_mate/features/admin/presentation/bloc/admin_school_edit_cubit.dart';
 import 'package:g_mate/features/school/data/in_memory_school_info_repository.dart';
 import 'package:g_mate/features/school/data/seed_school_info.dart';
+import 'package:g_mate/features/school/domain/school_info.dart';
+
+import '../../helpers/test_app.dart';
 
 void main() {
   late InMemorySchoolInfoRepository repo;
+  late FakePlaceImagePicker picker;
 
-  setUp(() => repo = InMemorySchoolInfoRepository());
+  setUp(() {
+    repo = InMemorySchoolInfoRepository();
+    picker = FakePlaceImagePicker(path: '/photos/hero.jpg');
+  });
 
   Future<AdminSchoolEditCubit> build() async {
-    final cubit = AdminSchoolEditCubit(repo);
+    final cubit = AdminSchoolEditCubit(info: repo, imagePicker: picker);
     await cubit.load();
     addTearDown(cubit.close);
     return cubit;
   }
 
-  test('이름과 주소를 고쳐 저장하고, 앞뒤 빈칸은 뺀다', () async {
+  test('블록을 넣고 고치고 옮기고 지운 뒤 저장한다', () async {
     final cubit = await build();
-    cubit
-      ..changeTeamName(' 지메이트 ')
-      ..changeDeveloper('홍길동, 김철수 ')
-      ..changePlanner(' 이영희')
-      ..changeHomepageUrl(' https://example.com/ ');
+    final count = seedSchoolInfo.blocks.length;
+
+    cubit.addBlock(SchoolBlockType.text);
+    cubit.changeBlock(
+      count,
+      cubit.state.info!.blocks[count].copyWith(body: ' 새 본문 '),
+    );
+    cubit.moveBlock(count, 0);
+    expect(cubit.state.info!.blocks.first.body, ' 새 본문 ');
+    expect(cubit.state.blockIds.first, count);
+
+    cubit.removeBlock(1);
+    await cubit.pickImage(0);
+    cubit.changeTeamName(' 지메이트 ');
     await cubit.save();
 
     final saved = await repo.getSchoolInfo();
+    expect(saved.blocks, hasLength(count));
+    expect(saved.blocks.first.type, SchoolBlockType.text);
+    expect(saved.blocks.first.body, '새 본문');
+    expect(saved.blocks.first.imagePath, '/photos/hero.jpg');
     expect(saved.teamName, '지메이트');
-    expect(saved.developer, '홍길동, 김철수');
-    expect(saved.planner, '이영희');
-    expect(saved.homepageUrl, 'https://example.com/');
     expect(cubit.state.isSaved, isTrue);
   });
 
-  test('웹 주소가 아니면 저장하지 않는다', () async {
+  test('카드 묶음은 카드를 넣고 고치고 지울 수 있다', () async {
     final cubit = await build();
-    cubit.changeHomepageUrl('gsm.jge.hs.kr');
-    expect(cubit.state.isUrlValid, isFalse);
+    cubit.addBlock(SchoolBlockType.cards);
+    final i = cubit.state.info!.blocks.length - 1;
+    expect(cubit.state.info!.blocks[i].cards, hasLength(1));
 
-    await cubit.save();
-    expect(cubit.state.isSaved, isFalse);
-    expect(await repo.getSchoolInfo(), seedSchoolInfo);
+    final revision = cubit.state.cardRevision;
+    cubit
+      ..addCard(i)
+      ..changeCard(i, 1, const SchoolCard(emoji: '🤖', title: 'AI'))
+      ..removeCard(i, 0);
+    expect(cubit.state.info!.blocks[i].cards, [
+      const SchoolCard(emoji: '🤖', title: 'AI'),
+    ]);
+    expect(cubit.state.cardRevision, revision + 2);
   });
 }

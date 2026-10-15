@@ -39,17 +39,19 @@ class Tours extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-/// 학교 개요 설정. 한 줄만 둔다 (id = [AppDatabase.singleRowId]).
+/// 학교 개요. 한 줄만 둔다 (id = [AppDatabase.singleRowId]).
 ///
-/// 스키마 3에서 학교 소개(글·숫자·층 설명·사진)를 만든 사람들 이름과 학교
-/// 홈페이지 주소로 바꿨다.
+/// 스키마 3에서 학교 소개(글·숫자·층 설명·사진)를 블록 페이지와 만든 사람들
+/// 이름으로 바꿨다.
 @DataClassName('SchoolInfoRow')
 class SchoolInfos extends Table {
   IntColumn get id => integer()();
   TextColumn get teamName => text().withDefault(const Constant(''))();
   TextColumn get developer => text().withDefault(const Constant(''))();
   TextColumn get planner => text().withDefault(const Constant(''))();
-  TextColumn get homepageUrl => text().withDefault(const Constant(''))();
+
+  /// `[{"type", "title", "body", "imagePath", "url", "cards"}]` JSON.
+  TextColumn get blocks => text().withDefault(const Constant('[]'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -109,8 +111,8 @@ class AppDatabase extends _$AppDatabase {
         );
       }
       if (from < 3) {
-        // 학교 개요를 학교 홈페이지로 바꾸며 옛 소개 열은 모두 버리고
-        // 새 열은 빈 값으로 둔다 (홈페이지 주소는 저장소가 처음 주소로 채운다).
+        // 학교 개요를 블록 페이지로 바꾼다. 옛 소개는 옮기지 않고 줄을 지워
+        // 처음 학교 개요가 보이게 한다 (임시 내용이었다).
         await m.alterTable(
           TableMigration(
             schoolInfos,
@@ -118,10 +120,11 @@ class AppDatabase extends _$AppDatabase {
               schoolInfos.teamName,
               schoolInfos.developer,
               schoolInfos.planner,
-              schoolInfos.homepageUrl,
+              schoolInfos.blocks,
             ],
           ),
         );
+        await delete(schoolInfos).go();
       }
     },
   );

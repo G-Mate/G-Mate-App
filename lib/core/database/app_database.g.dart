@@ -1046,17 +1046,15 @@ class $SchoolInfosTable extends SchoolInfos
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
-  static const VerificationMeta _homepageUrlMeta = const VerificationMeta(
-    'homepageUrl',
-  );
+  static const VerificationMeta _blocksMeta = const VerificationMeta('blocks');
   @override
-  late final GeneratedColumn<String> homepageUrl = GeneratedColumn<String>(
-    'homepage_url',
+  late final GeneratedColumn<String> blocks = GeneratedColumn<String>(
+    'blocks',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-    defaultValue: const Constant(''),
+    defaultValue: const Constant('[]'),
   );
   @override
   List<GeneratedColumn> get $columns => [
@@ -1064,7 +1062,7 @@ class $SchoolInfosTable extends SchoolInfos
     teamName,
     developer,
     planner,
-    homepageUrl,
+    blocks,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1099,13 +1097,10 @@ class $SchoolInfosTable extends SchoolInfos
         planner.isAcceptableOrUnknown(data['planner']!, _plannerMeta),
       );
     }
-    if (data.containsKey('homepage_url')) {
+    if (data.containsKey('blocks')) {
       context.handle(
-        _homepageUrlMeta,
-        homepageUrl.isAcceptableOrUnknown(
-          data['homepage_url']!,
-          _homepageUrlMeta,
-        ),
+        _blocksMeta,
+        blocks.isAcceptableOrUnknown(data['blocks']!, _blocksMeta),
       );
     }
     return context;
@@ -1133,9 +1128,9 @@ class $SchoolInfosTable extends SchoolInfos
         DriftSqlType.string,
         data['${effectivePrefix}planner'],
       )!,
-      homepageUrl: attachedDatabase.typeMapping.read(
+      blocks: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}homepage_url'],
+        data['${effectivePrefix}blocks'],
       )!,
     );
   }
@@ -1151,13 +1146,15 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
   final String teamName;
   final String developer;
   final String planner;
-  final String homepageUrl;
+
+  /// `[{"type", "title", "body", "imagePath", "url", "cards"}]` JSON.
+  final String blocks;
   const SchoolInfoRow({
     required this.id,
     required this.teamName,
     required this.developer,
     required this.planner,
-    required this.homepageUrl,
+    required this.blocks,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1166,7 +1163,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
     map['team_name'] = Variable<String>(teamName);
     map['developer'] = Variable<String>(developer);
     map['planner'] = Variable<String>(planner);
-    map['homepage_url'] = Variable<String>(homepageUrl);
+    map['blocks'] = Variable<String>(blocks);
     return map;
   }
 
@@ -1176,7 +1173,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
       teamName: Value(teamName),
       developer: Value(developer),
       planner: Value(planner),
-      homepageUrl: Value(homepageUrl),
+      blocks: Value(blocks),
     );
   }
 
@@ -1190,7 +1187,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
       teamName: serializer.fromJson<String>(json['teamName']),
       developer: serializer.fromJson<String>(json['developer']),
       planner: serializer.fromJson<String>(json['planner']),
-      homepageUrl: serializer.fromJson<String>(json['homepageUrl']),
+      blocks: serializer.fromJson<String>(json['blocks']),
     );
   }
   @override
@@ -1201,7 +1198,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
       'teamName': serializer.toJson<String>(teamName),
       'developer': serializer.toJson<String>(developer),
       'planner': serializer.toJson<String>(planner),
-      'homepageUrl': serializer.toJson<String>(homepageUrl),
+      'blocks': serializer.toJson<String>(blocks),
     };
   }
 
@@ -1210,13 +1207,13 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
     String? teamName,
     String? developer,
     String? planner,
-    String? homepageUrl,
+    String? blocks,
   }) => SchoolInfoRow(
     id: id ?? this.id,
     teamName: teamName ?? this.teamName,
     developer: developer ?? this.developer,
     planner: planner ?? this.planner,
-    homepageUrl: homepageUrl ?? this.homepageUrl,
+    blocks: blocks ?? this.blocks,
   );
   SchoolInfoRow copyWithCompanion(SchoolInfosCompanion data) {
     return SchoolInfoRow(
@@ -1224,9 +1221,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
       teamName: data.teamName.present ? data.teamName.value : this.teamName,
       developer: data.developer.present ? data.developer.value : this.developer,
       planner: data.planner.present ? data.planner.value : this.planner,
-      homepageUrl: data.homepageUrl.present
-          ? data.homepageUrl.value
-          : this.homepageUrl,
+      blocks: data.blocks.present ? data.blocks.value : this.blocks,
     );
   }
 
@@ -1237,14 +1232,13 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
           ..write('teamName: $teamName, ')
           ..write('developer: $developer, ')
           ..write('planner: $planner, ')
-          ..write('homepageUrl: $homepageUrl')
+          ..write('blocks: $blocks')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, teamName, developer, planner, homepageUrl);
+  int get hashCode => Object.hash(id, teamName, developer, planner, blocks);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1253,7 +1247,7 @@ class SchoolInfoRow extends DataClass implements Insertable<SchoolInfoRow> {
           other.teamName == this.teamName &&
           other.developer == this.developer &&
           other.planner == this.planner &&
-          other.homepageUrl == this.homepageUrl);
+          other.blocks == this.blocks);
 }
 
 class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
@@ -1261,34 +1255,34 @@ class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
   final Value<String> teamName;
   final Value<String> developer;
   final Value<String> planner;
-  final Value<String> homepageUrl;
+  final Value<String> blocks;
   const SchoolInfosCompanion({
     this.id = const Value.absent(),
     this.teamName = const Value.absent(),
     this.developer = const Value.absent(),
     this.planner = const Value.absent(),
-    this.homepageUrl = const Value.absent(),
+    this.blocks = const Value.absent(),
   });
   SchoolInfosCompanion.insert({
     this.id = const Value.absent(),
     this.teamName = const Value.absent(),
     this.developer = const Value.absent(),
     this.planner = const Value.absent(),
-    this.homepageUrl = const Value.absent(),
+    this.blocks = const Value.absent(),
   });
   static Insertable<SchoolInfoRow> custom({
     Expression<int>? id,
     Expression<String>? teamName,
     Expression<String>? developer,
     Expression<String>? planner,
-    Expression<String>? homepageUrl,
+    Expression<String>? blocks,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (teamName != null) 'team_name': teamName,
       if (developer != null) 'developer': developer,
       if (planner != null) 'planner': planner,
-      if (homepageUrl != null) 'homepage_url': homepageUrl,
+      if (blocks != null) 'blocks': blocks,
     });
   }
 
@@ -1297,14 +1291,14 @@ class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
     Value<String>? teamName,
     Value<String>? developer,
     Value<String>? planner,
-    Value<String>? homepageUrl,
+    Value<String>? blocks,
   }) {
     return SchoolInfosCompanion(
       id: id ?? this.id,
       teamName: teamName ?? this.teamName,
       developer: developer ?? this.developer,
       planner: planner ?? this.planner,
-      homepageUrl: homepageUrl ?? this.homepageUrl,
+      blocks: blocks ?? this.blocks,
     );
   }
 
@@ -1323,8 +1317,8 @@ class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
     if (planner.present) {
       map['planner'] = Variable<String>(planner.value);
     }
-    if (homepageUrl.present) {
-      map['homepage_url'] = Variable<String>(homepageUrl.value);
+    if (blocks.present) {
+      map['blocks'] = Variable<String>(blocks.value);
     }
     return map;
   }
@@ -1336,7 +1330,7 @@ class SchoolInfosCompanion extends UpdateCompanion<SchoolInfoRow> {
           ..write('teamName: $teamName, ')
           ..write('developer: $developer, ')
           ..write('planner: $planner, ')
-          ..write('homepageUrl: $homepageUrl')
+          ..write('blocks: $blocks')
           ..write(')'))
         .toString();
   }
@@ -2266,7 +2260,7 @@ typedef $$SchoolInfosTableCreateCompanionBuilder =
       Value<String> teamName,
       Value<String> developer,
       Value<String> planner,
-      Value<String> homepageUrl,
+      Value<String> blocks,
     });
 typedef $$SchoolInfosTableUpdateCompanionBuilder =
     SchoolInfosCompanion Function({
@@ -2274,7 +2268,7 @@ typedef $$SchoolInfosTableUpdateCompanionBuilder =
       Value<String> teamName,
       Value<String> developer,
       Value<String> planner,
-      Value<String> homepageUrl,
+      Value<String> blocks,
     });
 
 class $$SchoolInfosTableFilterComposer
@@ -2306,8 +2300,8 @@ class $$SchoolInfosTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get homepageUrl => $composableBuilder(
-    column: $table.homepageUrl,
+  ColumnFilters<String> get blocks => $composableBuilder(
+    column: $table.blocks,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2341,8 +2335,8 @@ class $$SchoolInfosTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get homepageUrl => $composableBuilder(
-    column: $table.homepageUrl,
+  ColumnOrderings<String> get blocks => $composableBuilder(
+    column: $table.blocks,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -2368,10 +2362,8 @@ class $$SchoolInfosTableAnnotationComposer
   GeneratedColumn<String> get planner =>
       $composableBuilder(column: $table.planner, builder: (column) => column);
 
-  GeneratedColumn<String> get homepageUrl => $composableBuilder(
-    column: $table.homepageUrl,
-    builder: (column) => column,
-  );
+  GeneratedColumn<String> get blocks =>
+      $composableBuilder(column: $table.blocks, builder: (column) => column);
 }
 
 class $$SchoolInfosTableTableManager
@@ -2409,13 +2401,13 @@ class $$SchoolInfosTableTableManager
                 Value<String> teamName = const Value.absent(),
                 Value<String> developer = const Value.absent(),
                 Value<String> planner = const Value.absent(),
-                Value<String> homepageUrl = const Value.absent(),
+                Value<String> blocks = const Value.absent(),
               }) => SchoolInfosCompanion(
                 id: id,
                 teamName: teamName,
                 developer: developer,
                 planner: planner,
-                homepageUrl: homepageUrl,
+                blocks: blocks,
               ),
           createCompanionCallback:
               ({
@@ -2423,13 +2415,13 @@ class $$SchoolInfosTableTableManager
                 Value<String> teamName = const Value.absent(),
                 Value<String> developer = const Value.absent(),
                 Value<String> planner = const Value.absent(),
-                Value<String> homepageUrl = const Value.absent(),
+                Value<String> blocks = const Value.absent(),
               }) => SchoolInfosCompanion.insert(
                 id: id,
                 teamName: teamName,
                 developer: developer,
                 planner: planner,
-                homepageUrl: homepageUrl,
+                blocks: blocks,
               ),
           withReferenceMapper: (p0) => p0
               .map(

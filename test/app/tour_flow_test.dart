@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:g_mate/app/routes.dart';
 import 'package:g_mate/features/guide/presentation/widgets/explanation_view.dart';
@@ -70,14 +71,17 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
-  testWidgets('학교 개요는 팀 이름과 학교 홈페이지 주소를 쓴다', (tester) async {
+  testWidgets('학교 개요는 블록 페이지와 만든 사람들을 보여 준다', (tester) async {
     useTabletView(tester);
     await registerTestDependencies();
     await tester.pumpWidget(testApp(AppRoutes.schoolOverview));
     await tester.pumpAndSettle();
-    expect(find.text('G-Mate'), findsOneWidget);
-    expect(find.text('처음으로'), findsOneWidget);
-    // 테스트에는 웹뷰가 없어서 주소만 보인다.
-    expect(find.text('https://gsm.jge.hs.kr/main/main.php'), findsOneWidget);
+    expect(find.text('학교 개요'), findsOneWidget);
+    expect(find.textContaining('소프트웨어개발과'), findsWidgets);
+
+    await tester.drag(find.byType(ListView), const Offset(0, -2000));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('학교 홈페이지'), findsOneWidget);
+    expect(find.textContaining('G-Mate', findRichText: true), findsWidgets);
   });
 }

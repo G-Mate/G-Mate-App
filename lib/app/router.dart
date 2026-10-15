@@ -261,8 +261,10 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
     GoRoute(
       path: AppRoutes.adminSchool,
       builder: (context, state) => BlocProvider(
-        create: (_) =>
-            AdminSchoolEditCubit(getIt<SchoolInfoRepository>())..load(),
+        create: (_) => AdminSchoolEditCubit(
+          info: getIt<SchoolInfoRepository>(),
+          imagePicker: getIt<PlaceImagePicker>(),
+        )..load(),
         child: const AdminSchoolEditPage(),
       ),
     ),

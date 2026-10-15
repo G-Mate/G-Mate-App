@@ -28,7 +28,7 @@ class AdminHomePage extends StatelessWidget {
         (
           icon: Icons.school_outlined,
           title: '학교 개요',
-          description: '만든 사람들 이름과 학교 홈페이지 주소',
+          description: '블록으로 만드는 학교 소개 페이지',
           route: AppRoutes.adminSchool,
         ),
       ],
