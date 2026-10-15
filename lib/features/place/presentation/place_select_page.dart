@@ -7,9 +7,15 @@ import '../../../core/design_system.dart';
 import '../domain/place.dart';
 import 'bloc/place_select_cubit.dart';
 import 'bloc/place_select_state.dart';
+import '../../speech/presentation/bloc/voice_guide_cubit.dart';
+import '../../speech/presentation/voice_guide_scope.dart';
+import '../../speech/presentation/voice_scripts.dart';
 import 'place_icons.dart';
 
 /// 길 찾기 - 장소 선택. 분류 칩과 검색으로 장소를 찾는다.
+///
+/// 들어오면 '길 찾기. 어디로 갈까요?'를 읽고, 누르지 않으면 장소 목록을 물어볼
+/// 수 있다고 안내한다. 장소 이름을 말하면 그 장소 확인으로 간다.
 class PlaceSelectPage extends StatelessWidget {
   const PlaceSelectPage({super.key});
 
@@ -20,6 +26,28 @@ class PlaceSelectPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<PlaceSelectCubit>();
 
+    return VoiceGuideScope(
+      onCommand: (context, command) {
+        if (command == VoiceScripts.listCommand) {
+          context.read<VoiceGuideCubit>().say(
+            VoiceScripts.placeList(cubit.state.places),
+          );
+        } else if (command.startsWith(VoiceScripts.placePrefix)) {
+          final key = command.substring(VoiceScripts.placePrefix.length);
+          context.push(AppRoutes.placeConfirm(key));
+        }
+      },
+      child: BlocListener<PlaceSelectCubit, PlaceSelectState>(
+        listenWhen: (a, b) => a.isLoading && !b.isLoading,
+        listener: (context, state) => context.read<VoiceGuideCubit>().start(
+          VoiceScripts.placeSelect(state.places),
+        ),
+        child: _scaffold(context, cubit),
+      ),
+    );
+  }
+
+  Widget _scaffold(BuildContext context, PlaceSelectCubit cubit) {
     return GmScaffold(
       eyebrow: '길 찾기',
       title: '어디로 갈까요?',

@@ -21,6 +21,7 @@ class DriftSpeechSettingsRepository implements SpeechSettingsRepository {
       speed: row.speed,
       pitch: row.pitch,
       volume: row.volume,
+      commandWait: Duration(milliseconds: row.commandWaitMs),
     );
   }
 
@@ -34,6 +35,7 @@ class DriftSpeechSettingsRepository implements SpeechSettingsRepository {
           speed: settings.speed,
           pitch: settings.pitch,
           volume: settings.volume,
+          commandWaitMs: Value(settings.commandWait.inMilliseconds),
         ),
       );
 }

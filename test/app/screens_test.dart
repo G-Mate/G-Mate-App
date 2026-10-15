@@ -47,5 +47,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('장소를 찾을 수 없어요'), findsOneWidget);
+    // 뒤에 깔린 장소 선택의 음성 안내(읽던 말)를 끝낸다.
+    await tester.pump(const Duration(seconds: 1));
   });
 }
