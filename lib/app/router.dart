@@ -5,10 +5,12 @@ import 'package:go_router/go_router.dart';
 import '../core/robot/robot_controller.dart';
 import '../features/admin/domain/admin_pin_repository.dart';
 import '../features/admin/domain/place_image_picker.dart';
+import '../features/admin/presentation/admin_pin_change_page.dart';
 import '../features/admin/presentation/admin_pin_page.dart';
 import '../features/admin/presentation/admin_place_edit_page.dart';
 import '../features/admin/presentation/admin_places_page.dart';
 import '../features/admin/presentation/admin_tts_page.dart';
+import '../features/admin/presentation/bloc/admin_pin_change_cubit.dart';
 import '../features/admin/presentation/bloc/admin_pin_cubit.dart';
 import '../features/admin/presentation/bloc/admin_place_edit_cubit.dart';
 import '../features/admin/presentation/bloc/admin_places_cubit.dart';
@@ -206,6 +208,13 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
           settings: getIt<SpeechSettingsRepository>(),
         )..load(),
         child: const AdminTtsPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.adminPinChange,
+      builder: (context, state) => BlocProvider(
+        create: (_) => AdminPinChangeCubit(getIt<AdminPinRepository>()),
+        child: const AdminPinChangePage(),
       ),
     ),
 

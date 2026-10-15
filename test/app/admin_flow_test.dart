@@ -1,5 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:g_mate/app/routes.dart';
+import 'package:g_mate/app/di.dart';
+import 'package:g_mate/features/admin/domain/admin_pin_repository.dart';
+import 'package:g_mate/features/admin/presentation/admin_pin_change_page.dart';
 import 'package:g_mate/features/admin/presentation/admin_pin_page.dart';
 import 'package:g_mate/features/home/presentation/home_page.dart';
 
@@ -38,5 +41,34 @@ void main() {
     await tester.longPress(find.text('무엇을\n도와드릴까요?'));
     await tester.pumpAndSettle();
     expect(find.byType(AdminPinPage), findsNothing);
+  });
+  testWidgets('장소 관리에서 PIN을 바꾸면 새 PIN으로만 들어간다', (tester) async {
+    useTabletView(tester);
+    await registerTestDependencies();
+    await tester.pumpWidget(testApp(AppRoutes.adminPlaces));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('PIN 변경'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AdminPinChangePage), findsOneWidget);
+
+    Future<void> type(String digits) async {
+      for (final d in digits.split('')) {
+        await tester.tap(find.text(d));
+        await tester.pump();
+      }
+    }
+
+    await type('0000');
+    await type('1357');
+    await type('1357');
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AdminPinChangePage), findsNothing);
+    expect(find.text('장소 관리'), findsOneWidget);
+    expect(find.text('PIN을 바꿨어요'), findsOneWidget);
+    final pins = getIt<AdminPinRepository>();
+    expect(await pins.verify('1357'), isTrue);
+    expect(await pins.verify('0000'), isFalse);
   });
 }
