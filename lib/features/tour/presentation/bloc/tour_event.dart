@@ -45,3 +45,13 @@ final class _TourRobotEventReceived extends TourEvent {
   @override
   List<Object?> get props => [event];
 }
+
+/// 줄 사이 쉬는 시간이 지나 다음 줄을 읽을 때.
+final class _TourLineAdvanced extends TourEvent {
+  const _TourLineAdvanced(this.lineIndex);
+
+  final int lineIndex;
+
+  @override
+  List<Object?> get props => [lineIndex];
+}
