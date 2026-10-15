@@ -18,6 +18,7 @@ class SpeechSettings extends Equatable {
     this.speed = 1.0,
     this.pitch = 0,
     this.volume = 6,
+    this.commandWait = defaultCommandWait,
   });
 
   static const minSpeed = 0.5;
@@ -26,6 +27,12 @@ class SpeechSettings extends Equatable {
   static const maxPitch = 10;
   static const minVolume = 0;
   static const maxVolume = 10;
+
+  /// 화면 글을 읽은 뒤 방문객이 누르지 않으면 할 수 있는 말을 안내하기까지
+  /// 기다리는 시간.
+  static const defaultCommandWait = Duration(seconds: 3);
+  static const minCommandWait = Duration(seconds: 1);
+  static const maxCommandWait = Duration(seconds: 10);
 
   final VoiceGender gender;
 
@@ -38,18 +45,23 @@ class SpeechSettings extends Equatable {
   /// 로봇 음량 ([minVolume]~[maxVolume]).
   final int volume;
 
+  /// 음성 명령을 안내하기 전에 기다리는 시간 ([minCommandWait]~[maxCommandWait]).
+  final Duration commandWait;
+
   SpeechSettings copyWith({
     VoiceGender? gender,
     double? speed,
     int? pitch,
     int? volume,
+    Duration? commandWait,
   }) => SpeechSettings(
     gender: gender ?? this.gender,
     speed: speed ?? this.speed,
     pitch: pitch ?? this.pitch,
     volume: volume ?? this.volume,
+    commandWait: commandWait ?? this.commandWait,
   );
 
   @override
-  List<Object?> get props => [gender, speed, pitch, volume];
+  List<Object?> get props => [gender, speed, pitch, volume, commandWait];
 }

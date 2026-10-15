@@ -6,6 +6,9 @@ enum GoToStatus { start, calculating, going, complete, abort, reposing }
 /// temi `TtsListener`의 음성 출력 상태.
 enum TtsStatus { started, completed, error, cancelled }
 
+/// temi `OnConversationStatusChangedListener`의 대화 상태.
+enum ConversationStatus { idle, listening, thinking, speaking }
+
 /// 로봇이 보내는 이벤트. 화면은 이 타입만 보고, 채널 Map 형식은 몰라도 된다.
 sealed class RobotEvent extends Equatable {
   const RobotEvent();
@@ -27,6 +30,12 @@ sealed class RobotEvent extends Equatable {
         final status = TtsStatus.values.asNameMap()[map['status']];
         if (status == null) return null;
         return TtsStatusChanged(text: map['text']! as String, status: status);
+      case 'asrResult':
+        return AsrResultReceived(map['text']! as String);
+      case 'conversationStatus':
+        final status = ConversationStatus.values.asNameMap()[map['status']];
+        if (status == null) return null;
+        return ConversationStatusChanged(status);
       case 'locationsUpdated':
         return LocationsUpdated(
           (map['locations']! as List<Object?>).cast<String>(),
@@ -79,4 +88,23 @@ final class LocationsUpdated extends RobotEvent {
 
   @override
   List<Object?> get props => [locations];
+}
+
+/// 방문객이 한 말을 알아들은 결과 (temi `AsrListener`).
+final class AsrResultReceived extends RobotEvent {
+  const AsrResultReceived(this.text);
+
+  final String text;
+
+  @override
+  List<Object?> get props => [text];
+}
+
+final class ConversationStatusChanged extends RobotEvent {
+  const ConversationStatusChanged(this.status);
+
+  final ConversationStatus status;
+
+  @override
+  List<Object?> get props => [status];
 }

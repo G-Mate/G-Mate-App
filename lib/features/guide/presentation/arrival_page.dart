@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../core/design_system.dart';
 import '../../place/presentation/place_not_found.dart';
+import '../../speech/presentation/bloc/voice_guide_cubit.dart';
+import '../../speech/presentation/voice_guide_scope.dart';
+import '../../speech/presentation/voice_scripts.dart';
 import 'bloc/arrival_cubit.dart';
 import 'bloc/arrival_state.dart';
 import 'guiding_page.dart';
@@ -32,6 +35,27 @@ class ArrivalPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 도착 멘트를 읽은 뒤 누르지 않으면 '설명 듣기'와 '마침'을 말할 수 있다고
+    // 안내한다. 설명을 듣기 시작하면 더 안내하지 않는다.
+    return VoiceGuideScope(
+      onCommand: (context, command) {
+        final cubit = context.read<ArrivalCubit>();
+        if (command == VoiceScripts.listenCommand) cubit.listen();
+        if (command == VoiceScripts.doneCommand) context.go(AppRoutes.home);
+      },
+      child: BlocListener<ArrivalCubit, ArrivalState>(
+        listenWhen: (a, b) => a.isLoading && !b.isLoading,
+        listener: (context, state) {
+          if (state.hasDescription) {
+            context.read<VoiceGuideCubit>().start(VoiceScripts.arrival);
+          }
+        },
+        child: _content(),
+      ),
+    );
+  }
+
+  Widget _content() {
     return BlocBuilder<ArrivalCubit, ArrivalState>(
       builder: (context, state) {
         if (state.isLoading) {
