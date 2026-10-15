@@ -28,6 +28,11 @@ class AdminPlacesPage extends StatelessWidget {
       onBack: () => context.go(AppRoutes.home),
       actions: [
         TextButton.icon(
+          onPressed: () => context.push(AppRoutes.adminTours),
+          icon: const Icon(Icons.flag_outlined),
+          label: const Text('투어 관리'),
+        ),
+        TextButton.icon(
           onPressed: () => context.push(AppRoutes.adminTts),
           icon: const Icon(Icons.record_voice_over_outlined),
           label: const Text('음성 설정'),

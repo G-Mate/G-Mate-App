@@ -8,10 +8,14 @@ import '../features/admin/domain/place_image_picker.dart';
 import '../features/admin/presentation/admin_pin_page.dart';
 import '../features/admin/presentation/admin_place_edit_page.dart';
 import '../features/admin/presentation/admin_places_page.dart';
+import '../features/admin/presentation/admin_tour_edit_page.dart';
+import '../features/admin/presentation/admin_tours_page.dart';
 import '../features/admin/presentation/admin_tts_page.dart';
 import '../features/admin/presentation/bloc/admin_pin_cubit.dart';
 import '../features/admin/presentation/bloc/admin_place_edit_cubit.dart';
 import '../features/admin/presentation/bloc/admin_places_cubit.dart';
+import '../features/admin/presentation/bloc/admin_tour_edit_cubit.dart';
+import '../features/admin/presentation/bloc/admin_tours_cubit.dart';
 import '../features/admin/presentation/bloc/admin_tts_cubit.dart';
 import '../features/design_gallery/presentation/design_gallery_page.dart';
 import '../features/guide/presentation/arrival_page.dart';
@@ -207,6 +211,32 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
         )..load(),
         child: const AdminTtsPage(),
       ),
+    ),
+    GoRoute(
+      path: AppRoutes.adminTours,
+      builder: (context, state) => BlocProvider(
+        create: (_) => AdminToursCubit(
+          tours: getIt<TourRepository>(),
+          places: getIt<PlaceRepository>(),
+        )..load(),
+        child: const AdminToursPage(),
+      ),
+      routes: [
+        GoRoute(
+          path: ':key',
+          builder: (context, state) {
+            final key = state.pathParameters['key']!;
+            return BlocProvider(
+              create: (_) => AdminTourEditCubit(
+                tours: getIt<TourRepository>(),
+                places: getIt<PlaceRepository>(),
+                tourKey: key == AppRoutes.newTourKey ? null : key,
+              )..load(),
+              child: const AdminTourEditPage(),
+            );
+          },
+        ),
+      ],
     ),
 
     GoRoute(
