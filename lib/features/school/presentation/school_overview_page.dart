@@ -20,14 +20,12 @@ class SchoolOverviewPage extends StatelessWidget {
       eyebrow: '우리 학교',
       title: '학교 개요',
       onBack: () => context.go(AppRoutes.home),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: _pageWidth),
-          child: const SchoolPageView(
-            blocks: schoolPageBlocks,
-            credit: schoolPageCredit,
-          ),
-        ),
+      // 옆으로 넘기는 링크 줄이 화면 끝까지 펼쳐지도록 여백은 페이지가 직접 둔다.
+      padded: false,
+      body: const SchoolPageView(
+        blocks: schoolPageBlocks,
+        credit: schoolPageCredit,
+        maxContentWidth: _pageWidth,
       ),
     );
   }

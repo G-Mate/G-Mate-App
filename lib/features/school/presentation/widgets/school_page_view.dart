@@ -9,40 +9,70 @@ import '../../domain/school_page.dart';
 
 /// 학교 개요 페이지. 블록을 웹 페이지처럼 위에서 아래로 그리고, 맨 아래에
 /// 만든 팀을 작게 둔다. 이어진 링크 블록은 옆으로 넘기는 한 줄에 놓는다.
+///
+/// 글은 가운데 [maxContentWidth] 폭 안에 두지만, 옆으로 넘기는 줄은 화면
+/// 끝까지 펼쳐서 카드가 본문 폭에서 잘리지 않고 화면 밖으로 사라지게 한다.
 class SchoolPageView extends StatelessWidget {
-  const SchoolPageView({super.key, required this.blocks, this.credit});
+  const SchoolPageView({
+    super.key,
+    required this.blocks,
+    this.credit,
+    this.maxContentWidth = 1040,
+    this.minSideInset = AppSpacing.screenHorizontal,
+  });
 
   final List<SchoolBlock> blocks;
   final String? credit;
 
+  /// 글이 너무 길게 늘어지지 않도록 묶는 본문 폭.
+  final double maxContentWidth;
+
+  /// 화면이 좁을 때도 남기는 좌우 여백.
+  final double minSideInset;
+
   @override
   Widget build(BuildContext context) {
-    final children = <Widget>[];
-    for (var i = 0; i < blocks.length; i++) {
-      final block = blocks[i];
-      if (i > 0) children.add(SizedBox(height: _gapBefore(block)));
-      if (block.type != SchoolBlockType.link) {
-        children.add(_Block(block: block));
-        continue;
-      }
-      // 이어진 링크는 옆으로 넘기는 한 줄에.
-      final links = [block];
-      while (i + 1 < blocks.length &&
-          blocks[i + 1].type == SchoolBlockType.link) {
-        links.add(blocks[++i]);
-      }
-      children.add(_LinkRow(links: links));
-    }
-    final credit = this.credit;
-    return ListView(
-      children: [
-        ...children,
-        if (credit != null) ...[
-          const SizedBox(height: AppSpacing.xxxl),
-          _Credit(credit),
-        ],
-        const SizedBox(height: AppSpacing.lg),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final content = (width - minSideInset * 2).clamp(0.0, maxContentWidth);
+        final inset = (width - content) / 2;
+        Widget body(Widget child) => Padding(
+          padding: EdgeInsets.symmetric(horizontal: inset),
+          child: child,
+        );
+
+        final children = <Widget>[];
+        for (var i = 0; i < blocks.length; i++) {
+          final block = blocks[i];
+          if (i > 0) children.add(SizedBox(height: _gapBefore(block)));
+          if (block.type != SchoolBlockType.link) {
+            children.add(body(_Block(block: block)));
+            continue;
+          }
+          // 이어진 링크는 옆으로 넘기는 한 줄에.
+          final links = [block];
+          while (i + 1 < blocks.length &&
+              blocks[i + 1].type == SchoolBlockType.link) {
+            links.add(blocks[++i]);
+          }
+          children.add(_LinkRow(links: links, inset: inset));
+        }
+        final credit = this.credit;
+        return ListView(
+          padding: const EdgeInsets.only(
+            top: AppSpacing.lg,
+            bottom: AppSpacing.screenVertical,
+          ),
+          children: [
+            ...children,
+            if (credit != null) ...[
+              const SizedBox(height: AppSpacing.xxxl),
+              body(_Credit(credit)),
+            ],
+          ],
+        );
+      },
     );
   }
 
@@ -213,12 +243,13 @@ class _CardTile extends StatelessWidget {
   }
 }
 
-/// 옆으로 넘기는 링크 카드 줄. 카드 폭은 같고, 오른쪽 끝 카드가 조금 잘려
-/// 보여서 더 넘길 수 있다는 것을 알 수 있다.
+/// 옆으로 넘기는 링크 카드 줄. 화면 끝까지 펼치고, 첫 카드와 마지막 카드는
+/// 본문 여백 선([inset])에 맞춘다. 카드는 화면 가장자리에서 잘린다.
 class _LinkRow extends StatelessWidget {
-  const _LinkRow({required this.links});
+  const _LinkRow({required this.links, required this.inset});
 
   final List<SchoolBlock> links;
+  final double inset;
 
   static const _cardWidth = 440.0;
 
@@ -227,6 +258,7 @@ class _LinkRow extends StatelessWidget {
     // QR 칸 높이가 같아서 카드 높이도 같다.
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.symmetric(horizontal: inset),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
