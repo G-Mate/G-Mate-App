@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:g_mate/app/routes.dart';
+import 'package:g_mate/core/design_system.dart';
 import 'package:g_mate/features/guide/presentation/widgets/explanation_view.dart';
 import 'package:g_mate/features/home/presentation/home_page.dart';
+import 'package:g_mate/features/school/presentation/school_web_page.dart';
 
 import '../helpers/test_app.dart';
 
@@ -88,5 +90,27 @@ void main() {
     expect(find.text('학교 홈페이지'), findsOneWidget);
     expect(find.text('입학 안내 (Hello, GSM)'), findsOneWidget);
     expect(find.textContaining('G-Mate'), findsOneWidget);
+  });
+
+  testWidgets('학교 개요 링크를 누르면 웹 화면이 열리고, 뒤로 가면 개요로 온다', (tester) async {
+    useTabletView(tester);
+    await registerTestDependencies();
+    await tester.pumpWidget(testApp(AppRoutes.schoolOverview));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('학교 홈페이지'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    await tester.tap(find.text('학교 홈페이지'));
+    await tester.pumpAndSettle();
+    expect(find.byType(SchoolWebPage), findsOneWidget);
+    expect(find.text('gsm.jge.hs.kr'), findsOneWidget);
+
+    await tester.tap(find.byType(GmBackButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(SchoolWebPage), findsNothing);
+    expect(find.text('학교 개요'), findsOneWidget);
   });
 }

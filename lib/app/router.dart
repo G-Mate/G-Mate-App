@@ -34,6 +34,7 @@ import '../features/place/presentation/bloc/place_select_cubit.dart';
 import '../features/place/presentation/place_confirm_page.dart';
 import '../features/place/presentation/place_select_page.dart';
 import '../features/school/presentation/school_overview_page.dart';
+import '../features/school/presentation/school_web_page.dart';
 import '../features/speech/domain/speech_settings_repository.dart';
 import '../features/speech/presentation/bloc/voice_guide_cubit.dart';
 import '../features/speech/presentation/voice_scripts.dart';
@@ -195,6 +196,15 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
     GoRoute(
       path: AppRoutes.schoolOverview,
       builder: (context, state) => const SchoolOverviewPage(),
+      routes: [
+        GoRoute(
+          path: 'web',
+          builder: (context, state) => SchoolWebPage(
+            url: state.uri.queryParameters['url'] ?? '',
+            title: state.uri.queryParameters['title'] ?? '',
+          ),
+        ),
+      ],
     ),
 
     // 관리 모드. PIN을 지나면 PIN 화면은 쌓아 두지 않도록 형제 경로로 둔다.

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../../../app/routes.dart';
 import '../../../../core/design_system.dart';
 import '../../../guide/presentation/widgets/keep_all_text.dart';
 import '../../domain/school_page.dart';
@@ -222,7 +224,7 @@ class _CardTile extends StatelessWidget {
   }
 }
 
-/// 링크: 키오스크에서는 누를 수 없으니 QR 코드와 설명을 보여 준다.
+/// 링크: 누르면 앱 안에서 화면 가득 열고, 휴대폰으로 볼 수 있게 QR 코드도 둔다.
 class _Link extends StatelessWidget {
   const _Link({required this.block});
 
@@ -234,54 +236,74 @@ class _Link extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = context.textStyles;
     final semantic = context.appColors;
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: _cardDecoration(context),
-      child: Row(
-        children: [
-          // QR은 흰 바탕이어야 휴대폰이 잘 읽는다.
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.xs),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-            ),
-            child: QrImageView(
-              data: block.url,
-              size: _qrSize,
-              padding: EdgeInsets.zero,
-              semanticsLabel: '${block.title} QR 코드',
-            ),
-          ),
-          const SizedBox(width: AppSpacing.lg),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(block.title, style: text.titleMedium),
-                if (block.body.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xxs),
-                  Text(
-                    block.body,
-                    style: text.bodySmall?.copyWith(
-                      color: semantic.textSecondary,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  Uri.parse(block.url).host,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: text.bodySmall?.copyWith(
-                    color: context.colors.primary,
-                  ),
+    return Material(
+      color: context.colors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        side: BorderSide(color: context.colors.outlineVariant),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => context.push(
+          AppRoutes.schoolWeb(url: block.url, title: block.title),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Row(
+            children: [
+              // QR은 흰 바탕이어야 휴대폰이 잘 읽는다.
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.xs),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
                 ),
-              ],
-            ),
+                child: QrImageView(
+                  data: block.url,
+                  size: _qrSize,
+                  padding: EdgeInsets.zero,
+                  semanticsLabel: '${block.title} QR 코드',
+                ),
+              ),
+              const SizedBox(width: AppSpacing.lg),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(block.title, style: text.titleMedium),
+                    if (block.body.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.xxs),
+                      Text(
+                        block.body,
+                        style: text.bodySmall?.copyWith(
+                          color: semantic.textSecondary,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: AppSpacing.xs),
+                    Row(
+                      children: [
+                        Text(
+                          '눌러서 보기',
+                          style: text.labelSmall?.copyWith(
+                            color: context.colors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.xxs),
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          size: AppSize.iconSm,
+                          color: context.colors.primary,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -17,6 +17,12 @@ abstract final class AppRoutes {
   // 학교 개요
   static const schoolOverview = '/school';
 
+  /// 학교 개요 링크를 앱 안에서 연다.
+  static String schoolWeb({required String url, required String title}) => Uri(
+    path: '/school/web',
+    queryParameters: {'url': url, 'title': title},
+  ).toString();
+
   // 관리 모드
   static const adminPin = '/admin';
   static const adminHome = '/admin/home';

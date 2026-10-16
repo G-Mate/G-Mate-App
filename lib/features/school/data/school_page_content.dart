@@ -95,7 +95,7 @@ const schoolPageBlocks = [
   SchoolBlock(
     type: SchoolBlockType.heading,
     title: '더 알아보기',
-    body: '휴대폰 카메라로 QR 코드를 찍어 보세요',
+    body: '눌러서 보거나, 휴대폰 카메라로 QR 코드를 찍어 보세요',
   ),
   SchoolBlock(
     type: SchoolBlockType.link,
