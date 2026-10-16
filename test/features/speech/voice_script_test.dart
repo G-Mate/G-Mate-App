@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:g_mate/features/place/data/seed_places.dart';
 import 'package:g_mate/features/speech/domain/voice_script.dart';
 import 'package:g_mate/features/speech/presentation/voice_scripts.dart';
+import 'package:g_mate/features/tour/data/seed_tours.dart';
 
 void main() {
   test('띄어쓰기와 문장 부호가 달라도 명령을 알아듣는다', () {
@@ -36,5 +37,24 @@ void main() {
     expect(script.match('길찾기')?.id, VoiceScripts.guideCommand);
     expect(script.match('학교 투어 할래')?.id, VoiceScripts.tourCommand);
     expect(script.match('학교 소개 해 줘')?.id, VoiceScripts.overviewCommand);
+  });
+
+  test('투어 코스 선택에서는 코스 이름이나 코스 목록을 알아듣는다', () {
+    final script = VoiceScripts.tourSelect(seedTours, seedTours.first);
+    expect(script.intro.last.text, VoiceScripts.tourCard(seedTours.first));
+    expect(script.match('수업 공간 코스로 할게')?.id, 'tour:classrooms');
+    expect(script.match('학교 한 바퀴')?.id, 'tour:full_tour');
+    expect(script.match('어떤 코스가 있어')?.id, VoiceScripts.listCommand);
+  });
+
+  test('투어 설명 뒤에는 다음 장소, 마지막 곳이면 투어 마치기를 알아듣는다', () {
+    final middle = VoiceScripts.tourExplained(isLastStop: false);
+    expect(middle.match('다음 장소')?.id, VoiceScripts.nextCommand);
+    expect(middle.match('다시 들려 줘')?.id, VoiceScripts.replayCommand);
+    expect(middle.match('투어 중지')?.id, VoiceScripts.stopCommand);
+
+    final last = VoiceScripts.tourExplained(isLastStop: true);
+    expect(last.match('투어 마치기')?.id, VoiceScripts.nextCommand);
+    expect(last.match('다음 장소'), isNull);
   });
 }

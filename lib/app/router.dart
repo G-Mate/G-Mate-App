@@ -5,15 +5,20 @@ import 'package:go_router/go_router.dart';
 import '../core/robot/robot_controller.dart';
 import '../features/admin/domain/admin_pin_repository.dart';
 import '../features/admin/domain/place_image_picker.dart';
+import '../features/admin/presentation/admin_home_page.dart';
 import '../features/admin/presentation/admin_pin_change_page.dart';
 import '../features/admin/presentation/admin_pin_page.dart';
 import '../features/admin/presentation/admin_place_edit_page.dart';
 import '../features/admin/presentation/admin_places_page.dart';
+import '../features/admin/presentation/admin_tour_edit_page.dart';
+import '../features/admin/presentation/admin_tours_page.dart';
 import '../features/admin/presentation/admin_tts_page.dart';
 import '../features/admin/presentation/bloc/admin_pin_change_cubit.dart';
 import '../features/admin/presentation/bloc/admin_pin_cubit.dart';
 import '../features/admin/presentation/bloc/admin_place_edit_cubit.dart';
 import '../features/admin/presentation/bloc/admin_places_cubit.dart';
+import '../features/admin/presentation/bloc/admin_tour_edit_cubit.dart';
+import '../features/admin/presentation/bloc/admin_tours_cubit.dart';
 import '../features/admin/presentation/bloc/admin_tts_cubit.dart';
 import '../features/design_gallery/presentation/design_gallery_page.dart';
 import '../features/guide/presentation/arrival_page.dart';
@@ -28,9 +33,8 @@ import '../features/place/presentation/bloc/place_detail_cubit.dart';
 import '../features/place/presentation/bloc/place_select_cubit.dart';
 import '../features/place/presentation/place_confirm_page.dart';
 import '../features/place/presentation/place_select_page.dart';
-import '../features/school/domain/school_info_repository.dart';
-import '../features/school/presentation/bloc/school_overview_cubit.dart';
 import '../features/school/presentation/school_overview_page.dart';
+import '../features/school/presentation/school_web_page.dart';
 import '../features/speech/domain/speech_settings_repository.dart';
 import '../features/speech/presentation/bloc/voice_guide_cubit.dart';
 import '../features/speech/presentation/voice_scripts.dart';
@@ -154,15 +158,25 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
     // 학교 투어
     GoRoute(
       path: AppRoutes.tourSelect,
-      builder: (context, state) => BlocProvider(
-        create: (_) => TourSelectCubit(getIt<TourRepository>())..load(),
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => TourSelectCubit(getIt<TourRepository>())..load(),
+          ),
+          BlocProvider(create: (_) => _voice()),
+        ],
         child: const TourSelectPage(),
       ),
       routes: [
         GoRoute(
           path: ':key',
-          builder: (context, state) => BlocProvider(
-            create: (_) => _tourDetail(state.pathParameters['key']!),
+          builder: (context, state) => MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => _tourDetail(state.pathParameters['key']!),
+              ),
+              BlocProvider(create: (_) => _voice()),
+            ],
             child: const TourConfirmPage(),
           ),
         ),
@@ -170,20 +184,30 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
     ),
     GoRoute(
       path: '/tour-run/:key',
-      builder: (context, state) => BlocProvider(
-        create: (_) => TourBloc(
-          robot: getIt<RobotController>(),
-          tours: getIt<TourRepository>(),
-          getVisits: GetTourVisits(getIt<PlaceRepository>()),
-          tourKey: state.pathParameters['key']!,
-        )..add(const TourStarted()),
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => TourBloc(
+              robot: getIt<RobotController>(),
+              tours: getIt<TourRepository>(),
+              getVisits: GetTourVisits(getIt<PlaceRepository>()),
+              tourKey: state.pathParameters['key']!,
+            )..add(const TourStarted()),
+          ),
+          BlocProvider(create: (_) => _voice()),
+        ],
         child: const TourRunPage(),
       ),
     ),
     GoRoute(
       path: '/tour-done/:key',
-      builder: (context, state) => BlocProvider(
-        create: (_) => _tourDetail(state.pathParameters['key']!),
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => _tourDetail(state.pathParameters['key']!),
+          ),
+          BlocProvider(create: (_) => _voice()),
+        ],
         child: const TourDonePage(),
       ),
     ),
@@ -191,13 +215,16 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
     // 학교 개요
     GoRoute(
       path: AppRoutes.schoolOverview,
-      builder: (context, state) => BlocProvider(
-        create: (_) => SchoolOverviewCubit(
-          info: getIt<SchoolInfoRepository>(),
-          places: getIt<PlaceRepository>(),
-        )..load(),
-        child: const SchoolOverviewPage(),
-      ),
+      builder: (context, state) => const SchoolOverviewPage(),
+      routes: [
+        GoRoute(
+          path: 'web',
+          builder: (context, state) => SchoolWebPage(
+            url: state.uri.queryParameters['url'] ?? '',
+            title: state.uri.queryParameters['title'] ?? '',
+          ),
+        ),
+      ],
     ),
 
     // 관리 모드. PIN을 지나면 PIN 화면은 쌓아 두지 않도록 형제 경로로 둔다.
@@ -207,6 +234,10 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
         create: (_) => AdminPinCubit(getIt<AdminPinRepository>()),
         child: const AdminPinPage(),
       ),
+    ),
+    GoRoute(
+      path: AppRoutes.adminHome,
+      builder: (context, state) => const AdminHomePage(),
     ),
     GoRoute(
       path: AppRoutes.adminPlaces,
@@ -248,6 +279,33 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
         create: (_) => AdminPinChangeCubit(getIt<AdminPinRepository>()),
         child: const AdminPinChangePage(),
       ),
+    ),
+    GoRoute(
+      path: AppRoutes.adminTours,
+      builder: (context, state) => BlocProvider(
+        create: (_) => AdminToursCubit(
+          tours: getIt<TourRepository>(),
+          places: getIt<PlaceRepository>(),
+        )..load(),
+        child: const AdminToursPage(),
+      ),
+      routes: [
+        GoRoute(
+          path: ':key',
+          builder: (context, state) {
+            final key = state.pathParameters['key']!;
+            return BlocProvider(
+              create: (_) => AdminTourEditCubit(
+                tours: getIt<TourRepository>(),
+                places: getIt<PlaceRepository>(),
+                tourKey: key == AppRoutes.newTourKey ? null : key,
+                imagePicker: getIt<PlaceImagePicker>(),
+              )..load(),
+              child: const AdminTourEditPage(),
+            );
+          },
+        ),
+      ],
     ),
 
     GoRoute(

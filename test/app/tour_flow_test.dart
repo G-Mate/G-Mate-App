@@ -1,6 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:g_mate/app/routes.dart';
+import 'package:g_mate/core/design_system.dart';
+import 'package:g_mate/features/guide/presentation/widgets/explanation_view.dart';
 import 'package:g_mate/features/home/presentation/home_page.dart';
+import 'package:g_mate/features/school/presentation/school_web_page.dart';
 
 import '../helpers/test_app.dart';
 
@@ -30,8 +34,14 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pumpAndSettle();
       expect(find.text(name), findsWidgets);
-      expect(find.textContaining('설명 '), findsOneWidget);
-      await tester.tap(find.text(name == '도서관' ? '투어 마치기' : '다음 장소'));
+      expect(find.byType(ExplanationView), findsOneWidget);
+      // 설명은 [다음]으로 한 줄씩 넘기고, 마지막 줄에서 다음 곳으로 간다.
+      final last = name == '도서관' ? '투어 마치기' : '다음 장소';
+      while (find.text(last).evaluate().isEmpty) {
+        await tester.tap(find.textContaining(RegExp(r'^다음( ·|$)')));
+        await tester.pumpAndSettle();
+      }
+      await tester.tap(find.text(last));
       await tester.pump();
     }
 
@@ -39,6 +49,29 @@ void main() {
     expect(find.text('둘러봐 주셔서\n고마워요'), findsOneWidget);
 
     await tester.tap(find.text('처음으로'));
+    await tester.pumpAndSettle();
+    expect(find.byType(HomePage), findsOneWidget);
+    await tester.pump(const Duration(seconds: 1));
+  });
+
+  testWidgets('코스 이름과 투어 시작을 말하면 코스 확인을 거쳐 투어가 시작된다', (tester) async {
+    useTabletView(tester);
+    final robot = await registerTestDependencies();
+    await tester.pumpWidget(testApp(AppRoutes.tourSelect));
+    await tester.pumpAndSettle();
+
+    robot.hearSpeech('수업 공간 코스 보여 줘');
+    await tester.pumpAndSettle();
+    expect(find.text('이 순서로 안내해요'), findsOneWidget);
+
+    robot.hearSpeech('투어 시작');
+    for (var i = 0; i < 3; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(find.text('컴퓨터실로\n가고 있어요'), findsOneWidget);
+
+    // 이동 중에 '투어 중지'라고 하면 홈으로 돌아간다.
+    robot.hearSpeech('투어 중지');
     await tester.pumpAndSettle();
     expect(find.byType(HomePage), findsOneWidget);
     await tester.pump(const Duration(seconds: 1));
@@ -63,19 +96,44 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
-  testWidgets('학교 개요에서 층별 장소를 누르면 장소 확인으로 간다', (tester) async {
+  testWidgets('학교 개요는 학교 소개 페이지를 넘겨 읽는다', (tester) async {
     useTabletView(tester);
     await registerTestDependencies();
     await tester.pumpWidget(testApp(AppRoutes.schoolOverview));
     await tester.pumpAndSettle();
-    expect(find.text('층별 안내'), findsOneWidget);
-    expect(find.text('3층'), findsOneWidget);
+    expect(find.text('학교 개요'), findsOneWidget);
+    expect(find.textContaining('어떤 '), findsOneWidget);
 
-    await tester.tap(find.text('도서관'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
-    expect(find.text('이곳으로 안내할까요?'), findsOneWidget);
-    // 장소 확인의 음성 안내(읽던 말)를 끝낸다.
-    await tester.pump(const Duration(seconds: 1));
+    // 맨 아래까지 넘기면 QR 링크와 만든 팀이 보인다.
+    await tester.scrollUntilVisible(
+      find.textContaining('G-Mate'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('학교 홈페이지'), findsOneWidget);
+    expect(find.text('입학 안내 (Hello, GSM)'), findsOneWidget);
+    expect(find.textContaining('G-Mate'), findsOneWidget);
+  });
+
+  testWidgets('학교 개요 링크를 누르면 웹 화면이 열리고, 뒤로 가면 개요로 온다', (tester) async {
+    useTabletView(tester);
+    await registerTestDependencies();
+    await tester.pumpWidget(testApp(AppRoutes.schoolOverview));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('학교 홈페이지'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    await tester.tap(find.text('학교 홈페이지'));
+    await tester.pumpAndSettle();
+    expect(find.byType(SchoolWebPage), findsOneWidget);
+    expect(find.text('gsm.jge.hs.kr'), findsOneWidget);
+
+    await tester.tap(find.byType(GmBackButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(SchoolWebPage), findsNothing);
+    expect(find.text('학교 개요'), findsOneWidget);
   });
 }

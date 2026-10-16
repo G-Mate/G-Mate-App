@@ -27,9 +27,13 @@ class DriftTourRepository implements TourRepository {
     return row == null ? null : _toTour(row);
   }
 
-  /// 같은 키가 있으면 바꾸고, 없으면 새로 추가한다.
+  @override
   Future<void> saveTour(Tour tour) =>
       _db.into(_db.tours).insertOnConflictUpdate(_toRow(tour));
+
+  @override
+  Future<void> deleteTour(String key) =>
+      (_db.delete(_db.tours)..where((t) => t.key.equals(key))).go();
 
   static Tour _toTour(TourRow row) => Tour(
     key: row.key,

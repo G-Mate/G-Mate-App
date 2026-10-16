@@ -139,3 +139,95 @@ class AdminSliderField extends StatelessWidget {
     );
   }
 }
+
+/// 사진 칸: 16:10 미리보기 + [사진 고르기/바꾸기] [사진 지우기].
+class AdminPhotoField extends StatelessWidget {
+  const AdminPhotoField({
+    super.key,
+    required this.image,
+    required this.placeholder,
+    required this.hint,
+    required this.onPick,
+    required this.onRemove,
+  });
+
+  /// 등록한 사진. 없으면 [placeholder]를 보여 준다.
+  final ImageProvider? image;
+  final Widget placeholder;
+  final String hint;
+  final VoidCallback onPick;
+  final VoidCallback onRemove;
+
+  static const _photoWidth = 200.0;
+
+  /// 사진 옆에 버튼을 둘 만큼 넓지 않으면 버튼을 사진 아래로 내린다.
+  static const _sideBySideWidth = 400.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final image = this.image;
+    final photo = ClipRRect(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: AspectRatio(
+        aspectRatio: GmPlaceCard.photoAspectRatio,
+        child: image != null
+            ? Image(image: image, fit: BoxFit.cover)
+            : placeholder,
+      ),
+    );
+    final buttons = [
+      GmButton(
+        label: image == null ? '사진 고르기' : '사진 바꾸기',
+        icon: Icons.photo_library_outlined,
+        size: GmButtonSize.small,
+        variant: GmButtonVariant.secondary,
+        onPressed: onPick,
+      ),
+      if (image != null)
+        GmButton(
+          label: '사진 지우기',
+          size: GmButtonSize.small,
+          variant: GmButtonVariant.outline,
+          onPressed: onRemove,
+        ),
+    ];
+    return AdminField(
+      label: '사진',
+      hint: hint,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < _sideBySideWidth) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                photo,
+                const SizedBox(height: AppSpacing.xs),
+                Wrap(
+                  spacing: AppSpacing.xs,
+                  runSpacing: AppSpacing.xs,
+                  children: buttons,
+                ),
+              ],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              SizedBox(width: _photoWidth, child: photo),
+              const SizedBox(width: AppSpacing.md),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final (i, b) in buttons.indexed) ...[
+                    if (i > 0) const SizedBox(height: AppSpacing.xs),
+                    b,
+                  ],
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}

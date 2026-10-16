@@ -23,6 +23,11 @@ final class TourNextRequested extends TourEvent {
 }
 
 /// [다시 듣기]: 지금 곳의 설명을 처음부터 다시 읽는다.
+/// [다음]: 쉬는 시간을 기다리지 않고 다음 줄을 읽는다.
+final class TourNextLineRequested extends TourEvent {
+  const TourNextLineRequested();
+}
+
 final class TourReplayRequested extends TourEvent {
   const TourReplayRequested();
 }
@@ -44,4 +49,14 @@ final class _TourRobotEventReceived extends TourEvent {
 
   @override
   List<Object?> get props => [event];
+}
+
+/// 줄 사이 쉬는 시간이 지나 다음 줄을 읽을 때.
+final class _TourLineAdvanced extends TourEvent {
+  const _TourLineAdvanced(this.lineIndex);
+
+  final int lineIndex;
+
+  @override
+  List<Object?> get props => [lineIndex];
 }

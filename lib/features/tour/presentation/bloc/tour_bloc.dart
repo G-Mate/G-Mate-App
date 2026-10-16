@@ -15,8 +15,9 @@ part 'tour_state.dart';
 
 /// 투어 한 번: 들를 곳마다 이동 → 설명을 되풀이하고, 마지막 곳 뒤에 끝난다.
 ///
-/// 설명은 한 줄씩 읽고, 한 줄을 다 읽으면 바로 다음 줄을 읽는다. 다 읽으면
-/// 방문객이 [다음 장소]를 누를 때까지 기다린다.
+/// 설명은 한 줄씩 읽고, 한 줄을 다 읽으면 장소의 [Place.lineInterval](관리 모드
+/// '자동 넘김')만큼 쉬었다가 다음 줄을 읽는다. 다 읽으면 방문객이
+/// [다음 장소]를 누를 때까지 기다린다.
 class TourBloc extends Bloc<TourEvent, TourState> {
   TourBloc({
     required this._robot,
@@ -27,10 +28,12 @@ class TourBloc extends Bloc<TourEvent, TourState> {
     on<TourStarted>(_onStarted);
     on<TourArrivalConfirmed>(_onArrivalConfirmed);
     on<TourNextRequested>(_onNextRequested);
+    on<TourNextLineRequested>(_onNextLineRequested);
     on<TourReplayRequested>(_onReplayRequested);
     on<TourRetryRequested>(_onRetryRequested);
     on<TourStopRequested>(_onStopRequested);
     on<_TourRobotEventReceived>(_onRobotEvent);
+    on<_TourLineAdvanced>(_onLineAdvanced);
     _subscription = _robot.events.listen(
       (event) => add(_TourRobotEventReceived(event)),
     );
@@ -49,6 +52,9 @@ class TourBloc extends Bloc<TourEvent, TourState> {
   final String tourKey;
   late final StreamSubscription<RobotEvent> _subscription;
 
+  /// 줄 사이에 쉬었다가 다음 줄로 넘기는 타이머.
+  Timer? _advanceTimer;
+
   /// 다음 곳으로 출발할 때 읽는 멘트.
   static String moveSpeech(String placeName) =>
       '${Korean.withRo(placeName)} 갈게요. 저를 따라와 주세요.';
@@ -65,6 +71,7 @@ class TourBloc extends Bloc<TourEvent, TourState> {
   }
 
   Future<void> _moveTo(int index, Emitter<TourState> emit) async {
+    _advanceTimer?.cancel();
     final place = state.visits[index].place;
     emit(
       state.copyWith(
@@ -72,6 +79,7 @@ class TourBloc extends Bloc<TourEvent, TourState> {
         stopIndex: index,
         lineIndex: 0,
         isSpeaking: false,
+        isLineDone: false,
         progress: 0,
       ),
     );
@@ -81,11 +89,13 @@ class TourBloc extends Bloc<TourEvent, TourState> {
 
   /// [from]번째 줄부터 설명을 읽는다.
   void _explain(Emitter<TourState> emit, {int from = 0}) {
+    _advanceTimer?.cancel();
     emit(
       state.copyWith(
         phase: TourPhase.explaining,
         lineIndex: from,
         isSpeaking: true,
+        isLineDone: false,
         progress: 1,
       ),
     );
@@ -118,6 +128,14 @@ class TourBloc extends Bloc<TourEvent, TourState> {
     await _moveTo(state.stopIndex + 1, emit);
   }
 
+  void _onNextLineRequested(
+    TourNextLineRequested event,
+    Emitter<TourState> emit,
+  ) {
+    if (state.phase != TourPhase.explaining || !state.hasNextLine) return;
+    _explain(emit, from: state.lineIndex + 1);
+  }
+
   void _onReplayRequested(TourReplayRequested event, Emitter<TourState> emit) {
     if (state.phase != TourPhase.explaining) return;
     _explain(emit);
@@ -136,6 +154,7 @@ class TourBloc extends Bloc<TourEvent, TourState> {
     TourStopRequested event,
     Emitter<TourState> emit,
   ) async {
+    _advanceTimer?.cancel();
     await _robot.stopMovement();
     emit(state.copyWith(phase: TourPhase.stopped, isSpeaking: false));
   }
@@ -158,7 +177,7 @@ class TourBloc extends Bloc<TourEvent, TourState> {
           case GoToStatus.abort:
             emit(state.copyWith(phase: TourPhase.failed));
         }
-      // 지금 줄을 다 읽으면 다음 줄을, 마지막 줄이면 읽기를 마친다.
+      // 지금 줄을 다 읽으면 쉬었다가 다음 줄을, 마지막 줄이면 읽기를 마친다.
       case TtsStatusChanged(:final text, :final status)
           when state.phase == TourPhase.explaining &&
               state.isSpeaking &&
@@ -166,7 +185,11 @@ class TourBloc extends Bloc<TourEvent, TourState> {
               text == visit.lines[state.lineIndex]:
         final next = state.lineIndex + 1;
         if (next < visit.lines.length) {
-          _explain(emit, from: next);
+          emit(state.copyWith(isLineDone: true));
+          _advanceTimer = Timer(
+            visit.place.lineInterval,
+            () => add(_TourLineAdvanced(next)),
+          );
         } else {
           emit(state.copyWith(isSpeaking: false));
         }
@@ -175,8 +198,18 @@ class TourBloc extends Bloc<TourEvent, TourState> {
     }
   }
 
+  void _onLineAdvanced(_TourLineAdvanced event, Emitter<TourState> emit) {
+    // 그사이 다시 듣기·다음 장소·중지로 바뀌었으면 넘기지 않는다.
+    if (state.phase != TourPhase.explaining ||
+        state.lineIndex + 1 != event.lineIndex) {
+      return;
+    }
+    _explain(emit, from: event.lineIndex);
+  }
+
   @override
   Future<void> close() async {
+    _advanceTimer?.cancel();
     await _subscription.cancel();
     return super.close();
   }

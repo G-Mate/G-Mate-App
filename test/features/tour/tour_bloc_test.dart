@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:g_mate/core/robot/fake_robot_controller.dart';
 import 'package:g_mate/core/robot/robot_event.dart';
 import 'package:g_mate/features/place/data/in_memory_place_repository.dart';
+import 'package:g_mate/features/place/data/seed_places.dart';
 import 'package:g_mate/features/tour/data/in_memory_tour_repository.dart';
 import 'package:g_mate/features/tour/domain/get_tour_visits.dart';
 import 'package:g_mate/features/tour/domain/tour.dart';
@@ -37,10 +38,20 @@ void main() {
   });
   tearDown(() => robot.dispose());
 
-  TourBloc build({String key = 'test'}) => TourBloc(
+  /// 줄 사이 쉬는 시간을 [interval]로 둔 장소들로 투어를 만든다.
+  TourBloc build({
+    String key = 'test',
+    Duration interval = const Duration(milliseconds: 20),
+  }) => TourBloc(
     robot: robot,
     tours: InMemoryTourRepository(tours: const [_tour]),
-    getVisits: GetTourVisits(InMemoryPlaceRepository()),
+    getVisits: GetTourVisits(
+      InMemoryPlaceRepository(
+        initialPlaces: [
+          for (final p in seedPlaces) p.copyWith(lineInterval: interval),
+        ],
+      ),
+    ),
     tourKey: key,
   );
 
@@ -124,6 +135,49 @@ void main() {
   test('없는 코스면 notFound가 된다', () async {
     final bloc = build(key: 'nope')..add(const TourStarted());
     await bloc.stream.firstWhere((s) => s.phase == TourPhase.notFound);
+    await bloc.close();
+  });
+
+  test('한 줄을 다 읽으면 장소의 자동 넘김 시간만큼 쉬었다가 다음 줄을 읽는다', () async {
+    final bloc = build(interval: const Duration(milliseconds: 300))
+      ..add(const TourStarted());
+    await bloc.stream.firstWhere((s) => s.phase == TourPhase.explaining);
+    // 첫 줄 읽기가 끝날 만큼 기다려도 아직 쉬는 중이다.
+    await Future<void>.delayed(const Duration(milliseconds: 150));
+    expect(bloc.state.lineIndex, 0);
+    expect(spoken.last, '첫 줄');
+
+    final second = await bloc.stream.firstWhere((s) => s.lineIndex == 1);
+    expect(second.isSpeaking, isTrue);
+    await bloc.close();
+  });
+
+  test('쉬는 동안 다음 장소를 누르면 남은 줄로 넘어가지 않는다', () async {
+    final bloc = build(interval: const Duration(milliseconds: 200))
+      ..add(const TourStarted());
+    await bloc.stream.firstWhere((s) => s.phase == TourPhase.explaining);
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+
+    bloc.add(const TourNextRequested());
+    final next = await bloc.stream.firstWhere(
+      (s) => s.phase == TourPhase.moving,
+    );
+    expect(next.stopIndex, 1);
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    expect(spoken, isNot(contains('둘째 줄')));
+    await bloc.close();
+  });
+
+  test('다음을 누르면 쉬지 않고 바로 다음 줄을 읽는다', () async {
+    final bloc = build(interval: const Duration(seconds: 10))
+      ..add(const TourStarted());
+    await bloc.stream.firstWhere((s) => s.phase == TourPhase.explaining);
+    await bloc.stream.firstWhere((s) => s.isLineDone);
+
+    bloc.add(const TourNextLineRequested());
+    final second = await bloc.stream.firstWhere((s) => s.lineIndex == 1);
+    expect(second.isLineDone, isFalse);
+    expect(second.hasNextLine, isFalse);
     await bloc.close();
   });
 }

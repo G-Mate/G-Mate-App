@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:g_mate/app/routes.dart';
 import 'package:g_mate/app/di.dart';
+import 'package:g_mate/app/routes.dart';
+import 'package:g_mate/core/design_system.dart';
 import 'package:g_mate/features/admin/domain/admin_pin_repository.dart';
 import 'package:g_mate/features/admin/presentation/admin_pin_change_page.dart';
 import 'package:g_mate/features/admin/presentation/admin_pin_page.dart';
@@ -9,7 +10,9 @@ import 'package:g_mate/features/home/presentation/home_page.dart';
 import '../helpers/test_app.dart';
 
 void main() {
-  testWidgets('홈 남색 패널을 길게 누르고 PIN을 넣으면 장소 관리로 간다', (tester) async {
+  testWidgets('홈 남색 패널을 길게 누르고 PIN을 넣으면 관리 모드 메인을 거쳐 장소 관리로 간다', (
+    tester,
+  ) async {
     useTabletView(tester);
     await registerTestDependencies();
     await tester.pumpWidget(testApp(AppRoutes.home));
@@ -28,8 +31,17 @@ void main() {
       await tester.pump();
     }
     await tester.pumpAndSettle();
-    expect(find.text('장소 관리'), findsOneWidget);
+    expect(find.text('설정'), findsOneWidget);
+    expect(find.text('음성 설정'), findsOneWidget);
+
+    await tester.tap(find.text('장소 관리'));
+    await tester.pumpAndSettle();
     expect(find.text('로봇에 저장됨'), findsNWidgets(2));
+
+    // 뒤로 가면 관리 모드 메인으로 돌아온다.
+    await tester.tap(find.byType(GmBackButton));
+    await tester.pumpAndSettle();
+    expect(find.text('설정'), findsOneWidget);
   });
 
   testWidgets('홈 남색 패널을 짧게 누르면 아무 일도 없다', (tester) async {
@@ -42,10 +54,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(AdminPinPage), findsNothing);
   });
-  testWidgets('장소 관리에서 PIN을 바꾸면 새 PIN으로만 들어간다', (tester) async {
+  testWidgets('관리 모드 메인에서 PIN을 바꾸면 새 PIN으로만 들어간다', (tester) async {
     useTabletView(tester);
     await registerTestDependencies();
-    await tester.pumpWidget(testApp(AppRoutes.adminPlaces));
+    await tester.pumpWidget(testApp(AppRoutes.adminHome));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('PIN 변경'));
@@ -65,7 +77,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AdminPinChangePage), findsNothing);
-    expect(find.text('장소 관리'), findsOneWidget);
+    expect(find.text('설정'), findsOneWidget);
     expect(find.text('PIN을 바꿨어요'), findsOneWidget);
     final pins = getIt<AdminPinRepository>();
     expect(await pins.verify('1357'), isTrue);

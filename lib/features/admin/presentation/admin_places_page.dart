@@ -25,18 +25,9 @@ class AdminPlacesPage extends StatelessWidget {
     return GmScaffold(
       eyebrow: '관리 모드',
       title: '장소 관리',
-      onBack: () => context.go(AppRoutes.home),
+      onBack: () =>
+          context.canPop() ? context.pop() : context.go(AppRoutes.adminHome),
       actions: [
-        TextButton.icon(
-          onPressed: () => context.push(AppRoutes.adminTts),
-          icon: const Icon(Icons.record_voice_over_outlined),
-          label: const Text('음성 설정'),
-        ),
-        TextButton.icon(
-          onPressed: () => context.push(AppRoutes.adminPinChange),
-          icon: const Icon(Icons.password_rounded),
-          label: const Text('PIN 변경'),
-        ),
         GmButton(
           label: '현재 위치 저장',
           icon: Icons.add_location_alt_outlined,
