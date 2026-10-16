@@ -39,24 +39,6 @@ class Tours extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-/// 학교 개요. 한 줄만 둔다 (id = [AppDatabase.singleRowId]).
-///
-/// 스키마 3에서 학교 소개(글·숫자·층 설명·사진)를 블록 페이지와 만든 사람들
-/// 이름으로 바꿨다.
-@DataClassName('SchoolInfoRow')
-class SchoolInfos extends Table {
-  IntColumn get id => integer()();
-  TextColumn get teamName => text().withDefault(const Constant(''))();
-  TextColumn get developer => text().withDefault(const Constant(''))();
-  TextColumn get planner => text().withDefault(const Constant(''))();
-
-  /// `[{"type", "title", "body", "imagePath", "url", "cards"}]` JSON.
-  TextColumn get blocks => text().withDefault(const Constant('[]'))();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
 /// 음성 설정. 한 줄만 둔다 (id = [AppDatabase.singleRowId]).
 @DataClassName('SpeechSettingsRow')
 class SpeechSettingsTable extends Table {
@@ -85,13 +67,13 @@ typedef DatabaseSeeder = Future<void> Function(AppDatabase db);
 
 /// 앱 로컬 DB(drift). 표 정의만 두고, 도메인 값으로 바꾸는 일은 기능별
 /// `data/` 저장소가 맡는다.
-@DriftDatabase(tables: [Places, Tours, SchoolInfos, SpeechSettingsTable])
+@DriftDatabase(tables: [Places, Tours, SpeechSettingsTable])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor, {this._seed});
 
   final DatabaseSeeder? _seed;
 
-  /// 한 줄만 두는 표(학교 소개, 음성 설정)의 id.
+  /// 한 줄만 두는 표(음성 설정)의 id.
   static const singleRowId = 0;
 
   @override
@@ -111,20 +93,8 @@ class AppDatabase extends _$AppDatabase {
         );
       }
       if (from < 3) {
-        // 학교 개요를 블록 페이지로 바꾼다. 옛 소개는 옮기지 않고 줄을 지워
-        // 처음 학교 개요가 보이게 한다 (임시 내용이었다).
-        await m.alterTable(
-          TableMigration(
-            schoolInfos,
-            newColumns: [
-              schoolInfos.teamName,
-              schoolInfos.developer,
-              schoolInfos.planner,
-              schoolInfos.blocks,
-            ],
-          ),
-        );
-        await delete(schoolInfos).go();
+        // 학교 개요는 앱에 고정한 소개 페이지로 바꿔서 학교 소개 표를 지운다.
+        await m.deleteTable('school_infos');
       }
     },
   );

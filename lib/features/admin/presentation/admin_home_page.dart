@@ -25,12 +25,6 @@ class AdminHomePage extends StatelessWidget {
           description: '투어 코스와 들르는 순서',
           route: AppRoutes.adminTours,
         ),
-        (
-          icon: Icons.school_outlined,
-          title: '학교 개요',
-          description: '블록으로 만드는 학교 소개 페이지',
-          route: AppRoutes.adminSchool,
-        ),
       ],
     ),
     (

@@ -71,17 +71,22 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
-  testWidgets('학교 개요는 블록 페이지와 만든 사람들을 보여 준다', (tester) async {
+  testWidgets('학교 개요는 학교 소개 페이지를 넘겨 읽는다', (tester) async {
     useTabletView(tester);
     await registerTestDependencies();
     await tester.pumpWidget(testApp(AppRoutes.schoolOverview));
     await tester.pumpAndSettle();
     expect(find.text('학교 개요'), findsOneWidget);
-    expect(find.textContaining('소프트웨어개발과'), findsWidgets);
+    expect(find.textContaining('어떤 '), findsOneWidget);
 
-    await tester.drag(find.byType(ListView), const Offset(0, -2000));
-    await tester.pumpAndSettle();
-    expect(find.textContaining('학교 홈페이지'), findsOneWidget);
-    expect(find.textContaining('G-Mate', findRichText: true), findsWidgets);
+    // 맨 아래까지 넘기면 QR 링크와 만든 팀이 보인다.
+    await tester.scrollUntilVisible(
+      find.textContaining('G-Mate'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('학교 홈페이지'), findsOneWidget);
+    expect(find.text('입학 안내 (Hello, GSM)'), findsOneWidget);
+    expect(find.textContaining('G-Mate'), findsOneWidget);
   });
 }

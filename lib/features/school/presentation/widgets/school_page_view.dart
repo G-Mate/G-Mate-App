@@ -1,42 +1,63 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../../core/design_system.dart';
 import '../../../guide/presentation/widgets/keep_all_text.dart';
-import '../../domain/school_info.dart';
+import '../../domain/school_page.dart';
 
 /// 학교 개요 페이지. 블록을 웹 페이지처럼 위에서 아래로 그리고, 맨 아래에
-/// 만든 사람들을 작게 둔다. 방문객 화면과 관리 모드 미리 보기가 같이 쓴다.
+/// 만든 팀을 작게 둔다. 이어진 링크 블록은 한 줄에 나란히 놓는다.
 class SchoolPageView extends StatelessWidget {
-  const SchoolPageView({super.key, required this.info, this.controller});
+  const SchoolPageView({super.key, required this.blocks, this.credit});
 
-  final SchoolInfo info;
-  final ScrollController? controller;
+  final List<SchoolBlock> blocks;
+  final String? credit;
 
   @override
   Widget build(BuildContext context) {
+    final children = <Widget>[];
+    for (var i = 0; i < blocks.length; i++) {
+      final block = blocks[i];
+      if (i > 0) children.add(SizedBox(height: _gapBefore(block)));
+      if (block.type != SchoolBlockType.link) {
+        children.add(_Block(block: block));
+        continue;
+      }
+      // 이어진 링크는 한 줄에 나란히.
+      final links = [block];
+      while (i + 1 < blocks.length &&
+          blocks[i + 1].type == SchoolBlockType.link) {
+        links.add(blocks[++i]);
+      }
+      // QR 칸 높이가 같아서 카드 높이도 거의 같다.
+      children.add(
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final (j, link) in links.indexed) ...[
+              if (j > 0) const SizedBox(width: AppSpacing.md),
+              Expanded(child: _Link(block: link)),
+            ],
+          ],
+        ),
+      );
+    }
+    final credit = this.credit;
     return ListView(
-      controller: controller,
       children: [
-        for (final (i, block) in info.blocks.indexed)
-          Padding(
-            padding: EdgeInsets.only(top: i == 0 ? 0 : _gapBefore(block)),
-            child: _Block(block: block),
-          ),
-        const SizedBox(height: AppSpacing.xxl),
-        _Credits(info: info),
+        ...children,
+        if (credit != null) ...[
+          const SizedBox(height: AppSpacing.xxxl),
+          _Credit(credit),
+        ],
+        const SizedBox(height: AppSpacing.lg),
       ],
     );
   }
 
   /// 소제목 앞은 넓게 띄워 묶음이 나뉘어 보이게 한다.
   static double _gapBefore(SchoolBlock block) =>
-      block.type == SchoolBlockType.heading ||
-          block.type == SchoolBlockType.hero
-      ? AppSpacing.xxxl
-      : AppSpacing.lg;
+      block.type == SchoolBlockType.heading ? AppSpacing.xxxl : AppSpacing.lg;
 }
 
 class _Block extends StatelessWidget {
@@ -54,61 +75,43 @@ class _Block extends StatelessWidget {
         color: context.appColors.textSecondary,
       ),
     ),
-    SchoolBlockType.image => _Image(block: block),
     SchoolBlockType.cards => _Cards(cards: block.cards),
     SchoolBlockType.link => _Link(block: block),
   };
 }
 
-/// 큰 배너: 사진(없으면 남색 면) 위에 큰 문구를 가운데 둔다.
+/// 큰 배너: 남색 면 위에 작은 문구와 큰 문구를 가운데 둔다.
 class _Hero extends StatelessWidget {
   const _Hero({required this.block});
 
   final SchoolBlock block;
 
-  static const _height = 360.0;
-
-  /// 사진 위 글자가 읽히도록 덮는 어둠.
-  static const _shadeAlpha = 0.45;
+  static const _height = 320.0;
 
   @override
   Widget build(BuildContext context) {
     final text = context.textStyles;
-    final path = block.imagePath;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.lg),
-      child: SizedBox(
-        height: _height,
-        child: Stack(
-          fit: StackFit.expand,
+    return Container(
+      height: _height,
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      decoration: BoxDecoration(
+        color: context.colors.primaryContainer,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            if (path != null)
-              Image(image: FileImage(File(path)), fit: BoxFit.cover)
-            else
-              ColoredBox(color: context.colors.primaryContainer),
-            if (path != null)
-              ColoredBox(color: Colors.black.withValues(alpha: _shadeAlpha)),
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (block.title.isNotEmpty)
-                    _Paragraphs(
-                      block.title,
-                      alignment: WrapAlignment.center,
-                      style: text.headlineMedium?.copyWith(color: Colors.white),
-                    ),
-                  if (block.body.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.sm),
-                    _Paragraphs(
-                      block.body,
-                      alignment: WrapAlignment.center,
-                      style: text.displaySmall?.copyWith(color: Colors.white),
-                    ),
-                  ],
-                ],
-              ),
+            _Paragraphs(
+              block.title,
+              alignment: WrapAlignment.center,
+              style: text.headlineSmall?.copyWith(color: Colors.white),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            _Paragraphs(
+              block.body,
+              alignment: WrapAlignment.center,
+              style: text.displaySmall?.copyWith(color: Colors.white),
             ),
           ],
         ),
@@ -128,50 +131,12 @@ class _Heading extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (block.title.isNotEmpty)
-          _Paragraphs(block.title, style: text.headlineSmall),
+        _Paragraphs(block.title, style: text.headlineMedium),
         if (block.body.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.xs),
           _Paragraphs(
             block.body,
             style: text.bodyLarge?.copyWith(
-              color: context.appColors.textSecondary,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _Image extends StatelessWidget {
-  const _Image({required this.block});
-
-  final SchoolBlock block;
-
-  static const _aspectRatio = 16 / 9;
-
-  @override
-  Widget build(BuildContext context) {
-    final path = block.imagePath;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          child: AspectRatio(
-            aspectRatio: _aspectRatio,
-            child: path != null
-                ? Image(image: FileImage(File(path)), fit: BoxFit.cover)
-                : const GmPlaceArt(icon: GmIcons.school),
-          ),
-        ),
-        if (block.body.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.xs),
-          _Paragraphs(
-            block.body,
-            alignment: WrapAlignment.center,
-            style: context.textStyles.bodySmall?.copyWith(
               color: context.appColors.textSecondary,
             ),
           ),
@@ -195,42 +160,27 @@ class _Cards extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final columns = constraints.maxWidth >= _wideWidth ? 3 : 2;
-        final width =
-            (constraints.maxWidth - AppSpacing.md * (columns - 1)) / columns;
-        return Wrap(
-          spacing: AppSpacing.md,
-          runSpacing: AppSpacing.md,
+        // 한 줄의 카드는 높이를 맞춘다. 마지막 줄의 빈자리는 비워 둔다.
+        return Column(
           children: [
-            for (final card in cards)
-              Container(
-                width: width,
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                decoration: BoxDecoration(
-                  color: context.colors.surface,
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                  border: Border.all(color: context.colors.outlineVariant),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            for (var start = 0; start < cards.length; start += columns) ...[
+              if (start > 0) const SizedBox(height: AppSpacing.md),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (card.emoji.isNotEmpty) ...[
-                      Text(card.emoji, style: text.headlineMedium),
-                      const SizedBox(height: AppSpacing.sm),
-                    ],
-                    if (card.title.isNotEmpty)
-                      _Paragraphs(card.title, style: text.titleMedium),
-                    if (card.body.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.xs),
-                      _Paragraphs(
-                        card.body,
-                        style: text.bodySmall?.copyWith(
-                          color: context.appColors.textSecondary,
-                        ),
+                    for (var k = 0; k < columns; k++) ...[
+                      if (k > 0) const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: start + k < cards.length
+                            ? _CardTile(card: cards[start + k], text: text)
+                            : const SizedBox.shrink(),
                       ),
                     ],
                   ],
                 ),
               ),
+            ],
           ],
         );
       },
@@ -238,13 +188,47 @@ class _Cards extends StatelessWidget {
   }
 }
 
-/// 링크: 키오스크에서는 누를 수 없으니 QR 코드와 주소를 보여 준다.
+class _CardTile extends StatelessWidget {
+  const _CardTile({required this.card, required this.text});
+
+  final SchoolCard card;
+  final TextTheme text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: _cardDecoration(context),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (card.emoji.isNotEmpty) ...[
+            Text(card.emoji, style: text.headlineMedium),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+          _Paragraphs(card.title, style: text.titleMedium),
+          if (card.body.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.xs),
+            _Paragraphs(
+              card.body,
+              style: text.bodySmall?.copyWith(
+                color: context.appColors.textSecondary,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// 링크: 키오스크에서는 누를 수 없으니 QR 코드와 설명을 보여 준다.
 class _Link extends StatelessWidget {
   const _Link({required this.block});
 
   final SchoolBlock block;
 
-  static const _qrSize = 120.0;
+  static const _qrSize = 112.0;
 
   @override
   Widget build(BuildContext context) {
@@ -252,11 +236,7 @@ class _Link extends StatelessWidget {
     final semantic = context.appColors;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: context.colors.outlineVariant),
-      ),
+      decoration: _cardDecoration(context),
       child: Row(
         children: [
           // QR은 흰 바탕이어야 휴대폰이 잘 읽는다.
@@ -266,33 +246,32 @@ class _Link extends StatelessWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
-            child: block.url.isEmpty
-                ? const SizedBox.square(dimension: _qrSize)
-                : QrImageView(
-                    data: block.url,
-                    size: _qrSize,
-                    padding: EdgeInsets.zero,
-                  ),
+            child: QrImageView(
+              data: block.url,
+              size: _qrSize,
+              padding: EdgeInsets.zero,
+              semanticsLabel: '${block.title} QR 코드',
+            ),
           ),
           const SizedBox(width: AppSpacing.lg),
           Expanded(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  block.title.isEmpty ? '링크' : block.title,
-                  style: text.titleLarge,
-                ),
-                const SizedBox(height: AppSpacing.xxs),
-                Text(
-                  '휴대폰 카메라로 QR 코드를 찍어 보세요',
-                  style: text.bodySmall?.copyWith(
-                    color: semantic.textSecondary,
+                Text(block.title, style: text.titleMedium),
+                if (block.body.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xxs),
+                  Text(
+                    block.body,
+                    style: text.bodySmall?.copyWith(
+                      color: semantic.textSecondary,
+                    ),
                   ),
-                ),
+                ],
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  block.url,
+                  Uri.parse(block.url).host,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: text.bodySmall?.copyWith(
@@ -308,47 +287,34 @@ class _Link extends StatelessWidget {
   }
 }
 
-/// 페이지 맨 아래: 선 하나와 만든 사람들 한 줄.
-class _Credits extends StatelessWidget {
-  const _Credits({required this.info});
+/// 페이지 맨 아래: 선 하나와 만든 팀 한 줄.
+class _Credit extends StatelessWidget {
+  const _Credit(this.text);
 
-  final SchoolInfo info;
+  final String text;
 
   @override
   Widget build(BuildContext context) {
-    final text = context.textStyles;
-    final semantic = context.appColors;
-    final label = text.bodySmall?.copyWith(color: semantic.textSecondary);
-    final value = text.bodySmall?.copyWith(color: context.colors.onSurface);
-    final parts = [
-      if (info.teamName.isNotEmpty) ('만든 팀', info.teamName),
-      if (info.developer.isNotEmpty) ('개발', info.developer),
-      if (info.planner.isNotEmpty) ('기획', info.planner),
-    ];
-    if (parts.isEmpty) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.only(top: AppSpacing.lg),
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: context.colors.outlineVariant)),
       ),
-      child: Wrap(
-        spacing: AppSpacing.xl,
-        runSpacing: AppSpacing.xs,
-        children: [
-          for (final (role, names) in parts)
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(text: '$role  ', style: label),
-                  TextSpan(text: names, style: value),
-                ],
-              ),
-            ),
-        ],
+      child: Text(
+        text,
+        style: context.textStyles.bodySmall?.copyWith(
+          color: context.appColors.textSecondary,
+        ),
       ),
     );
   }
 }
+
+BoxDecoration _cardDecoration(BuildContext context) => BoxDecoration(
+  color: context.colors.surface,
+  borderRadius: BorderRadius.circular(AppRadius.lg),
+  border: Border.all(color: context.colors.outlineVariant),
+);
 
 /// 줄을 바꾼 자리에서 줄을 바꾸고, 한 줄 안에서는 단어 단위로만 줄바꿈한다.
 class _Paragraphs extends StatelessWidget {

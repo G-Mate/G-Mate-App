@@ -10,8 +10,6 @@ import 'package:g_mate/features/admin/domain/admin_pin_repository.dart';
 import 'package:g_mate/features/admin/domain/place_image_picker.dart';
 import 'package:g_mate/features/place/data/in_memory_place_repository.dart';
 import 'package:g_mate/features/place/domain/place_repository.dart';
-import 'package:g_mate/features/school/data/in_memory_school_info_repository.dart';
-import 'package:g_mate/features/school/domain/school_info_repository.dart';
 import 'package:g_mate/features/speech/data/in_memory_speech_settings_repository.dart';
 import 'package:g_mate/features/speech/domain/speech_settings_repository.dart';
 import 'package:g_mate/features/tour/data/in_memory_tour_repository.dart';
@@ -42,8 +40,7 @@ Future<FakeRobotController> registerTestDependencies({
     )
     ..registerSingleton<AdminPinRepository>(InMemoryAdminPinRepository())
     ..registerSingleton<PlaceImagePicker>(FakePlaceImagePicker())
-    ..registerSingleton<TourRepository>(InMemoryTourRepository())
-    ..registerSingleton<SchoolInfoRepository>(InMemorySchoolInfoRepository());
+    ..registerSingleton<TourRepository>(InMemoryTourRepository());
   return robot;
 }
 

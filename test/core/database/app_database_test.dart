@@ -9,8 +9,6 @@ import 'package:g_mate/core/database/app_database.dart';
 import 'package:g_mate/features/place/data/drift_place_repository.dart';
 import 'package:g_mate/features/place/data/seed_places.dart';
 import 'package:g_mate/features/place/domain/place.dart';
-import 'package:g_mate/features/school/data/drift_school_info_repository.dart';
-import 'package:g_mate/features/school/data/seed_school_info.dart';
 import 'package:g_mate/features/speech/data/drift_speech_settings_repository.dart';
 import 'package:g_mate/features/speech/domain/speech_settings.dart';
 import 'package:g_mate/features/tour/data/drift_tour_repository.dart';
@@ -59,13 +57,6 @@ void main() {
       await tours.deleteTour(seedTours[1].key);
 
       expect(await tours.getTours(), [edited, seedTours[2], added]);
-    });
-
-    test('기본 학교 소개를 담는다', () async {
-      expect(
-        await DriftSchoolInfoRepository(db).getSchoolInfo(),
-        seedSchoolInfo,
-      );
     });
 
     test('음성 설정은 저장 전에는 기본값이다', () async {
@@ -144,7 +135,7 @@ void main() {
     expect(places.length, seedPlaces.length);
   });
 
-  test('스키마 1 DB를 열면 명령 기다리는 시간 칸을 더하고 학교 개요는 홈페이지 설정으로 바꾼다', () async {
+  test('스키마 1 DB를 열면 명령 기다리는 시간 칸을 더하고 학교 소개 표는 지운다', () async {
     final dir = await Directory.systemTemp.createTemp('g_mate_db_v1');
     addTearDown(() => dir.delete(recursive: true));
     final file = File('${dir.path}/g_mate.sqlite');
@@ -178,11 +169,14 @@ void main() {
 
     final upgraded = AppDatabase(NativeDatabase(file));
     final settings = await DriftSpeechSettingsRepository(upgraded).load();
-    final school = await DriftSchoolInfoRepository(upgraded).getSchoolInfo();
+    // 학교 소개 표는 앱에 고정한 페이지로 바뀌어 지운다.
+    final tables = await upgraded
+        .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
+        .map((row) => row.read<String>('name'))
+        .get();
     await upgraded.close();
 
-    // 옛 소개는 버리고, 팀 이름과 홈페이지 주소는 처음 값으로 채운다.
-    expect(school, seedSchoolInfo);
+    expect(tables, isNot(contains('school_infos')));
 
     expect(settings.gender, VoiceGender.male);
     expect(settings.volume, 8);

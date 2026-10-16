@@ -10,7 +10,6 @@ import '../features/admin/presentation/admin_pin_change_page.dart';
 import '../features/admin/presentation/admin_pin_page.dart';
 import '../features/admin/presentation/admin_place_edit_page.dart';
 import '../features/admin/presentation/admin_places_page.dart';
-import '../features/admin/presentation/admin_school_edit_page.dart';
 import '../features/admin/presentation/admin_tour_edit_page.dart';
 import '../features/admin/presentation/admin_tours_page.dart';
 import '../features/admin/presentation/admin_tts_page.dart';
@@ -18,7 +17,6 @@ import '../features/admin/presentation/bloc/admin_pin_change_cubit.dart';
 import '../features/admin/presentation/bloc/admin_pin_cubit.dart';
 import '../features/admin/presentation/bloc/admin_place_edit_cubit.dart';
 import '../features/admin/presentation/bloc/admin_places_cubit.dart';
-import '../features/admin/presentation/bloc/admin_school_edit_cubit.dart';
 import '../features/admin/presentation/bloc/admin_tour_edit_cubit.dart';
 import '../features/admin/presentation/bloc/admin_tours_cubit.dart';
 import '../features/admin/presentation/bloc/admin_tts_cubit.dart';
@@ -35,8 +33,6 @@ import '../features/place/presentation/bloc/place_detail_cubit.dart';
 import '../features/place/presentation/bloc/place_select_cubit.dart';
 import '../features/place/presentation/place_confirm_page.dart';
 import '../features/place/presentation/place_select_page.dart';
-import '../features/school/domain/school_info_repository.dart';
-import '../features/school/presentation/bloc/school_overview_cubit.dart';
 import '../features/school/presentation/school_overview_page.dart';
 import '../features/speech/domain/speech_settings_repository.dart';
 import '../features/speech/presentation/bloc/voice_guide_cubit.dart';
@@ -198,11 +194,7 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
     // 학교 개요
     GoRoute(
       path: AppRoutes.schoolOverview,
-      builder: (context, state) => BlocProvider(
-        create: (_) =>
-            SchoolOverviewCubit(getIt<SchoolInfoRepository>())..load(),
-        child: const SchoolOverviewPage(),
-      ),
+      builder: (context, state) => const SchoolOverviewPage(),
     ),
 
     // 관리 모드. PIN을 지나면 PIN 화면은 쌓아 두지 않도록 형제 경로로 둔다.
@@ -256,16 +248,6 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
       builder: (context, state) => BlocProvider(
         create: (_) => AdminPinChangeCubit(getIt<AdminPinRepository>()),
         child: const AdminPinChangePage(),
-      ),
-    ),
-    GoRoute(
-      path: AppRoutes.adminSchool,
-      builder: (context, state) => BlocProvider(
-        create: (_) => AdminSchoolEditCubit(
-          info: getIt<SchoolInfoRepository>(),
-          imagePicker: getIt<PlaceImagePicker>(),
-        )..load(),
-        child: const AdminSchoolEditPage(),
       ),
     ),
     GoRoute(

@@ -82,7 +82,8 @@ docs/                         # 문서
 
 ## 데이터 저장 규칙
 
-- 장소, 투어 코스, 학교 소개, 음성 설정은 로컬 DB(`lib/core/database/app_database.dart`, drift)에 둡니다. 관리 모드 PIN만 flutter_secure_storage에 둡니다.
+- 장소, 투어 코스, 음성 설정은 로컬 DB(`lib/core/database/app_database.dart`, drift)에 둡니다. 관리 모드 PIN만 flutter_secure_storage에 둡니다.
+- 학교 개요는 관리 모드에서 고치지 않는 고정 페이지라 DB에 두지 않고 `features/school/data/school_page_content.dart`에 둡니다.
 - 표 정의는 `core/database`에, 표 ↔ 도메인 값 변환은 기능별 `data/`의 `DriftXxxRepository`에 둡니다.
 - 처음 DB를 만들 때만 `lib/app/database_seed.dart`가 기본 내용을 넣습니다. 이미 설치된 기기의 내용은 바꾸지 않습니다.
 - 표를 바꾸면 `schemaVersion`을 올리고 `migration`에 옮기는 단계를 넣은 뒤, `dart run build_runner build`로 `app_database.g.dart`를 다시 만들어 함께 커밋합니다.

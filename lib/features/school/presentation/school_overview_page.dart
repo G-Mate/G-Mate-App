@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/design_system.dart';
-import 'bloc/school_overview_cubit.dart';
+import '../data/school_page_content.dart';
 import 'widgets/school_page_view.dart';
 
-/// 학교 개요. 관리 모드에서 블록으로 만든 페이지를 웹 페이지처럼 위아래로
-/// 넘겨 읽는다.
+/// 학교 개요. 광주소프트웨어마이스터고등학교를 소개하는 웹 페이지를 위아래로
+/// 넘겨 읽는다. 내용은 앱에 고정해 둔다([schoolPageBlocks]).
 class SchoolOverviewPage extends StatelessWidget {
   const SchoolOverviewPage({super.key});
 
@@ -17,26 +16,19 @@ class SchoolOverviewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SchoolOverviewCubit, SchoolOverviewState>(
-      builder: (context, state) {
-        final info = state.info;
-        if (state.isLoading || info == null) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        return GmScaffold(
-          eyebrow: '우리 학교',
-          title: '학교 개요',
-          onBack: () => context.go(AppRoutes.home),
-          body: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: _pageWidth),
-              child: SchoolPageView(info: info),
-            ),
+    return GmScaffold(
+      eyebrow: '우리 학교',
+      title: '학교 개요',
+      onBack: () => context.go(AppRoutes.home),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: _pageWidth),
+          child: const SchoolPageView(
+            blocks: schoolPageBlocks,
+            credit: schoolPageCredit,
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
