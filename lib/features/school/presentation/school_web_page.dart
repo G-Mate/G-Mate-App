@@ -22,6 +22,9 @@ class SchoolWebPage extends StatefulWidget {
 
 class _SchoolWebPageState extends State<SchoolWebPage> {
   static const _barHeight = 3.0;
+
+  /// 위 줄 높이. 뒤로 가기 버튼(56)과 위아래 여백 12씩.
+  static const _headerHeight = AppSize.touchTargetMin + AppSpacing.sm * 2;
   static const _loaded = 100;
 
   /// 학교 홈페이지처럼 PC 폭으로 고정된 페이지는 태블릿에서 오른쪽이 잘린다.
@@ -123,42 +126,50 @@ class _SchoolWebPageState extends State<SchoolWebPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // 웹을 크게 보이도록 위 줄은 얇게 둔다.
-                Padding(
+                // 웹을 크게 보이도록 위 줄은 얇게 두고, 아래 선으로 웹과 나눈다.
+                Container(
+                  height: _headerHeight,
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.screenHorizontal,
-                    vertical: AppSpacing.sm,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: context.colors.outlineVariant),
+                    ),
                   ),
                   child: Row(
                     children: [
                       GmBackButton(onPressed: _back),
-                      const SizedBox(width: AppSpacing.md),
+                      const SizedBox(width: AppSpacing.lg),
                       Expanded(
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               widget.title,
-                              style: text.titleMedium,
+                              style: text.titleSmall,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
+                            const SizedBox(height: AppSpacing.xxs),
                             Text(
                               Uri.parse(widget.url).host,
-                              style: text.bodySmall?.copyWith(
+                              maxLines: 1,
+                              style: text.labelSmall?.copyWith(
                                 color: semantic.textSecondary,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      TextButton.icon(
+                      const SizedBox(width: AppSpacing.md),
+                      GmButton(
+                        label: '처음 페이지',
+                        icon: Icons.home_outlined,
+                        size: GmButtonSize.small,
+                        variant: GmButtonVariant.outline,
                         onPressed: _controller == null ? null : _openFirstPage,
-                        icon: const Icon(
-                          Icons.home_outlined,
-                          size: AppSize.iconSm,
-                        ),
-                        label: const Text('처음 페이지'),
                       ),
                     ],
                   ),
