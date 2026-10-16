@@ -6,10 +6,12 @@ import '../../../core/design_system.dart';
 
 /// 학교 개요의 링크를 앱 안에서 화면 가득 연다.
 ///
-/// 위에 얇은 줄(뒤로 가기, 제목, 주소, [처음 페이지])만 두고 나머지는 웹
-/// 페이지다. 뒤로 가기는 웹에서 지나온 페이지가 있으면 그리로, 없으면 학교
-/// 개요로 돌아간다. temi에는 기기 뒤로 가기 버튼이 없어서 화면의 버튼으로도,
-/// Android 뒤로 가기로도 똑같이 동작한다.
+/// 위에 얇은 줄만 두고 나머지는 웹 페이지다. 두 가지 뒤로 가기를 나눈다.
+/// - 왼쪽 둥근 버튼: 웹을 닫고 학교 개요로 돌아간다 (앱 화면의 뒤로 가기).
+/// - 오른쪽 [이전 페이지]: 웹 안에서 지나온 페이지로 돌아간다. 처음 페이지면
+///   누를 수 없다.
+///
+/// Android 뒤로 가기는 웹 안에서 먼저 돌아가고, 처음 페이지면 학교 개요로 간다.
 class SchoolWebPage extends StatefulWidget {
   const SchoolWebPage({super.key, required this.url, required this.title});
 
@@ -56,6 +58,9 @@ class _SchoolWebPageState extends State<SchoolWebPage> {
   int _progress = 0;
   bool _failed = false;
 
+  /// 웹 안에서 돌아갈 페이지가 있는지. [이전 페이지]를 켜고 끈다.
+  bool _canGoBack = false;
+
   @override
   void initState() {
     super.initState();
@@ -70,6 +75,7 @@ class _SchoolWebPageState extends State<SchoolWebPage> {
             _fitWidth();
           },
           onPageFinished: (_) => _fitWidth(),
+          onUrlChange: (_) => _refreshCanGoBack(),
           onNavigationRequest: (request) =>
               _popupPath.hasMatch(Uri.tryParse(request.url)?.path ?? '')
               ? NavigationDecision.prevent
@@ -93,20 +99,34 @@ class _SchoolWebPageState extends State<SchoolWebPage> {
     _controller?.loadRequest(Uri.parse(widget.url));
   }
 
+  Future<void> _refreshCanGoBack() async {
+    final can = await _controller?.canGoBack() ?? false;
+    if (mounted && can != _canGoBack) setState(() => _canGoBack = can);
+  }
+
+  /// [이전 페이지]: 웹 안에서 한 페이지 돌아간다.
+  Future<void> _webBack() async {
+    await _controller?.goBack();
+    await _refreshCanGoBack();
+  }
+
+  /// 웹을 닫고 학교 개요로 돌아간다.
+  void _close() => context.pop();
+
   void _fitWidth() {
     if (_viewWidth <= 0) return;
     // 페이지가 바뀌는 중에는 실패할 수 있다. 다음 진행 때 다시 맞춘다.
     _controller?.runJavaScript(_fitWidthScript(_viewWidth)).ignore();
   }
 
-  /// 웹에서 지나온 페이지가 있으면 그리로, 없으면 학교 개요로 돌아간다.
-  Future<void> _back() async {
+  /// Android 뒤로 가기: 웹에서 지나온 페이지가 있으면 그리로, 없으면 닫는다.
+  Future<void> _systemBack() async {
     final controller = _controller;
     if (controller != null && !_failed && await controller.canGoBack()) {
-      await controller.goBack();
+      await _webBack();
       return;
     }
-    if (mounted) context.pop();
+    if (mounted) _close();
   }
 
   @override
@@ -117,7 +137,7 @@ class _SchoolWebPageState extends State<SchoolWebPage> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _back();
+        if (!didPop) _systemBack();
       },
       child: GmBackground(
         child: Scaffold(
@@ -139,7 +159,7 @@ class _SchoolWebPageState extends State<SchoolWebPage> {
                   ),
                   child: Row(
                     children: [
-                      GmBackButton(onPressed: _back),
+                      GmBackButton(onPressed: _close),
                       const SizedBox(width: AppSpacing.lg),
                       Expanded(
                         child: Column(
@@ -165,11 +185,11 @@ class _SchoolWebPageState extends State<SchoolWebPage> {
                       ),
                       const SizedBox(width: AppSpacing.md),
                       GmButton(
-                        label: '처음 페이지',
-                        icon: Icons.home_outlined,
+                        label: '이전 페이지',
+                        icon: Icons.undo_rounded,
                         size: GmButtonSize.small,
                         variant: GmButtonVariant.outline,
-                        onPressed: _controller == null ? null : _openFirstPage,
+                        onPressed: _canGoBack && !_failed ? _webBack : null,
                       ),
                     ],
                   ),
