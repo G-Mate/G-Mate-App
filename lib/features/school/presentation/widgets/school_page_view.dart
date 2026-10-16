@@ -8,7 +8,7 @@ import '../../../guide/presentation/widgets/keep_all_text.dart';
 import '../../domain/school_page.dart';
 
 /// 학교 개요 페이지. 블록을 웹 페이지처럼 위에서 아래로 그리고, 맨 아래에
-/// 만든 팀을 작게 둔다. 이어진 링크 블록은 한 줄에 나란히 놓는다.
+/// 만든 팀을 작게 둔다. 이어진 링크 블록은 옆으로 넘기는 한 줄에 놓는다.
 class SchoolPageView extends StatelessWidget {
   const SchoolPageView({super.key, required this.blocks, this.credit});
 
@@ -25,24 +25,13 @@ class SchoolPageView extends StatelessWidget {
         children.add(_Block(block: block));
         continue;
       }
-      // 이어진 링크는 한 줄에 나란히.
+      // 이어진 링크는 옆으로 넘기는 한 줄에.
       final links = [block];
       while (i + 1 < blocks.length &&
           blocks[i + 1].type == SchoolBlockType.link) {
         links.add(blocks[++i]);
       }
-      // QR 칸 높이가 같아서 카드 높이도 거의 같다.
-      children.add(
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (final (j, link) in links.indexed) ...[
-              if (j > 0) const SizedBox(width: AppSpacing.md),
-              Expanded(child: _Link(block: link)),
-            ],
-          ],
-        ),
-      );
+      children.add(_LinkRow(links: links));
     }
     final credit = this.credit;
     return ListView(
@@ -216,6 +205,36 @@ class _CardTile extends StatelessWidget {
               style: text.bodySmall?.copyWith(
                 color: context.appColors.textSecondary,
               ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// 옆으로 넘기는 링크 카드 줄. 카드 폭은 같고, 오른쪽 끝 카드가 조금 잘려
+/// 보여서 더 넘길 수 있다는 것을 알 수 있다.
+class _LinkRow extends StatelessWidget {
+  const _LinkRow({required this.links});
+
+  final List<SchoolBlock> links;
+
+  static const _cardWidth = 440.0;
+
+  @override
+  Widget build(BuildContext context) {
+    // QR 칸 높이가 같아서 카드 높이도 같다.
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final (j, link) in links.indexed) ...[
+            if (j > 0) const SizedBox(width: AppSpacing.md),
+            SizedBox(
+              width: _cardWidth,
+              child: _Link(block: link),
             ),
           ],
         ],
