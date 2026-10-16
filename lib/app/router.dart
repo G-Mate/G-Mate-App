@@ -158,15 +158,25 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
     // 학교 투어
     GoRoute(
       path: AppRoutes.tourSelect,
-      builder: (context, state) => BlocProvider(
-        create: (_) => TourSelectCubit(getIt<TourRepository>())..load(),
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => TourSelectCubit(getIt<TourRepository>())..load(),
+          ),
+          BlocProvider(create: (_) => _voice()),
+        ],
         child: const TourSelectPage(),
       ),
       routes: [
         GoRoute(
           path: ':key',
-          builder: (context, state) => BlocProvider(
-            create: (_) => _tourDetail(state.pathParameters['key']!),
+          builder: (context, state) => MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => _tourDetail(state.pathParameters['key']!),
+              ),
+              BlocProvider(create: (_) => _voice()),
+            ],
             child: const TourConfirmPage(),
           ),
         ),
@@ -174,20 +184,30 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
     ),
     GoRoute(
       path: '/tour-run/:key',
-      builder: (context, state) => BlocProvider(
-        create: (_) => TourBloc(
-          robot: getIt<RobotController>(),
-          tours: getIt<TourRepository>(),
-          getVisits: GetTourVisits(getIt<PlaceRepository>()),
-          tourKey: state.pathParameters['key']!,
-        )..add(const TourStarted()),
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => TourBloc(
+              robot: getIt<RobotController>(),
+              tours: getIt<TourRepository>(),
+              getVisits: GetTourVisits(getIt<PlaceRepository>()),
+              tourKey: state.pathParameters['key']!,
+            )..add(const TourStarted()),
+          ),
+          BlocProvider(create: (_) => _voice()),
+        ],
         child: const TourRunPage(),
       ),
     ),
     GoRoute(
       path: '/tour-done/:key',
-      builder: (context, state) => BlocProvider(
-        create: (_) => _tourDetail(state.pathParameters['key']!),
+      builder: (context, state) => MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => _tourDetail(state.pathParameters['key']!),
+          ),
+          BlocProvider(create: (_) => _voice()),
+        ],
         child: const TourDonePage(),
       ),
     ),

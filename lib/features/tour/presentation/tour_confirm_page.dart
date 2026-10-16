@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../core/design_system.dart';
 import '../../place/presentation/place_icons.dart';
+import '../../speech/presentation/bloc/voice_guide_cubit.dart';
+import '../../speech/presentation/voice_guide_scope.dart';
+import '../../speech/presentation/voice_scripts.dart';
 import '../domain/tour.dart';
 import 'bloc/tour_detail_cubit.dart';
 import 'tour_widgets.dart';
@@ -19,6 +22,37 @@ class TourConfirmPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 코스와 들를 곳을 읽고, 기다렸다가 투어 시작·다른 코스를 안내한다.
+    return VoiceGuideScope(
+      onCommand: (context, command) {
+        final tour = context.read<TourDetailCubit>().state.tour;
+        if (tour == null) return;
+        if (command == VoiceScripts.startCommand) {
+          context.push(AppRoutes.tourRun(tour.key));
+        } else if (command == VoiceScripts.cancelCommand) {
+          _back(context);
+        }
+      },
+      child: BlocListener<TourDetailCubit, TourDetailState>(
+        listenWhen: (a, b) => a.isLoading && !b.isLoading,
+        listener: (context, state) {
+          final tour = state.tour;
+          if (tour == null || state.visits.isEmpty) return;
+          context.read<VoiceGuideCubit>().start(
+            VoiceScripts.tourConfirm(tour, [
+              for (final v in state.visits) v.place.name,
+            ]),
+          );
+        },
+        child: _content(),
+      ),
+    );
+  }
+
+  static void _back(BuildContext context) =>
+      context.canPop() ? context.pop() : context.go(AppRoutes.tourSelect);
+
+  Widget _content() {
     return BlocBuilder<TourDetailCubit, TourDetailState>(
       builder: (context, state) {
         if (state.isLoading) {
@@ -29,8 +63,7 @@ class TourConfirmPage extends StatelessWidget {
         final tour = state.tour;
         if (tour == null || state.visits.isEmpty) return const TourNotFound();
 
-        void back() =>
-            context.canPop() ? context.pop() : context.go(AppRoutes.tourSelect);
+        void back() => _back(context);
 
         return GmSplitLayout(
           hero: GmHeroPanel(

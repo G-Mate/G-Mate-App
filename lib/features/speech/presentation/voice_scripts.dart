@@ -1,4 +1,5 @@
 import '../../place/domain/place.dart';
+import '../../tour/domain/tour.dart';
 import '../domain/voice_script.dart';
 
 /// 화면별 음성 안내 대본. 화면 글과 같은 말을 읽고, 할 수 있는 말을 안내한다.
@@ -90,6 +91,92 @@ abstract final class VoiceScripts {
     commands: [
       VoiceCommand(listenCommand, ['설명 듣기', '설명', '들을래']),
       VoiceCommand(doneCommand, ['마침', '처음으로', '처음 화면', '괜찮아']),
+    ],
+  );
+
+  static const tourPrefix = 'tour:';
+
+  /// 코스 선택: '학교 투어. 어떤 코스로 둘러볼까요?' → 가운데 코스 → 기다린 뒤
+  /// 코스 목록·코스 이름 안내.
+  static VoiceScript tourSelect(List<Tour> tours, Tour? center) => VoiceScript(
+    intro: [
+      const VoiceLine('학교 투어. 어떤 코스로 둘러볼까요?'),
+      if (center != null) VoiceLine(tourCard(center)),
+    ],
+    hint:
+        '어떤 코스가 있는지 알고 싶으시면 코스 목록이라고 말씀해 주세요. '
+        '둘러보고 싶은 코스 이름을 말씀하셔도 돼요.',
+    commands: [
+      const VoiceCommand(listCommand, ['코스 목록', '목록', '어떤 코스']),
+      for (final t in tours) VoiceCommand('$tourPrefix${t.key}', [t.name]),
+    ],
+  );
+
+  /// 코스 카드 하나를 읽는 말 (예: '첫 방문 코스. 처음 오신 분이 …').
+  static String tourCard(Tour tour) => '${tour.name}. ${tour.description}';
+
+  /// 코스 목록을 읽어 주는 말.
+  static String tourList(List<Tour> tours) =>
+      '둘러볼 수 있는 코스는 ${tours.map((t) => t.name).join(', ')}이에요. '
+      '원하시는 코스 이름을 말씀해 주세요.';
+
+  /// 코스 확인: 코스 이름, 들를 곳 수, 걸리는 시간 → 기다린 뒤 시작·취소 안내.
+  static VoiceScript tourConfirm(Tour tour, List<String> stops) => VoiceScript(
+    intro: [
+      VoiceLine(
+        '${tour.name}. ${stops.join(', ')}의 ${stops.length}곳을 둘러봐요. '
+        '${tour.durationLabel} 걸려요. 투어를 시작할까요?',
+      ),
+    ],
+    hint:
+        '투어를 시작하시려면 투어 시작, '
+        '다른 코스를 보시려면 다른 코스라고 말씀해 주세요.',
+    commands: const [
+      VoiceCommand(startCommand, ['투어 시작', '시작', '출발']),
+      VoiceCommand(cancelCommand, ['다른 코스', '취소']),
+    ],
+  );
+
+  static const nextCommand = 'next';
+  static const replayCommand = 'replay';
+
+  /// 투어 중 다음 곳으로 이동할 때: 출발 멘트 뒤에 '투어 중지'로 멈출 수 있다고
+  /// 알리고 듣는다.
+  static const tourMoving = VoiceScript(
+    hint: '투어를 멈추고 싶으시면 언제든 투어 중지라고 말씀해 주세요.',
+    waitBeforeHint: Duration.zero,
+    hintRepeats: 1,
+    commands: [
+      VoiceCommand(stopCommand, ['투어 중지', '투어 그만', '멈춰', '중지']),
+    ],
+  );
+
+  /// 투어 중 한 곳의 설명을 다 읽은 뒤: 다음 장소·다시 듣기·투어 중지 안내.
+  /// 마지막 곳이면 다음 장소 대신 투어 마치기다.
+  static VoiceScript tourExplained({required bool isLastStop}) => VoiceScript(
+    hint: isLastStop
+        ? '투어를 마치시려면 투어 마치기, 설명을 다시 들으시려면 다시 듣기라고 '
+              '말씀해 주세요.'
+        : '다음 장소로 가시려면 다음 장소, 설명을 다시 들으시려면 다시 듣기, '
+              '투어를 멈추시려면 투어 중지라고 말씀해 주세요.',
+    commands: [
+      VoiceCommand(
+        nextCommand,
+        isLastStop ? const ['투어 마치기', '마치기', '끝'] : const ['다음 장소', '다음'],
+      ),
+      const VoiceCommand(replayCommand, ['다시 듣기', '다시']),
+      const VoiceCommand(stopCommand, ['투어 중지', '투어 그만', '중지']),
+    ],
+  );
+
+  /// 투어 끝: 마침 멘트(투어가 읽음) 뒤 기다렸다가 다른 코스·처음으로 안내.
+  static const tourDone = VoiceScript(
+    hint:
+        '다른 코스를 보시려면 다른 코스, '
+        '처음 화면으로 가시려면 처음으로라고 말씀해 주세요.',
+    commands: [
+      VoiceCommand(cancelCommand, ['다른 코스', '코스 보기']),
+      VoiceCommand(doneCommand, ['처음으로', '처음 화면', '마침', '괜찮아']),
     ],
   );
 }

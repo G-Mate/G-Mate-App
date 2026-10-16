@@ -4,16 +4,53 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/routes.dart';
 import '../../../core/design_system.dart';
+import '../../speech/presentation/bloc/voice_guide_cubit.dart';
+import '../../speech/presentation/voice_guide_scope.dart';
+import '../../speech/presentation/voice_scripts.dart';
 import '../domain/tour.dart';
 import 'bloc/tour_select_cubit.dart';
 import 'tour_widgets.dart';
 
 /// 학교 투어 - 코스 선택. 코스 카드를 옆으로 넘기며 고른다.
+///
+/// 들어오면 묻는 말과 가운데 코스를 읽고, 카드를 넘기면 가운데 온 코스를
+/// 읽는다. 코스 이름을 말하면 그 코스 확인으로 간다.
 class TourSelectPage extends StatelessWidget {
   const TourSelectPage({super.key});
 
+  /// 처음 가운데에 오는 코스 (코스가 셋 이상이면 양옆 카드가 보이게 가운데).
+  static int initialIndex(int count) => (count - 1) ~/ 2;
+
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<TourSelectCubit>();
+    return VoiceGuideScope(
+      onCommand: (context, command) {
+        final tours = cubit.state.tours;
+        if (command == VoiceScripts.listCommand) {
+          context.read<VoiceGuideCubit>().say(VoiceScripts.tourList(tours));
+        } else if (command.startsWith(VoiceScripts.tourPrefix)) {
+          final key = command.substring(VoiceScripts.tourPrefix.length);
+          context.push(AppRoutes.tourConfirm(key));
+        }
+      },
+      child: BlocListener<TourSelectCubit, TourSelectState>(
+        listenWhen: (a, b) => a.isLoading && !b.isLoading,
+        listener: (context, state) {
+          final tours = state.tours;
+          context.read<VoiceGuideCubit>().start(
+            VoiceScripts.tourSelect(
+              tours,
+              tours.isEmpty ? null : tours[initialIndex(tours.length)],
+            ),
+          );
+        },
+        child: _scaffold(context),
+      ),
+    );
+  }
+
+  Widget _scaffold(BuildContext context) {
     return GmScaffold(
       eyebrow: '학교 투어',
       title: '어떤 코스로 둘러볼까요?',
@@ -29,7 +66,12 @@ class TourSelectPage extends StatelessWidget {
               title: '준비된 코스가 없어요',
             );
           }
-          return _TourCarousel(tours: state.tours);
+          return _TourCarousel(
+            tours: state.tours,
+            onCenterChanged: (tour) => context.read<VoiceGuideCubit>().say(
+              VoiceScripts.tourCard(tour),
+            ),
+          );
         },
       ),
     );
@@ -40,9 +82,12 @@ class TourSelectPage extends StatelessWidget {
 /// 흐리게 보여 준다. 옆 카드를 누르면 가운데로 옮겨 오고, 가운데 카드를
 /// 누르면 코스 확인으로 간다.
 class _TourCarousel extends StatefulWidget {
-  const _TourCarousel({required this.tours});
+  const _TourCarousel({required this.tours, required this.onCenterChanged});
 
   final List<Tour> tours;
+
+  /// 방문객이 넘겨 가운데 코스가 바뀌면 그 코스를 알린다.
+  final ValueChanged<Tour> onCenterChanged;
 
   @override
   State<_TourCarousel> createState() => _TourCarouselState();
@@ -61,7 +106,7 @@ class _TourCarouselState extends State<_TourCarousel> {
   static const _move = Duration(milliseconds: 420);
 
   // 코스가 셋 이상이면 가운데 코스에서 시작해 양옆 카드가 보이게 한다.
-  late int _current = (widget.tours.length - 1) ~/ 2;
+  late int _current = TourSelectPage.initialIndex(widget.tours.length);
   late final _controller = PageController(
     viewportFraction: _viewportFraction,
     initialPage: _current,
@@ -98,7 +143,10 @@ class _TourCarouselState extends State<_TourCarousel> {
             itemCount: tours.length,
             // 화면 여백 밖으로 넘어가는 옆 카드도 보이게 한다.
             clipBehavior: Clip.none,
-            onPageChanged: (i) => setState(() => _current = i),
+            onPageChanged: (i) {
+              setState(() => _current = i);
+              widget.onCenterChanged(tours[i]);
+            },
             itemBuilder: (context, i) {
               final tour = tours[i];
               return AnimatedBuilder(
