@@ -2,18 +2,15 @@ import 'package:equatable/equatable.dart';
 
 import '../../place/domain/place.dart';
 
-/// 투어 코스에서 들르는 곳 하나.
+/// 투어 코스에서 들르는 곳 하나. 설명은 장소 편집의 설명을 그대로 읽는다.
 class TourStop extends Equatable {
-  const TourStop({required this.placeKey, this.lines = const []});
+  const TourStop({required this.placeKey});
 
   /// 들를 장소의 키 ([Place.key]).
   final String placeKey;
 
-  /// 이 코스에서 읽을 설명. 비어 있으면 장소의 본 설명을 읽는다.
-  final List<String> lines;
-
   @override
-  List<Object?> get props => [placeKey, lines];
+  List<Object?> get props => [placeKey];
 }
 
 /// 정해진 순서로 여러 곳을 들르는 학교 투어 코스.

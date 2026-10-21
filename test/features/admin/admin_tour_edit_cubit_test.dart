@@ -31,7 +31,7 @@ void main() {
 
   List<String> keysOf(Tour tour) => [for (final s in tour.stops) s.placeKey];
 
-  test('들를 곳 순서를 바꾸고 빼고 넣으면 설명은 그대로 따라간다', () async {
+  test('들를 곳 순서를 바꾸고 빼고 넣고, 이미 있는 곳은 다시 넣지 않는다', () async {
     final first = seedTours.first;
     final cubit = await build(first.key);
 
@@ -47,7 +47,6 @@ void main() {
       'library',
       'science_lab',
     ]);
-    expect(tour.stops.first.lines, first.stops.last.lines);
   });
 
   test('저장하면 저장소에 남고 이름 앞뒤 빈칸은 뺀다', () async {

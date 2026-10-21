@@ -14,11 +14,21 @@ const _tour = Tour(
   description: '두 곳을 둘러봐요',
   duration: Duration(minutes: 5),
   stops: [
-    TourStop(placeKey: 'science_lab', lines: ['첫 줄', '둘째 줄']),
+    TourStop(placeKey: 'science_lab'),
     TourStop(placeKey: 'nowhere'),
     TourStop(placeKey: 'computer_lab'),
   ],
 );
+
+/// 과학실 본 설명은 두 줄로 바꿔 둔 장소들.
+final _places = [
+  for (final p in seedPlaces)
+    p.key == 'science_lab'
+        ? p.copyWith(
+            speech: p.speech.copyWith(descriptionLines: const ['첫 줄', '둘째 줄']),
+          )
+        : p,
+];
 
 void main() {
   late FakeRobotController robot;
@@ -48,15 +58,17 @@ void main() {
     getVisits: GetTourVisits(
       InMemoryPlaceRepository(
         initialPlaces: [
-          for (final p in seedPlaces) p.copyWith(lineInterval: interval),
+          for (final p in _places) p.copyWith(lineInterval: interval),
         ],
       ),
     ),
     tourKey: key,
   );
 
-  test('장소 저장소에 없는 곳은 건너뛰고, 설명이 없으면 장소 설명을 쓴다', () async {
-    final visits = await GetTourVisits(InMemoryPlaceRepository())(_tour);
+  test('장소 저장소에 없는 곳은 건너뛰고, 장소의 본 설명을 읽는다', () async {
+    final visits = await GetTourVisits(
+      InMemoryPlaceRepository(initialPlaces: _places),
+    )(_tour);
 
     expect(visits.map((v) => v.place.key), ['science_lab', 'computer_lab']);
     expect(visits.first.lines, ['첫 줄', '둘째 줄']);

@@ -47,10 +47,8 @@ class DriftTourRepository implements TourRepository {
     imagePath: row.imagePath,
   );
 
-  static TourStop _stopFromJson(Map<String, Object?> map) => TourStop(
-    placeKey: map['placeKey']! as String,
-    lines: (map['lines']! as List<Object?>).cast<String>(),
-  );
+  static TourStop _stopFromJson(Map<String, Object?> map) =>
+      TourStop(placeKey: map['placeKey']! as String);
 
   static ToursCompanion _toRow(Tour tour) => ToursCompanion.insert(
     key: tour.key,
@@ -58,8 +56,7 @@ class DriftTourRepository implements TourRepository {
     description: tour.description,
     durationMinutes: tour.duration.inMinutes,
     stops: jsonEncode([
-      for (final stop in tour.stops)
-        {'placeKey': stop.placeKey, 'lines': stop.lines},
+      for (final stop in tour.stops) {'placeKey': stop.placeKey},
     ]),
     imagePath: Value(tour.imagePath),
   );
