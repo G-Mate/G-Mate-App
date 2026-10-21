@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 학교 개요의 링크(학교 홈페이지 등)를 앱 안에서 연다. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="g_mate"
         android:name="${applicationName}"

@@ -77,6 +77,13 @@ class _DevVoiceDialogState extends State<_DevVoiceDialog> {
     '안내 중지',
     '설명 듣기',
     '마침',
+    '학교 투어',
+    '코스 목록',
+    '수업 공간 코스',
+    '투어 시작',
+    '다음 장소',
+    '다시 듣기',
+    '투어 중지',
   ];
 
   final _controller = TextEditingController();

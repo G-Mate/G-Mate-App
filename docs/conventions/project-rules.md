@@ -82,7 +82,8 @@ docs/                         # 문서
 
 ## 데이터 저장 규칙
 
-- 장소, 투어 코스, 학교 소개, 음성 설정은 로컬 DB(`lib/core/database/app_database.dart`, drift)에 둡니다. 관리 모드 PIN만 flutter_secure_storage에 둡니다.
+- 장소, 투어 코스, 음성 설정은 로컬 DB(`lib/core/database/app_database.dart`, drift)에 둡니다. 관리 모드 PIN만 flutter_secure_storage에 둡니다.
+- 학교 개요는 관리 모드에서 고치지 않는 고정 페이지라 DB에 두지 않고 `features/school/data/school_page_content.dart`에 둡니다.
 - 표 정의는 `core/database`에, 표 ↔ 도메인 값 변환은 기능별 `data/`의 `DriftXxxRepository`에 둡니다.
 - 처음 DB를 만들 때만 `lib/app/database_seed.dart`가 기본 내용을 넣습니다. 이미 설치된 기기의 내용은 바꾸지 않습니다.
 - 표를 바꾸면 `schemaVersion`을 올리고 `migration`에 옮기는 단계를 넣은 뒤, `dart run build_runner build`로 `app_database.g.dart`를 다시 만들어 함께 커밋합니다.
@@ -91,7 +92,7 @@ docs/                         # 문서
 
 ## 음성 안내·음성 명령 규칙
 
-- 화면 글 읽기와 음성 명령은 화면마다 `VoiceGuideCubit` 하나가 맡고, 대본(읽을 말·할 수 있는 말·알아듣는 말)은 `features/speech/presentation/voice_scripts.dart`에 모읍니다.
+- 화면 글 읽기와 음성 명령은 화면마다(홈, 길 찾기, 학교 투어) `VoiceGuideCubit` 하나가 맡고, 대본(읽을 말·할 수 있는 말·알아듣는 말)은 `features/speech/presentation/voice_scripts.dart`에 모읍니다.
 - 화면은 `VoiceGuideScope`로 감쌉니다. 화면을 누르면 읽던 말과 듣기를 멈추고, 다른 화면이 위에 덮이면 안내를 멈추며, 맨 위 화면만 명령을 따릅니다.
 - 화면 글을 읽은 뒤 관리 모드 음성 설정의 '명령 기다리는 시간'(기본 3초)만큼 누르지 않으면 할 수 있는 말을 안내하고 temi `askQuestion`으로 듣습니다. 대답이 없으면 한 번 더 안내합니다.
 - 명령은 띄어쓰기·문장 부호를 무시하고 말 안에 들어 있는지로 맞춥니다. 여러 개가 맞으면 가장 긴 말이 이깁니다.

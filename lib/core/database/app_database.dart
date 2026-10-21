@@ -39,24 +39,6 @@ class Tours extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-/// 학교 소개. 한 줄만 둔다 (id = [AppDatabase.singleRowId]).
-@DataClassName('SchoolInfoRow')
-class SchoolInfos extends Table {
-  IntColumn get id => integer()();
-  TextColumn get name => text()();
-  TextColumn get intro => text()();
-
-  /// `[{"value", "label"}]` JSON.
-  TextColumn get stats => text()();
-
-  /// `{"층 번호": "설명"}` JSON.
-  TextColumn get floorLabels => text()();
-  TextColumn get imagePath => text().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
 /// 음성 설정. 한 줄만 둔다 (id = [AppDatabase.singleRowId]).
 @DataClassName('SpeechSettingsRow')
 class SpeechSettingsTable extends Table {
@@ -85,17 +67,17 @@ typedef DatabaseSeeder = Future<void> Function(AppDatabase db);
 
 /// 앱 로컬 DB(drift). 표 정의만 두고, 도메인 값으로 바꾸는 일은 기능별
 /// `data/` 저장소가 맡는다.
-@DriftDatabase(tables: [Places, Tours, SchoolInfos, SpeechSettingsTable])
+@DriftDatabase(tables: [Places, Tours, SpeechSettingsTable])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor, {this._seed});
 
   final DatabaseSeeder? _seed;
 
-  /// 한 줄만 두는 표(학교 소개, 음성 설정)의 id.
+  /// 한 줄만 두는 표(음성 설정)의 id.
   static const singleRowId = 0;
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -109,6 +91,10 @@ class AppDatabase extends _$AppDatabase {
           speechSettingsTable,
           speechSettingsTable.commandWaitMs,
         );
+      }
+      if (from < 3) {
+        // 학교 개요는 앱에 고정한 소개 페이지로 바꿔서 학교 소개 표를 지운다.
+        await m.deleteTable('school_infos');
       }
     },
   );

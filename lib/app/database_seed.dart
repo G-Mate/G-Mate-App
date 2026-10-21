@@ -1,8 +1,6 @@
 import '../core/database/app_database.dart';
 import '../features/place/data/drift_place_repository.dart';
 import '../features/place/data/seed_places.dart';
-import '../features/school/data/drift_school_info_repository.dart';
-import '../features/school/data/seed_school_info.dart';
 import '../features/tour/data/drift_tour_repository.dart';
 import '../features/tour/data/seed_tours.dart';
 
@@ -18,5 +16,4 @@ Future<void> seedDatabase(AppDatabase db) async {
   for (final tour in seedTours) {
     await tours.saveTour(tour);
   }
-  await DriftSchoolInfoRepository(db).saveSchoolInfo(seedSchoolInfo);
 }

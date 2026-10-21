@@ -27,9 +27,13 @@ class DriftTourRepository implements TourRepository {
     return row == null ? null : _toTour(row);
   }
 
-  /// 같은 키가 있으면 바꾸고, 없으면 새로 추가한다.
+  @override
   Future<void> saveTour(Tour tour) =>
       _db.into(_db.tours).insertOnConflictUpdate(_toRow(tour));
+
+  @override
+  Future<void> deleteTour(String key) =>
+      (_db.delete(_db.tours)..where((t) => t.key.equals(key))).go();
 
   static Tour _toTour(TourRow row) => Tour(
     key: row.key,
@@ -43,10 +47,8 @@ class DriftTourRepository implements TourRepository {
     imagePath: row.imagePath,
   );
 
-  static TourStop _stopFromJson(Map<String, Object?> map) => TourStop(
-    placeKey: map['placeKey']! as String,
-    lines: (map['lines']! as List<Object?>).cast<String>(),
-  );
+  static TourStop _stopFromJson(Map<String, Object?> map) =>
+      TourStop(placeKey: map['placeKey']! as String);
 
   static ToursCompanion _toRow(Tour tour) => ToursCompanion.insert(
     key: tour.key,
@@ -54,8 +56,7 @@ class DriftTourRepository implements TourRepository {
     description: tour.description,
     durationMinutes: tour.duration.inMinutes,
     stops: jsonEncode([
-      for (final stop in tour.stops)
-        {'placeKey': stop.placeKey, 'lines': stop.lines},
+      for (final stop in tour.stops) {'placeKey': stop.placeKey},
     ]),
     imagePath: Value(tour.imagePath),
   );

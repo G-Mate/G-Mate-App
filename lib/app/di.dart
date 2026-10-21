@@ -12,8 +12,6 @@ import '../features/admin/domain/place_image_picker.dart';
 import '../features/place/data/drift_place_repository.dart';
 import '../features/place/data/seed_places.dart';
 import '../features/place/domain/place_repository.dart';
-import '../features/school/data/drift_school_info_repository.dart';
-import '../features/school/domain/school_info_repository.dart';
 import '../features/speech/data/drift_speech_settings_repository.dart';
 import '../features/speech/domain/speech_settings_repository.dart';
 import '../features/tour/data/drift_tour_repository.dart';
@@ -56,8 +54,5 @@ void configureDependencies() {
     )
     ..registerLazySingleton<AdminPinRepository>(SecureAdminPinRepository.new)
     ..registerLazySingleton<PlaceImagePicker>(GalleryPlaceImagePicker.new)
-    ..registerLazySingleton<TourRepository>(() => DriftTourRepository(getIt()))
-    ..registerLazySingleton<SchoolInfoRepository>(
-      () => DriftSchoolInfoRepository(getIt()),
-    );
+    ..registerLazySingleton<TourRepository>(() => DriftTourRepository(getIt()));
 }

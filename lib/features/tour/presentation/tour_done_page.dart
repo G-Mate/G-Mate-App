@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../app/routes.dart';
 import '../../../core/design_system.dart';
 import '../../place/presentation/place_icons.dart';
+import '../../speech/presentation/bloc/voice_guide_cubit.dart';
+import '../../speech/presentation/voice_guide_scope.dart';
+import '../../speech/presentation/voice_scripts.dart';
 import '../domain/tour.dart';
 import 'bloc/tour_detail_cubit.dart';
 import 'tour_widgets.dart';
@@ -19,6 +22,25 @@ class TourDonePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 마침 멘트는 투어가 읽었으니, 기다렸다가 다른 코스·처음으로만 안내한다.
+    return VoiceGuideScope(
+      onCommand: (context, command) {
+        if (command == VoiceScripts.cancelCommand) {
+          context.go(AppRoutes.tourSelect);
+        } else if (command == VoiceScripts.doneCommand) {
+          context.go(AppRoutes.home);
+        }
+      },
+      child: BlocListener<TourDetailCubit, TourDetailState>(
+        listenWhen: (a, b) => a.isLoading && !b.isLoading,
+        listener: (context, state) =>
+            context.read<VoiceGuideCubit>().start(VoiceScripts.tourDone),
+        child: _content(),
+      ),
+    );
+  }
+
+  Widget _content() {
     return BlocBuilder<TourDetailCubit, TourDetailState>(
       builder: (context, state) {
         if (state.isLoading) {

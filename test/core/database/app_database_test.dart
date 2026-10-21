@@ -9,12 +9,11 @@ import 'package:g_mate/core/database/app_database.dart';
 import 'package:g_mate/features/place/data/drift_place_repository.dart';
 import 'package:g_mate/features/place/data/seed_places.dart';
 import 'package:g_mate/features/place/domain/place.dart';
-import 'package:g_mate/features/school/data/drift_school_info_repository.dart';
-import 'package:g_mate/features/school/data/seed_school_info.dart';
 import 'package:g_mate/features/speech/data/drift_speech_settings_repository.dart';
 import 'package:g_mate/features/speech/domain/speech_settings.dart';
 import 'package:g_mate/features/tour/data/drift_tour_repository.dart';
 import 'package:g_mate/features/tour/data/seed_tours.dart';
+import 'package:g_mate/features/tour/domain/tour.dart';
 
 void main() {
   // 파일 DB 테스트는 메모리 DB와 따로 열고 닫으므로 여러 번 연다는 경고를 끈다.
@@ -40,11 +39,24 @@ void main() {
       expect(await tours.getTour('none'), isNull);
     });
 
-    test('기본 학교 소개를 담는다', () async {
-      expect(
-        await DriftSchoolInfoRepository(db).getSchoolInfo(),
-        seedSchoolInfo,
+    test('코스를 고치고 지울 수 있고, 새 코스는 목록 끝에 붙는다', () async {
+      final tours = DriftTourRepository(db);
+      final edited = seedTours.first.copyWith(
+        name: '바꾼 코스',
+        stops: const [TourStop(placeKey: 'library')],
       );
+      await tours.saveTour(edited);
+      const added = Tour(
+        key: 'tour_new',
+        name: '새 코스',
+        description: '',
+        duration: Duration(minutes: 5),
+        stops: [TourStop(placeKey: 'science_lab')],
+      );
+      await tours.saveTour(added);
+      await tours.deleteTour(seedTours[1].key);
+
+      expect(await tours.getTours(), [edited, seedTours[2], added]);
     });
 
     test('음성 설정은 저장 전에는 기본값이다', () async {
@@ -123,7 +135,7 @@ void main() {
     expect(places.length, seedPlaces.length);
   });
 
-  test('스키마 1 DB를 열면 명령 기다리는 시간 칸을 기본값으로 더한다', () async {
+  test('스키마 1 DB를 열면 명령 기다리는 시간 칸을 더하고 학교 소개 표는 지운다', () async {
     final dir = await Directory.systemTemp.createTemp('g_mate_db_v1');
     addTearDown(() => dir.delete(recursive: true));
     final file = File('${dir.path}/g_mate.sqlite');
@@ -139,6 +151,16 @@ void main() {
         raw.execute(
           "INSERT INTO speech_settings VALUES (0, 'male', 1.5, 2, 8)",
         );
+        // 스키마 2까지의 학교 소개 표 (숫자 stats 열이 있었다).
+        raw.execute(
+          'CREATE TABLE school_infos (id INTEGER NOT NULL PRIMARY KEY, '
+          'name TEXT NOT NULL, intro TEXT NOT NULL, stats TEXT NOT NULL, '
+          'floor_labels TEXT NOT NULL, image_path TEXT)',
+        );
+        raw.execute(
+          "INSERT INTO school_infos VALUES (0, '옛 학교', '옛 소개', "
+          "'[{\"value\":\"2015\",\"label\":\"개교\"}]', '{\"1\":\"행정\"}', NULL)",
+        );
         raw.execute('PRAGMA user_version = 1');
       },
     );
@@ -147,7 +169,14 @@ void main() {
 
     final upgraded = AppDatabase(NativeDatabase(file));
     final settings = await DriftSpeechSettingsRepository(upgraded).load();
+    // 학교 소개 표는 앱에 고정한 페이지로 바뀌어 지운다.
+    final tables = await upgraded
+        .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
+        .map((row) => row.read<String>('name'))
+        .get();
     await upgraded.close();
+
+    expect(tables, isNot(contains('school_infos')));
 
     expect(settings.gender, VoiceGender.male);
     expect(settings.volume, 8);

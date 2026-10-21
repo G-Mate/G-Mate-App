@@ -17,12 +17,25 @@ abstract final class AppRoutes {
   // 학교 개요
   static const schoolOverview = '/school';
 
+  /// 학교 개요 링크를 앱 안에서 연다.
+  static String schoolWeb({required String url, required String title}) => Uri(
+    path: '/school/web',
+    queryParameters: {'url': url, 'title': title},
+  ).toString();
+
   // 관리 모드
   static const adminPin = '/admin';
+  static const adminHome = '/admin/home';
   static const adminPlaces = '/admin/places';
   static String adminPlaceEdit(String key) => '/admin/places/$key';
   static const adminTts = '/admin/tts';
   static const adminPinChange = '/admin/pin-change';
+  static const adminTours = '/admin/tours';
+  static const adminTourNew = '/admin/tours/$newTourKey';
+  static String adminTourEdit(String key) => '/admin/tours/$key';
+
+  /// 코스 편집 경로에서 '새 코스'를 뜻하는 키.
+  static const newTourKey = 'new';
 
   /// 개발용 디자인 시스템 미리보기.
   static const designGallery = '/design-gallery';

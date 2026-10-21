@@ -2,18 +2,15 @@ import 'package:equatable/equatable.dart';
 
 import '../../place/domain/place.dart';
 
-/// 투어 코스에서 들르는 곳 하나.
+/// 투어 코스에서 들르는 곳 하나. 설명은 장소 편집의 설명을 그대로 읽는다.
 class TourStop extends Equatable {
-  const TourStop({required this.placeKey, this.lines = const []});
+  const TourStop({required this.placeKey});
 
   /// 들를 장소의 키 ([Place.key]).
   final String placeKey;
 
-  /// 이 코스에서 읽을 설명. 비어 있으면 장소의 본 설명을 읽는다.
-  final List<String> lines;
-
   @override
-  List<Object?> get props => [placeKey, lines];
+  List<Object?> get props => [placeKey];
 }
 
 /// 정해진 순서로 여러 곳을 들르는 학교 투어 코스.
@@ -26,6 +23,14 @@ class Tour extends Equatable {
     required this.stops,
     this.imagePath,
   });
+
+  /// 관리 모드에서 고를 수 있는 걸리는 시간 범위와 칸 (분).
+  static const minDuration = Duration(minutes: 5);
+  static const maxDuration = Duration(minutes: 60);
+  static const durationStep = Duration(minutes: 5);
+
+  /// 새로 만든 코스의 걸리는 시간.
+  static const defaultDuration = Duration(minutes: 10);
 
   final String key;
 
@@ -44,6 +49,22 @@ class Tour extends Equatable {
 
   /// 화면에 보이는 걸리는 시간 (예: '약 15분').
   String get durationLabel => '약 ${duration.inMinutes}분';
+
+  Tour copyWith({
+    String? name,
+    String? description,
+    Duration? duration,
+    List<TourStop>? stops,
+    String? imagePath,
+    bool clearImage = false,
+  }) => Tour(
+    key: key,
+    name: name ?? this.name,
+    description: description ?? this.description,
+    duration: duration ?? this.duration,
+    stops: stops ?? this.stops,
+    imagePath: clearImage ? null : imagePath ?? this.imagePath,
+  );
 
   @override
   List<Object?> get props => [

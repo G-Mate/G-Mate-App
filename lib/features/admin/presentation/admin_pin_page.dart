@@ -8,7 +8,7 @@ import 'bloc/admin_pin_cubit.dart';
 import 'bloc/admin_pin_state.dart';
 import 'widgets/pin_pad.dart';
 
-/// 관리 모드 - PIN 입력. 맞으면 장소 관리로 간다.
+/// 관리 모드 - PIN 입력. 맞으면 관리 모드 메인으로 간다.
 class AdminPinPage extends StatelessWidget {
   const AdminPinPage({super.key});
 
@@ -16,7 +16,7 @@ class AdminPinPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<AdminPinCubit, AdminPinState>(
       listenWhen: (prev, next) => !prev.isVerified && next.isVerified,
-      listener: (context, state) => context.go(AppRoutes.adminPlaces),
+      listener: (context, state) => context.go(AppRoutes.adminHome),
       builder: (context, state) {
         final cubit = context.read<AdminPinCubit>();
         return GmSplitLayout(
