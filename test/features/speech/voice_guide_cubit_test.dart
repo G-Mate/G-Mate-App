@@ -61,6 +61,12 @@ void main() {
       async.elapse(step);
       robot.hearSpeech('장소 목록 알려 줘');
       async.flushMicrotasks();
+      // 알아들은 말을 잠깐 보여 준 뒤 명령을 수행한다.
+      expect(cubit.state.phase, VoicePhase.recognized);
+      expect(cubit.state.recognized, '장소 목록');
+      expect(cubit.state.command, isNull);
+
+      async.elapse(VoiceGuideCubit.defaultCommandDelay);
       expect(cubit.state.command, 'list');
       expect(cubit.state.commandCount, 1);
       expect(cubit.state.phase, VoicePhase.idle);
@@ -123,6 +129,40 @@ void main() {
     });
   });
 
+  test('알아들은 말을 보여 주는 사이 화면을 누르면 명령을 수행하지 않는다', () {
+    fakeAsync((async) {
+      setUpAll(async);
+      cubit.start(script);
+      async.elapse(step * 3 + wait + step);
+      robot.hearSpeech('장소 목록');
+      async.flushMicrotasks();
+      expect(cubit.state.phase, VoicePhase.recognized);
+
+      cubit.interact();
+      async.elapse(VoiceGuideCubit.defaultCommandDelay * 2);
+      expect(cubit.state.phase, VoicePhase.idle);
+      expect(cubit.state.command, isNull);
+      cubit.close();
+      robot.dispose();
+    });
+  });
+
+  test('알아들은 말을 보여 주는 사이 새 대본을 읽어도 명령은 수행한다', () {
+    fakeAsync((async) {
+      setUpAll(async);
+      cubit.start(script);
+      async.elapse(step * 3 + wait + step);
+      robot.hearSpeech('장소 목록');
+      async.flushMicrotasks();
+
+      cubit.start(const VoiceScript(intro: [VoiceLine('도착했어요.')]));
+      async.elapse(VoiceGuideCubit.defaultCommandDelay);
+      expect(cubit.state.command, 'list');
+      cubit.close();
+      robot.dispose();
+    });
+  });
+
   test('묻지 않았어도 temi를 불러 한 명령은 알아듣는다', () {
     fakeAsync((async) {
       setUpAll(async);
@@ -135,7 +175,7 @@ void main() {
       );
       async.flushMicrotasks();
       robot.hearSpeech('안내 중지');
-      async.flushMicrotasks();
+      async.elapse(VoiceGuideCubit.defaultCommandDelay);
       expect(cubit.state.command, 'stop');
       cubit.close();
       robot.dispose();

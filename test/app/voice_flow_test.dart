@@ -30,20 +30,20 @@ void main() {
     expect(spoken.last, contains('장소 목록이라고 말씀해 주세요'));
 
     await tester.pump(const Duration(milliseconds: 400));
-    robot.hearSpeech('장소 목록');
+    await hearCommand(tester, robot, '장소 목록');
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(spoken.last, startsWith('갈 수 있는 곳은 과학실, 컴퓨터실'));
 
     debugPrint('SPOKEN $spoken');
-    robot.hearSpeech('과학실로 가 줘');
+    await hearCommand(tester, robot, '과학실로 가 줘');
     await tester.pump();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('이곳으로 안내할까요?'), findsOneWidget);
     expect(spoken, contains('과학실. 이곳으로 안내할까요?'));
 
-    robot.hearSpeech('안내 시작');
+    await hearCommand(tester, robot, '안내 시작');
     // 평면도 미리보기가 물러난 뒤 이동 중 화면으로 넘어간다.
     for (
       var i = 0;
@@ -56,7 +56,7 @@ void main() {
     await tester.pump();
     expect(spoken.last, contains('안내 중지라고 말씀해 주세요'));
 
-    robot.hearSpeech('안내 중지');
+    await hearCommand(tester, robot, '안내 중지');
     await tester.pump();
     await tester.pump();
     await tester.pumpAndSettle();
@@ -77,7 +77,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('이곳으로 안내할까요?'), findsOneWidget);
 
-    robot.hearSpeech('취소');
+    await hearCommand(tester, robot, '취소');
     await tester.pump();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));

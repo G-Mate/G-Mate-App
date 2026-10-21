@@ -15,8 +15,14 @@ import 'voice_guide_state.dart';
 /// [VoiceGuideState.command]로 화면에 알리고, 화면이 그 일을 한다.
 /// 방문객이 화면을 누르면([interact]) 읽던 말과 듣기를 멈춘다.
 class VoiceGuideCubit extends Cubit<VoiceGuideState> {
-  VoiceGuideCubit({required this._robot, required this._settings})
-    : super(const VoiceGuideState());
+  VoiceGuideCubit({
+    required this._robot,
+    required this._settings,
+    this.commandDelay = defaultCommandDelay,
+  }) : super(const VoiceGuideState());
+
+  /// 알아들은 명령을 보여 준 뒤 수행하기까지 기다리는 시간.
+  static const defaultCommandDelay = Duration(milliseconds: 1200);
 
   /// TTS 완료 이벤트가 오지 않을 때 다음으로 넘어가기까지 기다리는 시간.
   static const speakTimeout = Duration(seconds: 30);
@@ -25,8 +31,10 @@ class VoiceGuideCubit extends Cubit<VoiceGuideState> {
 
   final RobotController _robot;
   final SpeechSettingsRepository _settings;
+  final Duration commandDelay;
   StreamSubscription<RobotEvent>? _subscription;
   Timer? _hintTimer;
+  Timer? _commandTimer;
 
   /// 지금 읽는 말이 끝나기를 기다리는 것들.
   Completer<void>? _speech;
@@ -74,6 +82,7 @@ class VoiceGuideCubit extends Cubit<VoiceGuideState> {
 
   /// 방문객이 화면을 눌렀다. 읽던 말과 듣기를 멈추고 더 안내하지 않는다.
   void interact() {
+    _commandTimer?.cancel();
     if (state.phase == VoicePhase.idle) return;
     final wasListening = state.phase == VoicePhase.listening;
     _next();
@@ -153,14 +162,32 @@ class VoiceGuideCubit extends Cubit<VoiceGuideState> {
       case AsrResultReceived(:final text):
         final command = _script.match(text);
         if (command != null) {
+          // 알아들은 말을 잠깐 보여 준 뒤 명령을 수행한다. 그사이 화면을
+          // 누르면 수행하지 않는다. 화면 흐름이 바뀌어 새 대본을 읽기
+          // 시작해도(예: 이동 중 도착) 방문객이 한 말이므로 수행한다.
           _next();
+          _commandTimer?.cancel();
+          if (state.phase == VoicePhase.listening) {
+            unawaited(_robot.finishConversation());
+          }
           emit(
             state.copyWith(
-              phase: VoicePhase.idle,
-              command: command.id,
-              commandCount: state.commandCount + 1,
+              phase: VoicePhase.recognized,
+              recognized: command.phrases.first,
             ),
           );
+          _commandTimer = Timer(commandDelay, () {
+            if (isClosed) return;
+            emit(
+              state.copyWith(
+                phase: state.phase == VoicePhase.recognized
+                    ? VoicePhase.idle
+                    : null,
+                command: command.id,
+                commandCount: state.commandCount + 1,
+              ),
+            );
+          });
         } else if (state.phase == VoicePhase.listening) {
           _misheard = true;
         }
@@ -197,6 +224,7 @@ class VoiceGuideCubit extends Cubit<VoiceGuideState> {
   Future<void> close() async {
     final wasListening = state.phase == VoicePhase.listening;
     _next();
+    _commandTimer?.cancel();
     if (wasListening) unawaited(_robot.finishConversation());
     await _subscription?.cancel();
     return super.close();

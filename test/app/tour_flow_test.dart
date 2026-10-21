@@ -60,18 +60,18 @@ void main() {
     await tester.pumpWidget(testApp(AppRoutes.tourSelect));
     await tester.pumpAndSettle();
 
-    robot.hearSpeech('수업 공간 코스 보여 줘');
+    await hearCommand(tester, robot, '수업 공간 코스 보여 줘');
     await tester.pumpAndSettle();
     expect(find.text('이 순서로 안내해요'), findsOneWidget);
 
-    robot.hearSpeech('투어 시작');
+    await hearCommand(tester, robot, '투어 시작');
     for (var i = 0; i < 3; i++) {
       await tester.pump(const Duration(milliseconds: 50));
     }
     expect(find.text('컴퓨터실로\n가고 있어요'), findsOneWidget);
 
     // 이동 중에 '투어 중지'라고 하면 홈으로 돌아간다.
-    robot.hearSpeech('투어 중지');
+    await hearCommand(tester, robot, '투어 중지');
     await tester.pumpAndSettle();
     expect(find.byType(HomePage), findsOneWidget);
     await tester.pump(const Duration(seconds: 1));

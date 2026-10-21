@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'bloc/voice_guide_cubit.dart';
 import 'bloc/voice_guide_state.dart';
+import 'widgets/voice_indicator.dart';
 
 /// 화면을 [VoiceGuideCubit]에 잇는다.
 ///
@@ -50,7 +51,10 @@ class VoiceGuideScope extends StatelessWidget {
       child: Listener(
         behavior: HitTestBehavior.translucent,
         onPointerDown: (_) => context.read<VoiceGuideCubit>().interact(),
-        child: child,
+        child: Stack(
+          fit: StackFit.passthrough,
+          children: [child, const VoiceIndicator()],
+        ),
       ),
     );
   }

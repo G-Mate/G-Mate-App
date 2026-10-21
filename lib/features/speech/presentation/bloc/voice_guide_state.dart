@@ -12,6 +12,9 @@ enum VoicePhase {
 
   /// 할 수 있는 말을 안내하고 듣는 중.
   listening,
+
+  /// 명령을 알아듣고, 알아들은 말을 잠깐 보여 준 뒤 수행하기를 기다리는 중.
+  recognized,
 }
 
 class VoiceGuideState extends Equatable {
@@ -21,6 +24,7 @@ class VoiceGuideState extends Equatable {
     this.cueCount = 0,
     this.command,
     this.commandCount = 0,
+    this.recognized,
   });
 
   final VoicePhase phase;
@@ -33,20 +37,32 @@ class VoiceGuideState extends Equatable {
   final String? command;
   final int commandCount;
 
+  /// 알아들은 명령의 대표 말 (예: '투어 시작'). [VoicePhase.recognized]에서 보여 준다.
+  final String? recognized;
+
   VoiceGuideState copyWith({
     VoicePhase? phase,
     String? cue,
     int? cueCount,
     String? command,
     int? commandCount,
+    String? recognized,
   }) => VoiceGuideState(
     phase: phase ?? this.phase,
     cue: cue ?? this.cue,
     cueCount: cueCount ?? this.cueCount,
     command: command ?? this.command,
     commandCount: commandCount ?? this.commandCount,
+    recognized: recognized ?? this.recognized,
   );
 
   @override
-  List<Object?> get props => [phase, cue, cueCount, command, commandCount];
+  List<Object?> get props => [
+    phase,
+    cue,
+    cueCount,
+    command,
+    commandCount,
+    recognized,
+  ];
 }

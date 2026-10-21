@@ -12,6 +12,7 @@ import 'package:g_mate/features/place/data/in_memory_place_repository.dart';
 import 'package:g_mate/features/place/domain/place_repository.dart';
 import 'package:g_mate/features/speech/data/in_memory_speech_settings_repository.dart';
 import 'package:g_mate/features/speech/domain/speech_settings_repository.dart';
+import 'package:g_mate/features/speech/presentation/bloc/voice_guide_cubit.dart';
 import 'package:g_mate/features/tour/data/in_memory_tour_repository.dart';
 import 'package:g_mate/features/tour/domain/tour_repository.dart';
 
@@ -42,6 +43,17 @@ Future<FakeRobotController> registerTestDependencies({
     ..registerSingleton<PlaceImagePicker>(FakePlaceImagePicker())
     ..registerSingleton<TourRepository>(InMemoryTourRepository());
   return robot;
+}
+
+/// [text]를 들려주고, 알아들은 말을 보여 준 뒤 명령을 수행할 때까지 기다린다.
+Future<void> hearCommand(
+  WidgetTester tester,
+  FakeRobotController robot,
+  String text,
+) async {
+  robot.hearSpeech(text);
+  await tester.pump();
+  await tester.pump(VoiceGuideCubit.defaultCommandDelay);
 }
 
 /// [initialLocation]에서 시작하는 앱.
