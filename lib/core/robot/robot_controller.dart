@@ -1,5 +1,8 @@
 import 'robot_event.dart';
 
+/// temi가 지도를 만들 때 스스로 두는 충전 위치 이름. 안내할 장소가 아니다.
+const temiHomeBase = 'home base';
+
 /// temi 호출을 한곳에 모은 추상화. 화면과 도메인은 이 타입만 의존한다.
 ///
 /// 구현은 실기용 `TemiRobotController`와 개발용 `FakeRobotController` 두 가지다.

@@ -35,7 +35,7 @@ void configureDependencies() {
       () => useFakeRobot
           ? FakeRobotController(
               initialLocations: [
-                'home_base',
+                temiHomeBase,
                 for (final p in seedPlaces.take(seedPlaces.length - 1)) p.key,
               ],
             )
@@ -43,7 +43,11 @@ void configureDependencies() {
       dispose: (robot) => robot.dispose(),
     )
     ..registerLazySingleton<AppDatabase>(
-      () => AppDatabase(driftDatabase(name: _databaseName), seed: seedDatabase),
+      // 실기에서는 장소를 temi 지도에서 가져오므로 예시 장소·코스를 넣지 않는다.
+      () => AppDatabase(
+        driftDatabase(name: _databaseName),
+        seed: useFakeRobot ? seedDatabase : null,
+      ),
       dispose: (db) => db.close(),
     )
     ..registerLazySingleton<PlaceRepository>(
