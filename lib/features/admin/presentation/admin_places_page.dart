@@ -44,7 +44,8 @@ class AdminPlacesPage extends StatelessWidget {
             return const GmEmptyState(
               icon: Icons.add_location_alt_outlined,
               title: '저장된 장소가 없어요',
-              message: '로봇을 장소로 데려간 뒤 [현재 위치 저장]을 눌러 주세요',
+              message:
+                  'temi 지도에 저장한 위치가 여기 나와요. 로봇을 장소로 데려간 뒤 [현재 위치 저장]을 눌러도 돼요',
             );
           }
           // 목록 카드는 줄 수만큼만 높이를 갖고, 많으면 화면 안에서 스크롤한다.

@@ -9,6 +9,9 @@ import '../../../place/domain/place_repository.dart';
 import 'admin_places_state.dart';
 
 /// 장소 관리: 앱의 장소 목록과 로봇에 저장된 위치를 함께 보여 준다.
+///
+/// temi 지도에 저장된 위치 중 앱에 없는 것은 위치 이름을 그대로 이름으로 한
+/// 새 장소로 가져온다. 멘트와 설명은 장소 편집에서 채운다.
 class AdminPlacesCubit extends Cubit<AdminPlacesState> {
   AdminPlacesCubit({required this._robot, required this._places})
     : super(const AdminPlacesState());
@@ -19,17 +22,16 @@ class AdminPlacesCubit extends Cubit<AdminPlacesState> {
 
   Future<void> start() async {
     _subscription = _robot.events.listen((event) {
-      if (event is LocationsUpdated && !isClosed) {
-        emit(state.copyWith(robotLocations: event.locations.toSet()));
-      }
+      if (event is LocationsUpdated && !isClosed) load();
     });
     await load();
   }
 
   /// 목록을 다시 불러온다. 장소 편집에서 돌아왔을 때도 부른다.
   Future<void> load() async {
+    final locations = await _robotLocations();
+    await _importRobotLocations(locations);
     final places = await _places.getPlaces();
-    final locations = await _robot.getLocations();
     if (isClosed) return;
     emit(
       state.copyWith(
@@ -38,6 +40,25 @@ class AdminPlacesCubit extends Cubit<AdminPlacesState> {
         robotLocations: locations.toSet(),
       ),
     );
+  }
+
+  /// temi에 저장된 위치. 로봇이 준비되지 않았으면(에뮬레이터 실기 모드 등) 빈 목록.
+  Future<List<String>> _robotLocations() async {
+    try {
+      return await _robot.getLocations();
+    } on Exception {
+      return const [];
+    }
+  }
+
+  /// temi에만 있고 앱에 없는 위치를 새 장소로 넣는다. 충전 위치는 빼고,
+  /// 이미 있는 장소는 고치지 않는다.
+  Future<void> _importRobotLocations(List<String> locations) async {
+    final known = {for (final p in await _places.getPlaces()) p.key};
+    for (final location in locations) {
+      if (location == temiHomeBase || known.contains(location)) continue;
+      await _places.savePlace(Place.create(key: location, name: location));
+    }
   }
 
   /// 키가 형식에 맞고 아직 쓰지 않은 것인지. 문제가 있으면 안내 문구를 준다.
@@ -54,8 +75,10 @@ class AdminPlacesCubit extends Cubit<AdminPlacesState> {
     required String key,
     required String name,
   }) async {
-    await _robot.saveLocation(key);
+    // 앱 장소를 먼저 넣어, 로봇의 위치 변경 알림으로 가져오기가 돌 때
+    // 위치 이름으로 덮어쓰지 않게 한다.
     await _places.savePlace(Place.create(key: key, name: name));
+    await _robot.saveLocation(key);
     await load();
   }
 

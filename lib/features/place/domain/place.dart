@@ -65,7 +65,10 @@ class Place extends Equatable {
   static const minLineInterval = Duration(seconds: 1);
   static const maxLineInterval = Duration(seconds: 20);
 
-  /// temi에 저장되는 장소 키 (영문 소문자, 예: `science_lab`). 바꿀 수 없다.
+  /// temi에 저장되는 장소 키. 바꿀 수 없다.
+  ///
+  /// 앱에서 새로 만들 때는 영문 소문자(`science_lab`)이고, temi 지도에서
+  /// 가져온 장소는 temi 위치 이름 그대로다.
   final String key;
 
   /// 화면에 보이는 한국어 이름.
