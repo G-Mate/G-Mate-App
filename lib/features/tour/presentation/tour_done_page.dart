@@ -8,6 +8,7 @@ import '../../place/presentation/place_icons.dart';
 import '../../speech/presentation/bloc/voice_guide_cubit.dart';
 import '../../speech/presentation/voice_guide_scope.dart';
 import '../../speech/presentation/voice_scripts.dart';
+import '../../speech/presentation/widgets/idle_home_timer.dart';
 import '../domain/tour.dart';
 import 'bloc/tour_detail_cubit.dart';
 import 'tour_widgets.dart';
@@ -35,7 +36,8 @@ class TourDonePage extends StatelessWidget {
         listenWhen: (a, b) => a.isLoading && !b.isLoading,
         listener: (context, state) =>
             context.read<VoiceGuideCubit>().start(VoiceScripts.tourDone),
-        child: _content(),
+        // 안내를 다 하고도 아무 명령이 없으면 홈으로 돌아간다.
+        child: IdleHomeTimer(active: true, child: _content()),
       ),
     );
   }

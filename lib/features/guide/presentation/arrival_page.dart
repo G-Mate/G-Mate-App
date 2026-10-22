@@ -8,6 +8,7 @@ import '../../place/presentation/place_not_found.dart';
 import '../../speech/presentation/bloc/voice_guide_cubit.dart';
 import '../../speech/presentation/voice_guide_scope.dart';
 import '../../speech/presentation/voice_scripts.dart';
+import '../../speech/presentation/widgets/idle_home_timer.dart';
 import 'bloc/arrival_cubit.dart';
 import 'bloc/arrival_state.dart';
 import 'guiding_page.dart';
@@ -38,7 +39,17 @@ class ArrivalPage extends StatelessWidget {
             context.read<VoiceGuideCubit>().start(VoiceScripts.arrival);
           }
         },
-        child: _content(),
+        // 도착 멘트를 다 읽었거나 본 설명 마지막 줄까지 읽은 뒤([마침]이
+        // 보일 때) 아무 명령이 없으면 홈으로 돌아간다.
+        child: BlocSelector<ArrivalCubit, ArrivalState, bool>(
+          selector: (s) =>
+              !s.isLoading &&
+              s.place != null &&
+              !s.isSpeaking &&
+              (!s.isListening || !s.hasNext),
+          builder: (context, isFinished) =>
+              IdleHomeTimer(active: isFinished, child: _content()),
+        ),
       ),
     );
   }
