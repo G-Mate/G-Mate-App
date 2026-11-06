@@ -22,16 +22,16 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('새 코스'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextFormField).first, '도서관 코스');
-    await tester.tap(find.text('도서관'));
+    await tester.enterText(find.byType(TextFormField).first, '행정실 코스');
+    await tester.tap(find.text('행정실'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('저장'));
     await tester.pumpAndSettle();
 
     expect(find.text('투어 관리'), findsOneWidget);
-    expect(find.text('도서관 코스'), findsOneWidget);
+    expect(find.text('행정실 코스'), findsOneWidget);
     final tours = await getIt<TourRepository>().getTours();
-    expect(tours.last.name, '도서관 코스');
+    expect(tours.last.name, '행정실 코스');
   });
 
   testWidgets('삭제를 확인하면 코스가 목록에서 사라진다', (tester) async {

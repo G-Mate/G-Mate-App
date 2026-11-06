@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:g_mate/app/router.dart';
 import 'package:g_mate/core/robot/robot_event.dart';
@@ -33,15 +32,14 @@ void main() {
     await hearCommand(tester, robot, '장소 목록');
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
-    expect(spoken.last, startsWith('갈 수 있는 곳은 과학실, 컴퓨터실'));
+    expect(spoken.last, startsWith('갈 수 있는 곳은 행정실, 교무실'));
 
-    debugPrint('SPOKEN $spoken');
-    await hearCommand(tester, robot, '과학실로 가 줘');
+    await hearCommand(tester, robot, '교장실로 가 줘');
     await tester.pump();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('이곳으로 안내할까요?'), findsOneWidget);
-    expect(spoken, contains('과학실. 이곳으로 안내할까요?'));
+    expect(spoken, contains('교장실. 이곳으로 안내할까요?'));
 
     await hearCommand(tester, robot, '안내 시작');
     // 평면도 미리보기가 물러난 뒤 이동 중 화면으로 넘어간다.
@@ -72,7 +70,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
 
-    await tester.tap(find.text('과학실'));
+    await tester.tap(find.text('행정실'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('이곳으로 안내할까요?'), findsOneWidget);

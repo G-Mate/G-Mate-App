@@ -10,14 +10,20 @@ import 'admin_places_state.dart';
 
 /// 장소 관리: 앱의 장소 목록과 로봇에 저장된 위치를 함께 보여 준다.
 ///
-/// temi 지도에 저장된 위치 중 앱에 없는 것은 위치 이름을 그대로 이름으로 한
-/// 새 장소로 가져온다. 멘트와 설명은 장소 편집에서 채운다.
+/// temi 지도에 저장된 위치 중 앱에 없는 것은 새 장소로 가져온다. 위치 이름이
+/// [templates](1층 장소 목록)의 키나 이름과 같으면 그 이름·분류·멘트를 쓰고,
+/// 아니면 위치 이름을 그대로 이름으로 한 빈 장소를 만든다(멘트와 설명은 장소
+/// 편집에서 채운다).
 class AdminPlacesCubit extends Cubit<AdminPlacesState> {
-  AdminPlacesCubit({required this._robot, required this._places})
-    : super(const AdminPlacesState());
+  AdminPlacesCubit({
+    required this._robot,
+    required this._places,
+    this._templates = const [],
+  }) : super(const AdminPlacesState());
 
   final RobotController _robot;
   final PlaceRepository _places;
+  final List<Place> _templates;
   StreamSubscription<RobotEvent>? _subscription;
 
   Future<void> start() async {
@@ -57,8 +63,27 @@ class AdminPlacesCubit extends Cubit<AdminPlacesState> {
     final known = {for (final p in await _places.getPlaces()) p.key};
     for (final location in locations) {
       if (location == temiHomeBase || known.contains(location)) continue;
-      await _places.savePlace(Place.create(key: location, name: location));
+      await _places.savePlace(_placeFor(location));
     }
+  }
+
+  /// temi 위치 [location]으로 만들 장소. 키는 위치 이름 그대로다.
+  Place _placeFor(String location) {
+    for (final t in _templates) {
+      if (t.key == location || t.name == location) {
+        return Place(
+          key: location,
+          name: t.name,
+          building: t.building,
+          category: t.category,
+          keywords: t.keywords,
+          speech: t.speech,
+          originalSpeech: t.originalSpeech,
+          lineInterval: t.lineInterval,
+        );
+      }
+    }
+    return Place.create(key: location, name: location);
   }
 
   /// 키가 형식에 맞고 아직 쓰지 않은 것인지. 문제가 있으면 안내 문구를 준다.

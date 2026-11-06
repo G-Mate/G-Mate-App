@@ -3,10 +3,21 @@ import 'package:equatable/equatable.dart';
 /// 장소 분류. 방문객 화면의 분류 칩과 같은 순서다.
 enum PlaceCategory {
   classroom('교실'),
-  office('행정실'),
+  office('사무실'),
   facility('편의시설');
 
   const PlaceCategory(this.label);
+
+  /// 화면에 보이는 이름.
+  final String label;
+}
+
+/// 장소가 있는 건물. temi는 층을 오가지 못해서 1층(본관·실습동)만 안내한다.
+enum PlaceBuilding {
+  main('본관'),
+  practice('실습동');
+
+  const PlaceBuilding(this.label);
 
   /// 화면에 보이는 이름.
   final String label;
@@ -48,10 +59,10 @@ class Place extends Equatable {
   const Place({
     required this.key,
     required this.name,
-    required this.floor,
     required this.category,
     required this.speech,
     required this.originalSpeech,
+    this.building = PlaceBuilding.main,
     this.keywords = const [],
     this.lineInterval = defaultLineInterval,
     this.imagePath,
@@ -73,7 +84,9 @@ class Place extends Equatable {
 
   /// 화면에 보이는 한국어 이름.
   final String name;
-  final int floor;
+
+  /// 장소가 있는 건물 (모두 1층).
+  final PlaceBuilding building;
   final PlaceCategory category;
 
   /// 검색에서 이 장소를 찾을 때 쓰는 말.
@@ -103,7 +116,6 @@ class Place extends Equatable {
     return Place(
       key: key,
       name: name,
-      floor: 1,
       category: PlaceCategory.classroom,
       speech: speech,
       originalSpeech: speech,
@@ -113,8 +125,8 @@ class Place extends Equatable {
   /// temi 장소 키 형식: 영문 소문자로 시작하고 영문 소문자·숫자·밑줄만.
   static final keyPattern = RegExp(r'^[a-z][a-z0-9_]*$');
 
-  /// 이름 아래 작은 글자 (예: '3층 · 교실').
-  String get meta => '$floor층 · ${category.label}';
+  /// 이름 아래 작은 글자 (예: '본관 · 사무실').
+  String get meta => '${building.label} · ${category.label}';
 
   /// 장소 확인 화면에 한 덩어리로 보여 줄 짧은 설명.
   String get summary => speech.descriptionLines.join(' ');
@@ -131,7 +143,7 @@ class Place extends Equatable {
 
   Place copyWith({
     String? name,
-    int? floor,
+    PlaceBuilding? building,
     PlaceCategory? category,
     List<String>? keywords,
     PlaceSpeech? speech,
@@ -141,7 +153,7 @@ class Place extends Equatable {
   }) => Place(
     key: key,
     name: name ?? this.name,
-    floor: floor ?? this.floor,
+    building: building ?? this.building,
     category: category ?? this.category,
     keywords: keywords ?? this.keywords,
     speech: speech ?? this.speech,
@@ -154,7 +166,7 @@ class Place extends Equatable {
   List<Object?> get props => [
     key,
     name,
-    floor,
+    building,
     category,
     keywords,
     speech,

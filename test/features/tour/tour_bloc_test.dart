@@ -14,16 +14,16 @@ const _tour = Tour(
   description: '두 곳을 둘러봐요',
   duration: Duration(minutes: 5),
   stops: [
-    TourStop(placeKey: 'science_lab'),
+    TourStop(placeKey: 'principal_office'),
     TourStop(placeKey: 'nowhere'),
-    TourStop(placeKey: 'computer_lab'),
+    TourStop(placeKey: 'vice_principal_office'),
   ],
 );
 
-/// 과학실 본 설명은 두 줄로 바꿔 둔 장소들.
+/// 교장실 본 설명은 두 줄로 바꿔 둔 장소들.
 final _places = [
   for (final p in seedPlaces)
-    p.key == 'science_lab'
+    p.key == 'principal_office'
         ? p.copyWith(
             speech: p.speech.copyWith(descriptionLines: const ['첫 줄', '둘째 줄']),
           )
@@ -36,7 +36,7 @@ void main() {
 
   setUp(() {
     robot = FakeRobotController(
-      initialLocations: const ['science_lab', 'computer_lab'],
+      initialLocations: const ['principal_office', 'vice_principal_office'],
       stepDelay: const Duration(milliseconds: 10),
     );
     spoken = [];
@@ -70,9 +70,12 @@ void main() {
       InMemoryPlaceRepository(initialPlaces: _places),
     )(_tour);
 
-    expect(visits.map((v) => v.place.key), ['science_lab', 'computer_lab']);
+    expect(visits.map((v) => v.place.key), [
+      'principal_office',
+      'vice_principal_office',
+    ]);
     expect(visits.first.lines, ['첫 줄', '둘째 줄']);
-    expect(visits.last.lines.first, '컴퓨터실은 3층 가운데에 있어요.');
+    expect(visits.last.lines.first, '교감실은 교무실 바로 옆에 있어요.');
   });
 
   test('이동해 도착하면 설명을 한 줄씩 끝까지 읽고 다음 장소를 기다린다', () async {
@@ -85,7 +88,7 @@ void main() {
 
     expect(done.stopIndex, 0);
     expect(done.lineIndex, 1);
-    expect(spoken, ['과학실로 갈게요. 저를 따라와 주세요.', '첫 줄', '둘째 줄']);
+    expect(spoken, ['교장실로 갈게요. 저를 따라와 주세요.', '첫 줄', '둘째 줄']);
     await bloc.close();
   });
 
@@ -108,7 +111,7 @@ void main() {
   });
 
   test('로봇에 없는 장소면 failed가 되고, 건너뛰면 다음 곳으로 간다', () async {
-    await robot.deleteLocation('science_lab');
+    await robot.deleteLocation('principal_office');
     final bloc = build()..add(const TourStarted());
     await bloc.stream.firstWhere((s) => s.phase == TourPhase.failed);
 

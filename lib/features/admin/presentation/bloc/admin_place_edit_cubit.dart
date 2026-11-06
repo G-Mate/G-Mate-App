@@ -40,7 +40,8 @@ class AdminPlaceEditCubit extends Cubit<AdminPlaceEditState> {
   void changeCategory(PlaceCategory category) =>
       _update(_place.copyWith(category: category));
 
-  void changeFloor(int floor) => _update(_place.copyWith(floor: floor));
+  void changeBuilding(PlaceBuilding building) =>
+      _update(_place.copyWith(building: building));
 
   /// 쉼표로 나눈 검색 키워드.
   void changeKeywords(String raw) => _update(

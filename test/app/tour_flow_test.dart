@@ -12,14 +12,14 @@ void main() {
   testWidgets('코스를 골라 모든 곳을 둘러보고 홈으로 돌아온다', (tester) async {
     useTabletView(tester);
     await registerTestDependencies(
-      locations: const ['computer_lab', 'science_lab', 'library'],
+      locations: const ['community_zone', 'ai_service_lab', 'fitness_room'],
     );
     await tester.pumpWidget(testApp(AppRoutes.tourSelect));
     await tester.pumpAndSettle();
     expect(find.text('어떤 코스로 둘러볼까요?'), findsOneWidget);
 
     // 가운데 코스 카드를 누르면 코스 확인으로 간다.
-    await tester.tap(find.text('수업 공간 코스'));
+    await tester.tap(find.text('실습동 코스'));
     await tester.pumpAndSettle();
     expect(find.text('이 순서로 안내해요'), findsOneWidget);
     expect(find.text('3곳'), findsOneWidget);
@@ -27,16 +27,16 @@ void main() {
     await tester.tap(find.text('투어 시작'));
     await tester.pump();
     await tester.pump();
-    expect(find.text('컴퓨터실로\n가고 있어요'), findsOneWidget);
+    expect(find.text('커뮤니티존으로\n가고 있어요'), findsOneWidget);
 
-    for (final name in ['컴퓨터실', '과학실', '도서관']) {
+    for (final name in ['커뮤니티존', 'AI서비스구현실습실', '체력단련실']) {
       // Fake 로봇이 이동을 마치면 설명으로 넘어간다.
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pumpAndSettle();
       expect(find.text(name), findsWidgets);
       expect(find.byType(ExplanationView), findsOneWidget);
       // 설명은 [다음]으로 한 줄씩 넘기고, 마지막 줄에서 다음 곳으로 간다.
-      final last = name == '도서관' ? '투어 마치기' : '다음 장소';
+      final last = name == '체력단련실' ? '투어 마치기' : '다음 장소';
       while (find.text(last).evaluate().isEmpty) {
         await tester.tap(find.textContaining(RegExp(r'^다음( ·|$)')));
         await tester.pumpAndSettle();
@@ -56,11 +56,13 @@ void main() {
 
   testWidgets('코스 이름과 투어 시작을 말하면 코스 확인을 거쳐 투어가 시작된다', (tester) async {
     useTabletView(tester);
-    final robot = await registerTestDependencies();
+    final robot = await registerTestDependencies(
+      locations: const ['community_zone'],
+    );
     await tester.pumpWidget(testApp(AppRoutes.tourSelect));
     await tester.pumpAndSettle();
 
-    await hearCommand(tester, robot, '수업 공간 코스 보여 줘');
+    await hearCommand(tester, robot, '실습동 코스 보여 줘');
     await tester.pumpAndSettle();
     expect(find.text('이 순서로 안내해요'), findsOneWidget);
 
@@ -68,7 +70,7 @@ void main() {
     for (var i = 0; i < 3; i++) {
       await tester.pump(const Duration(milliseconds: 50));
     }
-    expect(find.text('컴퓨터실로\n가고 있어요'), findsOneWidget);
+    expect(find.text('커뮤니티존으로\n가고 있어요'), findsOneWidget);
 
     // 이동 중에 '투어 중지'라고 하면 홈으로 돌아간다.
     await hearCommand(tester, robot, '투어 중지');
@@ -80,7 +82,7 @@ void main() {
   testWidgets('투어 중지는 한 번 더 묻고, 확인하면 홈으로 돌아간다', (tester) async {
     useTabletView(tester);
     final robot = await registerTestDependencies();
-    await tester.pumpWidget(testApp(AppRoutes.tourRun('classrooms')));
+    await tester.pumpWidget(testApp(AppRoutes.tourRun('practice_wing')));
     await tester.pump();
     await tester.pump();
 

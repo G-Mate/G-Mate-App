@@ -1,20 +1,24 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../floor_plan/first_floor_layout.dart';
 import '../theme/app_semantic_colors.dart';
 import '../theme/app_tokens.dart';
 
-/// 예시 층 평면도. 복도 하나에 교실이 위아래로 붙어 있고, 지금 위치(왼쪽)에서
-/// 오른쪽 끝 목적지 교실까지의 경로를 그린다.
+/// 학교 1층 평면도([FirstFloorLayout]). 목적지 방을 강조하고, 출발점(앞 장소,
+/// 없으면 충전 위치)에서 복도를 따라 목적지까지의 경로를 그린다.
 ///
 /// 장소 확인 화면의 미리보기([GmFloorPlanTour])와 이동 중 화면의 지도가 같은
-/// 그림을 써서, 화면이 넘어갈 때 [heroTag]로 이어진다. 실제 temi 지도가 생기면
-/// 이 그림을 바꾼다.
+/// 그림을 써서, 화면이 넘어갈 때 [heroTag]로 이어진다. 목적지가 배치도에 없는
+/// 장소(관리 모드에서 새로 만든 장소 등)면 경로 없이 1층 전체만 보여 준다.
 class GmFloorPlan extends StatelessWidget {
   const GmFloorPlan({
     super.key,
     required this.destination,
+    this.destinationKey,
+    this.fromKey,
     this.progress = 0,
     this.cameraFocus = 0,
     this.cameraZoom = 1,
@@ -24,8 +28,14 @@ class GmFloorPlan extends StatelessWidget {
   /// 두 화면의 평면도를 잇는 Hero 태그.
   static const heroTag = 'gm-floor-plan';
 
-  /// 목적지 교실 가운데에 쓸 이름.
+  /// 목적지 이름 (배치도에 없는 장소일 때는 쓰지 않는다).
   final String destination;
+
+  /// 목적지 장소 키. 배치도의 방 키와 같으면 그 방까지 경로를 그린다.
+  final String? destinationKey;
+
+  /// 출발 장소 키. 없으면 충전 위치에서 출발한다.
+  final String? fromKey;
 
   /// 로봇이 경로를 얼마나 왔는지 (0~1).
   final double progress;
@@ -33,7 +43,7 @@ class GmFloorPlan extends StatelessWidget {
   /// 카메라가 바라보는 경로 위 지점 (0 = 출발, 1 = 목적지).
   final double cameraFocus;
 
-  /// 카메라 배율. 1이면 평면도 전체를 보여 준다.
+  /// 카메라 배율. 1이면 경로 둘레를 보여 준다.
   final double cameraZoom;
 
   /// 출발점 아래에 쓸 이름 (예: '현재 위치'). 없으면 쓰지 않는다.
@@ -44,26 +54,20 @@ class GmFloorPlan extends StatelessWidget {
     final colors = context.colors;
     final semantic = context.appColors;
     final text = context.textStyles;
-    TextPainter label(String s, TextStyle? style) => TextPainter(
-      text: TextSpan(text: s, style: style),
-      textDirection: TextDirection.ltr,
-    )..layout();
-
+    final key = destinationKey;
     return CustomPaint(
       painter: _FloorPlanPainter(
+        routePoints: key == null
+            ? null
+            : FirstFloorLayout.route(from: fromKey, to: key),
+        destinationKey: key,
         progress: progress,
         focus: cameraFocus,
         zoom: cameraZoom,
-        destinationLabel: label(
-          destination,
-          text.titleSmall?.copyWith(color: colors.onSurface),
-        ),
-        startLabel: startLabel == null
-            ? null
-            : label(
-                startLabel!,
-                text.labelSmall?.copyWith(color: semantic.textSecondary),
-              ),
+        roomStyle: text.labelSmall?.copyWith(color: semantic.textSecondary),
+        destinationStyle: text.titleSmall?.copyWith(color: colors.onSurface),
+        startLabel: startLabel,
+        startStyle: text.labelSmall?.copyWith(color: semantic.textSecondary),
         wall: semantic.textDisabled,
         room: colors.surfaceContainerHighest,
         route: colors.primary,
@@ -73,16 +77,18 @@ class GmFloorPlan extends StatelessWidget {
   }
 }
 
-/// 장소 확인 화면의 평면도 미리보기. 전체 → 지금 위치로 다가가기 → 경로를
-/// 따라 목적지까지 → 전체로 물러나기를 부드럽게 되풀이한다.
 class GmFloorPlanTour extends StatefulWidget {
   const GmFloorPlanTour({
     super.key,
     required this.destination,
+    this.destinationKey,
     this.startLabel = '현재 위치',
   });
 
   final String destination;
+
+  /// 목적지 장소 키 ([GmFloorPlan.destinationKey]).
+  final String? destinationKey;
   final String startLabel;
 
   @override
@@ -93,7 +99,7 @@ class GmFloorPlanTourState extends State<GmFloorPlanTour>
     with TickerProviderStateMixin {
   static const _period = Duration(seconds: 8);
   static const _settleDuration = Duration(milliseconds: 280);
-  static const _closeZoom = 2.2;
+  static const _closeZoom = 1.8;
 
   late final AnimationController _controller = AnimationController(
     vsync: this,
@@ -149,6 +155,7 @@ class GmFloorPlanTourState extends State<GmFloorPlanTour>
           strength: 1 - _settle.value,
           child: GmFloorPlan(
             destination: widget.destination,
+            destinationKey: widget.destinationKey,
             cameraFocus: focus,
             cameraZoom: zoom + (1 - zoom) * _settle.value,
             startLabel: widget.startLabel,
@@ -191,62 +198,101 @@ class GmFloorPlanFade extends StatelessWidget {
 
 class _FloorPlanPainter extends CustomPainter {
   _FloorPlanPainter({
+    required this.routePoints,
+    required this.destinationKey,
     required this.progress,
     required this.focus,
     required this.zoom,
-    required this.destinationLabel,
+    required this.roomStyle,
+    required this.destinationStyle,
     required this.startLabel,
+    required this.startStyle,
     required this.wall,
     required this.room,
     required this.route,
     required this.destination,
   });
 
+  /// 배치도 좌표의 경로. 목적지가 배치도에 없으면 null.
+  final List<Offset>? routePoints;
+  final String? destinationKey;
   final double progress;
   final double focus;
   final double zoom;
-  final TextPainter destinationLabel;
-  final TextPainter? startLabel;
+  final TextStyle? roomStyle;
+  final TextStyle? destinationStyle;
+  final String? startLabel;
+  final TextStyle? startStyle;
   final Color wall;
   final Color room;
   final Color route;
   final Color destination;
 
-  // 위쪽 줄, 아래쪽 줄 교실 (left, width). 마지막 위쪽 칸이 목적지. 0~1 비율.
-  static const _top = [(0.0, 0.22), (0.24, 0.22), (0.48, 0.22), (0.72, 0.28)];
-  static const _bottom = [(0.0, 0.3), (0.32, 0.2), (0.54, 0.46)];
-  static const _corridorTop = 0.42;
-  static const _corridorBottom = 0.58;
   static const _routeWidth = 8.0;
   static const _labelGap = 18.0;
 
-  /// 평면도 가로:세로 비율.
-  static const _aspect = 1.25;
+  /// 방 이름은 본문 작은 글자보다 더 줄여서 쓴다 (칸이 작아서).
+  static const _roomLabelScale = 0.7;
+
+  /// 경로 둘레로 남기는 여백 (배치도 좌표).
+  static const _routeMargin = 60.0;
+
+  /// 경로 둘레를 보여 줄 때 1층 전체 보기보다 최대 몇 배까지 키우는지.
+  static const _maxRouteZoom = 1.8;
+
+  /// 목적지 이름을 칸에 맞춰 줄일 때 가장 작은 배율.
+  static const _minDestinationScale = 0.6;
+
+  /// 건물 바깥 벽 두께 (배치도 좌표).
+  static const _outline = 7.0;
 
   @override
   void paint(Canvas canvas, Size size) {
     if (size.isEmpty) return;
-    // 평면도는 정해진 비율로 칸 안에 맞춰 넣는다 (칸 모양에 따라 늘어나지 않게).
-    final plan = _fit(size);
-    Offset at(double x, double y) =>
-        plan.topLeft + Offset(x * plan.width, y * plan.height);
-    Rect rect(double l, double t, double w, double h) => Rect.fromLTWH(
-      plan.left + l * plan.width,
-      plan.top + t * plan.height,
-      w * plan.width,
-      h * plan.height,
-    );
+    final bounds = FirstFloorLayout.bounds.inflate(_outline * 2);
+    final routeRoom = FirstFloorLayout.room(destinationKey);
+    final routePath = routePoints;
 
-    const midY = (_corridorTop + _corridorBottom) / 2;
-    final path = [
-      at(0.12, midY),
-      at(0.86, midY),
-      at(0.86, _corridorTop - 0.02),
-    ];
+    // 기본 보기: 경로와 목적지 방 둘레, 없으면 1층 전체.
+    final fitAll = math.min(
+      size.width / bounds.width,
+      size.height / bounds.height,
+    );
+    var scale = fitAll;
+    var viewCenter = bounds.center;
+    if (routePath != null && routeRoom != null) {
+      final frame = routePath
+          .fold(routeRoom.rect, (r, p) => r.expandToInclude(p & Size.zero))
+          .inflate(_routeMargin);
+      scale = math
+          .min(size.width / frame.width, size.height / frame.height)
+          .clamp(fitAll, fitAll * _maxRouteZoom);
+      // 보이는 칸이 배치도 밖으로 나가지 않게 가운데를 옮긴다.
+      double clampAxis(double c, double half, double lo, double hi) =>
+          hi - lo <= half * 2 ? (lo + hi) / 2 : c.clamp(lo + half, hi - half);
+      viewCenter = Offset(
+        clampAxis(
+          frame.center.dx,
+          size.width / scale / 2,
+          bounds.left,
+          bounds.right,
+        ),
+        clampAxis(
+          frame.center.dy,
+          size.height / scale / 2,
+          bounds.top,
+          bounds.bottom,
+        ),
+      );
+    }
+    final center = size.center(Offset.zero);
+    Offset at(Offset p) => center + (p - viewCenter) * scale;
+    Rect rectOf(Rect r) => Rect.fromPoints(at(r.topLeft), at(r.bottomRight));
+
+    final path = routePath?.map(at).toList();
 
     // 카메라: 배율이 커질수록 화면 가운데에서 경로 위 [focus] 지점으로 옮겨 간다.
-    final center = size.center(Offset.zero);
-    final target = _pointAlong(path, focus.clamp(0, 1));
+    final target = path == null ? center : _pointAlong(path, focus.clamp(0, 1));
     final f = Offset.lerp(center, target, math.min(1.0, (zoom - 1) / 1.2))!;
 
     /// 카메라를 거친 화면 위 위치 (글자는 배율과 상관없이 같은 크기로 쓴다).
@@ -261,56 +307,71 @@ class _FloorPlanPainter extends CustomPainter {
         ..translate(-f.dx, -f.dy);
     }
 
+    // 바깥 벽: 모든 칸을 조금 키워 겹쳐 그리면 건물 모양이 된다.
+    final outline = Paint()..color = wall.withValues(alpha: 0.25);
+    final floor = Paint()..color = room.withValues(alpha: 0.35);
+    final r = Radius.circular(AppRadius.sm * scale / fitAll / 2);
+    for (final rect in [
+      for (final room in FirstFloorLayout.rooms) room.rect,
+      ...FirstFloorLayout.corridors,
+    ]) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rectOf(rect.inflate(_outline)), r),
+        outline,
+      );
+    }
+    for (final c in FirstFloorLayout.corridors) {
+      canvas.drawRect(rectOf(c), floor);
+    }
+
     final roomFill = Paint()..color = room;
+    final serviceFill = Paint()..color = room.withValues(alpha: 0.55);
+    final doorFill = Paint()..color = route.withValues(alpha: 0.18);
     final roomLine = Paint()
       ..color = wall.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
-    const r = Radius.circular(AppRadius.sm);
-
-    for (final (l, w) in _top) {
-      final rr = RRect.fromRectAndRadius(rect(l, 0, w, _corridorTop - 0.02), r);
-      canvas
-        ..drawRRect(rr, roomFill)
-        ..drawRRect(rr, roomLine);
+    for (final fr in FirstFloorLayout.rooms) {
+      final rr = RRect.fromRectAndRadius(rectOf(fr.rect).deflate(1), r);
+      canvas.drawRRect(rr, switch (fr.kind) {
+        FloorRoomKind.room => roomFill,
+        FloorRoomKind.service => serviceFill,
+        FloorRoomKind.door => doorFill,
+      });
+      if (fr.kind == FloorRoomKind.room) canvas.drawRRect(rr, roomLine);
     }
-    for (final (l, w) in _bottom) {
-      final rr = RRect.fromRectAndRadius(
-        rect(l, _corridorBottom + 0.02, w, 1 - _corridorBottom - 0.02),
-        r,
+
+    // 목적지 방은 테두리를 진하게.
+    if (routeRoom != null) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rectOf(routeRoom.rect).deflate(1), r),
+        Paint()
+          ..color = destination
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3,
       );
-      canvas
-        ..drawRRect(rr, roomFill)
-        ..drawRRect(rr, roomLine);
     }
 
-    // 목적지 교실은 테두리를 진하게.
-    final (dl, dw) = _top.last;
-    final destRect = rect(dl, 0, dw, _corridorTop - 0.02);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(destRect, r),
-      Paint()
-        ..color = destination
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 3,
-    );
+    final robotAt = path == null
+        ? at(FirstFloorLayout.homeBase)
+        : _pointAlong(path, progress.clamp(0, 1));
+    if (path != null) {
+      final done = Paint()
+        ..color = route.withValues(alpha: 0.25)
+        ..strokeWidth = _routeWidth
+        ..strokeCap = StrokeCap.round;
+      final todo = Paint()
+        ..color = route
+        ..strokeWidth = _routeWidth
+        ..strokeCap = StrokeCap.round;
+      _drawSplit(canvas, path, robotAt, done, todo);
 
-    final robotAt = _pointAlong(path, progress.clamp(0, 1));
-    final done = Paint()
-      ..color = route.withValues(alpha: 0.25)
-      ..strokeWidth = _routeWidth
-      ..strokeCap = StrokeCap.round;
-    final todo = Paint()
-      ..color = route
-      ..strokeWidth = _routeWidth
-      ..strokeCap = StrokeCap.round;
-    _drawSplit(canvas, path, robotAt, done, todo);
-
-    // 목적지 점.
-    final door = path.last;
-    canvas
-      ..drawCircle(door, 14, Paint()..color = destination)
-      ..drawCircle(door, 5, Paint()..color = room);
+      // 목적지 점.
+      final door = path.last;
+      canvas
+        ..drawCircle(door, 14, Paint()..color = destination)
+        ..drawCircle(door, 5, Paint()..color = room);
+    }
 
     // 로봇(지금 위치): 옅은 원 + 흰 테두리 점.
     canvas
@@ -323,34 +384,67 @@ class _FloorPlanPainter extends CustomPainter {
     // 이름표는 카메라 배율을 따라 커지지 않게 변환을 푼 뒤에 쓴다.
     canvas.save();
     canvas.clipRect(Offset.zero & size);
-    final destCenter = view(destRect.center);
-    destinationLabel.paint(
-      canvas,
-      destCenter -
-          Offset(destinationLabel.width / 2, destinationLabel.height / 2),
-    );
+    for (final fr in FirstFloorLayout.rooms) {
+      final box = rectOf(fr.rect);
+      final width = box.width * zoom - 4;
+      final height = box.height * zoom - 4;
+      if (fr == routeRoom) {
+        // 목적지 이름은 한 줄로 쓰고, 칸이 좁으면 칸 이름 줄바꿈대로 쓰고,
+        // 그래도 넘치면 칸에 맞게 줄인다.
+        var label = _label(_oneLine(fr.label), destinationStyle);
+        if (label.width > width) label = _label(fr.label, destinationStyle);
+        final fit = math.min(width / label.width, height / label.height);
+        if (fit < 1) {
+          label = _label(
+            fr.label,
+            destinationStyle,
+            scale: math.max(fit, _minDestinationScale),
+          );
+        }
+        label.paint(
+          canvas,
+          view(box.center) - Offset(label.width / 2, label.height / 2),
+        );
+        continue;
+      }
+      final label = _label(fr.label, roomStyle, scale: _roomLabelScale);
+      // 칸보다 큰 이름은 쓰지 않는다.
+      if (label.width > width || label.height > height) continue;
+      label.paint(
+        canvas,
+        view(box.center) - Offset(label.width / 2, label.height / 2),
+      );
+    }
     final start = startLabel;
     if (start != null) {
-      start.paint(
+      final label = TextPainter(
+        text: TextSpan(text: start, style: startStyle),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      label.paint(
         canvas,
-        view(path.first) +
-            Offset(-start.width / 2, _labelGap + _routeWidth * zoom / 2),
+        view(path?.first ?? robotAt) +
+            Offset(-label.width / 2, _labelGap + _routeWidth * zoom / 2),
       );
     }
     canvas.restore();
   }
 
-  /// 가로세로 [_aspect] 비율의 평면도를 [size] 안 가운데에 맞춘 칸.
-  static Rect _fit(Size size) {
-    final byWidth = size.width / _aspect;
-    final w = byWidth <= size.height ? size.width : size.height * _aspect;
-    final h = w / _aspect;
-    return Rect.fromCenter(
-      center: size.center(Offset.zero),
-      width: w,
-      height: h,
-    );
-  }
+  /// 줄바꿈을 지운 한 줄 이름. 영문 단어 사이는 띄어 쓴다 (Community Zone).
+  static String _oneLine(String label) => label
+      .replaceAllMapped(RegExp(r'([A-Za-z])\n'), (m) => '${m[1]} ')
+      .replaceAll('\n', '');
+
+  static TextPainter _label(
+    String text,
+    TextStyle? style, {
+    double scale = 1,
+  }) => TextPainter(
+    text: TextSpan(text: text, style: style),
+    textAlign: TextAlign.center,
+    textDirection: TextDirection.ltr,
+    textScaler: TextScaler.linear(scale),
+  )..layout();
 
   /// 꺾인 선 [path]에서 길이 비율 [t] 지점.
   static Offset _pointAlong(List<Offset> path, double t) {
@@ -395,11 +489,14 @@ class _FloorPlanPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_FloorPlanPainter old) =>
+      old.destinationKey != destinationKey ||
+      !listEquals(old.routePoints, routePoints) ||
       old.progress != progress ||
       old.focus != focus ||
       old.zoom != zoom ||
-      old.destinationLabel.text != destinationLabel.text ||
-      old.startLabel?.text != startLabel?.text ||
+      old.roomStyle != roomStyle ||
+      old.destinationStyle != destinationStyle ||
+      old.startLabel != startLabel ||
       old.wall != wall ||
       old.room != room ||
       old.route != route ||
