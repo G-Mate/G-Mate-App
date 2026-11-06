@@ -111,8 +111,12 @@ class TourRunPage extends StatelessWidget {
                         )
                       : FloorMap(
                           key: ValueKey('map-${state.stopIndex}'),
-                          floor: visit.place.floor,
                           destination: visit.place.name,
+                          destinationKey: visit.place.key,
+                          // 앞 장소에서 출발한다 (첫 곳은 충전 위치에서).
+                          fromKey: state.stopIndex == 0
+                              ? null
+                              : state.visits[state.stopIndex - 1].place.key,
                           progress: state.progress,
                         ),
                 ),

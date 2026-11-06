@@ -6,19 +6,25 @@ import '../../../../core/design_system.dart';
 
 /// 층 지도 카드: 위에 층 이름과 범례, 아래에 지도.
 ///
-/// 지금은 예시 평면도([GmFloorPlan])에 [progress]만큼 지나온 길과 로봇 위치를
-/// 그린다. 장소 확인 화면의 미리보기에서 Hero로 이어진다. temi 지도 이미지와
-/// 로봇 위치를 받을 수 있게 되면 그 값으로 그린다.
+/// 학교 1층 평면도([GmFloorPlan])에 [progress]만큼 지나온 길과 로봇 위치를
+/// 그린다. 장소 확인 화면의 미리보기에서 Hero로 이어진다. 로봇 위치는 아직
+/// temi 좌표가 아니라 이동 진행률로 경로 위에 놓는다.
 class FloorMap extends StatelessWidget {
   const FloorMap({
     super.key,
-    required this.floor,
     required this.destination,
+    required this.destinationKey,
     required this.progress,
+    this.fromKey,
   });
 
-  final int floor;
   final String destination;
+
+  /// 목적지 장소 키 ([GmFloorPlan.destinationKey]).
+  final String destinationKey;
+
+  /// 출발 장소 키. 없으면 충전 위치에서 출발한다.
+  final String? fromKey;
 
   /// 경로를 얼마나 왔는지 (0~1).
   final double progress;
@@ -46,8 +52,12 @@ class FloorMap extends StatelessWidget {
           tween: Tween(end: progress),
           duration: _moveAnimation,
           curve: Curves.easeInOut,
-          builder: (context, value, _) =>
-              GmFloorPlan(destination: destination, progress: value),
+          builder: (context, value, _) => GmFloorPlan(
+            destination: destination,
+            destinationKey: destinationKey,
+            fromKey: fromKey,
+            progress: value,
+          ),
         ),
       ),
     );
@@ -83,9 +93,7 @@ class FloorMap extends StatelessWidget {
                     width: math.max(constraints.maxWidth, _headerMinWidth),
                     child: Row(
                       children: [
-                        Expanded(
-                          child: Text('$floor층', style: text.titleLarge),
-                        ),
+                        Expanded(child: Text('1층', style: text.titleLarge)),
                         _Legend(color: colors.primary, label: '지금 위치'),
                         const SizedBox(width: AppSpacing.lg),
                         _Legend(color: colors.onSurface, label: destination),
@@ -122,7 +130,12 @@ class FloorMap extends StatelessWidget {
       builder: (context, _) => _card(
         context,
         reveal: curved.value,
-        plan: GmFloorPlan(destination: destination, progress: progress),
+        plan: GmFloorPlan(
+          destination: destination,
+          destinationKey: destinationKey,
+          fromKey: fromKey,
+          progress: progress,
+        ),
       ),
     );
   }

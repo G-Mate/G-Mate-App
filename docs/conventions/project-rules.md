@@ -51,6 +51,7 @@ lib/
 │   └── router.dart           # go_router 라우트
 ├── core/                     # 여러 기능이 같이 쓰는 코드
 │   ├── design_system.dart    # 디자인 시스템 한 번에 import
+│   ├── floor_plan/           # 학교 1층 평면도 좌표 (배치도)
 │   ├── robot/                # RobotController 추상화와 구현
 │   ├── theme/                # 디자인 토큰과 테마
 │   └── widgets/              # 공통 위젯 (Gm 접두사)

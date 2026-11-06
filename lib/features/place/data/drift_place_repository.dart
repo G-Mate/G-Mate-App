@@ -36,7 +36,8 @@ class DriftPlaceRepository implements PlaceRepository {
   static Place _toPlace(PlaceRow row) => Place(
     key: row.key,
     name: row.name,
-    floor: row.floor,
+    building:
+        PlaceBuilding.values.asNameMap()[row.building] ?? PlaceBuilding.main,
     category:
         PlaceCategory.values.asNameMap()[row.category] ??
         PlaceCategory.classroom,
@@ -50,7 +51,7 @@ class DriftPlaceRepository implements PlaceRepository {
   static PlacesCompanion _toRow(Place place) => PlacesCompanion.insert(
     key: place.key,
     name: place.name,
-    floor: place.floor,
+    building: Value(place.building.name),
     category: place.category.name,
     keywords: jsonEncode(place.keywords),
     speech: _speechToJson(place.speech),

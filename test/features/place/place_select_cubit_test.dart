@@ -17,7 +17,8 @@ void main() {
       await cubit.load();
       cubit.selectCategory(PlaceCategory.office);
     },
-    verify: (cubit) => expect(_names(cubit.state), ['교무실', '행정실']),
+    verify: (cubit) =>
+        expect(_names(cubit.state), ['행정실', '교무실', '교장실', '교감실', '방송실', '인쇄실']),
   );
 
   blocTest<PlaceSelectCubit, PlaceSelectState>(
@@ -25,9 +26,9 @@ void main() {
     build: () => PlaceSelectCubit(InMemoryPlaceRepository()),
     act: (cubit) async {
       await cubit.load();
-      cubit.search('도서 실');
+      cubit.search('헬 스');
     },
-    verify: (cubit) => expect(_names(cubit.state), ['도서관']),
+    verify: (cubit) => expect(_names(cubit.state), ['체력단련실']),
   );
 
   blocTest<PlaceSelectCubit, PlaceSelectState>(
@@ -39,6 +40,6 @@ void main() {
         ..selectCategory(PlaceCategory.facility)
         ..selectCategory(null);
     },
-    verify: (cubit) => expect(cubit.state.visiblePlaces, hasLength(6)),
+    verify: (cubit) => expect(cubit.state.visiblePlaces, hasLength(13)),
   );
 }

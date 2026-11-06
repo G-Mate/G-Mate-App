@@ -7,7 +7,9 @@ part 'app_database.g.dart';
 class Places extends Table {
   TextColumn get key => text()();
   TextColumn get name => text()();
-  IntColumn get floor => integer()();
+
+  /// 건물 (`PlaceBuilding.name`). 스키마 4에서 층(`floor`) 대신 넣음.
+  TextColumn get building => text().withDefault(const Constant('main'))();
   TextColumn get category => text()();
 
   /// JSON 글자 목록.
@@ -77,7 +79,7 @@ class AppDatabase extends _$AppDatabase {
   static const singleRowId = 0;
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -95,6 +97,13 @@ class AppDatabase extends _$AppDatabase {
       if (from < 3) {
         // 학교 개요는 앱에 고정한 소개 페이지로 바꿔서 학교 소개 표를 지운다.
         await m.deleteTable('school_infos');
+      }
+      if (from < 4) {
+        // temi는 1층만 다녀서 층을 지우고 건물(본관·실습동)을 넣는다.
+        // 표를 새로 만들며 같은 이름 열은 옮기고 building은 기본값(본관)이 된다.
+        await m.alterTable(
+          TableMigration(places, newColumns: [places.building]),
+        );
       }
     },
   );

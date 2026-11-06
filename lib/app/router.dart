@@ -18,6 +18,7 @@ import '../features/admin/presentation/bloc/admin_pin_cubit.dart';
 import '../features/admin/presentation/bloc/admin_place_edit_cubit.dart';
 import '../features/admin/presentation/bloc/admin_places_cubit.dart';
 import '../features/admin/presentation/bloc/admin_tour_edit_cubit.dart';
+import '../features/place/data/seed_places.dart';
 import '../features/admin/presentation/bloc/admin_tours_cubit.dart';
 import '../features/admin/presentation/bloc/admin_tts_cubit.dart';
 import '../features/design_gallery/presentation/design_gallery_page.dart';
@@ -245,6 +246,7 @@ GoRouter createRouter({String initialLocation = AppRoutes.home}) => GoRouter(
         create: (_) => AdminPlacesCubit(
           robot: getIt<RobotController>(),
           places: getIt<PlaceRepository>(),
+          templates: seedPlaces,
         )..start(),
         child: const AdminPlacesPage(),
       ),

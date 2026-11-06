@@ -43,7 +43,7 @@ void main() {
       final tours = DriftTourRepository(db);
       final edited = seedTours.first.copyWith(
         name: '바꾼 코스',
-        stops: const [TourStop(placeKey: 'library')],
+        stops: const [TourStop(placeKey: 'print_room')],
       );
       await tours.saveTour(edited);
       const added = Tour(
@@ -51,7 +51,7 @@ void main() {
         name: '새 코스',
         description: '',
         duration: Duration(minutes: 5),
-        stops: [TourStop(placeKey: 'science_lab')],
+        stops: [TourStop(placeKey: 'principal_office')],
       );
       await tours.saveTour(added);
       await tours.deleteTour(seedTours[1].key);
@@ -122,7 +122,7 @@ void main() {
     );
 
     final first = open();
-    final edited = seedPlaces.first.copyWith(name: '새 과학실');
+    final edited = seedPlaces.first.copyWith(name: '새 교장실');
     await DriftPlaceRepository(first).savePlace(edited);
     await first.close();
 
@@ -135,7 +135,7 @@ void main() {
     expect(places.length, seedPlaces.length);
   });
 
-  test('스키마 1 DB를 열면 명령 기다리는 시간 칸을 더하고 학교 소개 표는 지운다', () async {
+  test('스키마 1 DB를 열면 명령 기다리는 시간 칸을 더하고 학교 소개 표와 장소 층은 지운다', () async {
     final dir = await Directory.systemTemp.createTemp('g_mate_db_v1');
     addTearDown(() => dir.delete(recursive: true));
     final file = File('${dir.path}/g_mate.sqlite');
@@ -161,6 +161,24 @@ void main() {
           "INSERT INTO school_infos VALUES (0, '옛 학교', '옛 소개', "
           "'[{\"value\":\"2015\",\"label\":\"개교\"}]', '{\"1\":\"행정\"}', NULL)",
         );
+        // 스키마 3까지의 장소 표 (층 floor 열이 있었다).
+        raw.execute(
+          'CREATE TABLE places (key TEXT NOT NULL PRIMARY KEY, '
+          'name TEXT NOT NULL, floor INTEGER NOT NULL, '
+          'category TEXT NOT NULL, keywords TEXT NOT NULL, '
+          'speech TEXT NOT NULL, original_speech TEXT NOT NULL, '
+          'line_interval_ms INTEGER NOT NULL, image_path TEXT)',
+        );
+        raw.execute(
+          "INSERT INTO places VALUES ('old_room', '옛 교실', 3, 'office', "
+          "'[\"옛\"]', '$_oldSpeech', '$_oldSpeech', 5000, NULL)",
+        );
+        raw.execute(
+          'CREATE TABLE tours (key TEXT NOT NULL PRIMARY KEY, '
+          'name TEXT NOT NULL, description TEXT NOT NULL, '
+          'duration_minutes INTEGER NOT NULL, stops TEXT NOT NULL, '
+          'image_path TEXT)',
+        );
         raw.execute('PRAGMA user_version = 1');
       },
     );
@@ -169,6 +187,7 @@ void main() {
 
     final upgraded = AppDatabase(NativeDatabase(file));
     final settings = await DriftSpeechSettingsRepository(upgraded).load();
+    final places = await DriftPlaceRepository(upgraded).getPlaces();
     // 학교 소개 표는 앱에 고정한 페이지로 바뀌어 지운다.
     final tables = await upgraded
         .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
@@ -177,6 +196,11 @@ void main() {
     await upgraded.close();
 
     expect(tables, isNot(contains('school_infos')));
+    // 층 열은 빠지고 건물은 본관이 된다.
+    expect(places.single.key, 'old_room');
+    expect(places.single.name, '옛 교실');
+    expect(places.single.building, PlaceBuilding.main);
+    expect(places.single.category, PlaceCategory.office);
 
     expect(settings.gender, VoiceGender.male);
     expect(settings.volume, 8);
@@ -189,6 +213,8 @@ void main() {
     expect((await repo.load()).commandWait, const Duration(seconds: 7));
   });
 }
+
+const _oldSpeech = '{"start":"가요","arrival":"왔어요","descriptionLines":["옛 설명"]}';
 
 /// 스키마 1 파일을 만들 때만 쓰는 빈 사용자.
 class _NoUser extends QueryExecutorUser {

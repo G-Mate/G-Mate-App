@@ -18,7 +18,6 @@ class AdminPlaceEditPage extends StatelessWidget {
   const AdminPlaceEditPage({super.key});
 
   /// 고를 수 있는 층.
-  static const floors = [1, 2, 3, 4];
 
   @override
   Widget build(BuildContext context) =>
@@ -142,15 +141,16 @@ class _BasicInfo extends StatelessWidget {
           ),
         ),
         AdminField(
-          label: '층',
+          label: '건물',
+          hint: '로봇은 1층만 다녀요',
           child: Wrap(
             spacing: AppSpacing.sm,
             children: [
-              for (final f in AdminPlaceEditPage.floors)
+              for (final b in PlaceBuilding.values)
                 GmChoiceChip(
-                  label: '$f층',
-                  selected: f == place.floor,
-                  onSelected: (_) => cubit.changeFloor(f),
+                  label: b.label,
+                  selected: b == place.building,
+                  onSelected: (_) => cubit.changeBuilding(b),
                 ),
             ],
           ),

@@ -16,12 +16,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('어디로 갈까요?'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField), '실험');
+    await tester.enterText(find.byType(TextField), '교장');
     await tester.pumpAndSettle();
-    expect(find.text('과학실'), findsOneWidget);
-    expect(find.text('컴퓨터실'), findsNothing);
+    expect(find.text('교장실'), findsOneWidget);
+    expect(find.text('교감실'), findsNothing);
 
-    await tester.tap(find.text('과학실'));
+    await tester.tap(find.text('교장실'));
     // 장소 확인의 평면도 미리보기는 계속 돌아가므로 정해진 시간만큼만 그린다.
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
@@ -39,11 +39,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('도착했어요'), findsOneWidget);
     // 설명은 바로 읽지 않고 [설명 듣기]를 눌러야 읽는다.
-    expect(find.textContaining(RegExp(r'^[1-4] / 4$')), findsNothing);
+    expect(find.textContaining(RegExp(r'^[1-2] / 2$')), findsNothing);
     await tester.tap(find.text('설명 듣기'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
-    expect(find.textContaining(RegExp(r'^[1-4] / 4$')), findsOneWidget);
+    expect(find.textContaining(RegExp(r'^[1-2] / 2$')), findsOneWidget);
 
     await tester.tap(find.text('안내 중지'));
     await tester.pumpAndSettle();
@@ -58,11 +58,11 @@ void main() {
   testWidgets('로봇에 없는 장소는 이동하지 못했다고 알려 준다', (tester) async {
     useTabletView(tester);
     await registerTestDependencies(locations: const []);
-    await tester.pumpWidget(testApp(AppRoutes.guiding('library')));
+    await tester.pumpWidget(testApp(AppRoutes.guiding('print_room')));
     await tester.pump();
     await tester.pump();
 
-    expect(find.text('도서관으로\n가지 못했어요'), findsOneWidget);
+    expect(find.text('인쇄실로\n가지 못했어요'), findsOneWidget);
     expect(find.text('다시 시도'), findsOneWidget);
     // 출발 멘트 타이머를 끝낸다.
     await tester.pump(const Duration(seconds: 1));
@@ -71,7 +71,7 @@ void main() {
   testWidgets('안내 중지는 한 번 더 묻고, 확인하면 홈으로 돌아간다', (tester) async {
     useTabletView(tester);
     final robot = await registerTestDependencies();
-    await tester.pumpWidget(testApp(AppRoutes.guiding('science_lab')));
+    await tester.pumpWidget(testApp(AppRoutes.guiding('principal_office')));
     await tester.pump();
     await tester.pump();
     // 묻는 동안 도착하지 않도록 Fake 로봇의 이동을 멈춰 둔다.

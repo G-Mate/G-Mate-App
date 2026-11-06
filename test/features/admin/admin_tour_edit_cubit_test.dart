@@ -36,17 +36,12 @@ void main() {
     final cubit = await build(first.key);
 
     cubit
-      ..moveStop(3, 0)
+      ..moveStop(2, 0)
       ..removeStop(2)
-      ..addStop('science_lab')
-      ..addStop('science_lab');
+      ..addStop('principal_office')
+      ..addStop('principal_office');
     final tour = cubit.state.tour!;
-    expect(keysOf(tour), [
-      'auditorium',
-      'admin_office',
-      'library',
-      'science_lab',
-    ]);
+    expect(keysOf(tour), ['health_room', 'admin_office', 'principal_office']);
   });
 
   test('저장하면 저장소에 남고 이름 앞뒤 빈칸은 뺀다', () async {
@@ -67,16 +62,16 @@ void main() {
     expect(cubit.state.isNew, isTrue);
     expect(cubit.state.canSave, isFalse);
 
-    cubit.changeName('도서관만');
+    cubit.changeName('인쇄실만');
     expect(cubit.state.canSave, isFalse);
-    cubit.addStop('library');
+    cubit.addStop('print_room');
     expect(cubit.state.canSave, isTrue);
     await cubit.save();
 
     final all = await tours.getTours();
     expect(all, hasLength(seedTours.length + 1));
     expect(all.last.key, 'tour_42');
-    expect(keysOf(all.last), ['library']);
+    expect(keysOf(all.last), ['print_room']);
   });
 
   test('사진을 고르면 코스 사진이 되고, 지우면 빠지며, 저장하면 남는다', () async {

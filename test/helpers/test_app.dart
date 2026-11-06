@@ -23,9 +23,9 @@ void useTabletView(WidgetTester tester) {
   addTearDown(tester.view.reset);
 }
 
-/// 테스트용 의존성을 새로 등록한다. 로봇은 [science_lab] 등 [locations]만 저장된 Fake.
+/// 테스트용 의존성을 새로 등록한다. 로봇은 [principal_office] 등 [locations]만 저장된 Fake.
 Future<FakeRobotController> registerTestDependencies({
-  List<String> locations = const ['science_lab', 'computer_lab'],
+  List<String> locations = const ['principal_office', 'vice_principal_office'],
   Duration stepDelay = const Duration(milliseconds: 100),
 }) async {
   await getIt.reset();

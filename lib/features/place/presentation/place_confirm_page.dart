@@ -101,7 +101,11 @@ class _ContentState extends State<_Content> {
               height: _previewHeight,
               child: Hero(
                 tag: GmFloorPlan.heroTag,
-                child: GmFloorPlanTour(key: _tourKey, destination: place.name),
+                child: GmFloorPlanTour(
+                  key: _tourKey,
+                  destination: place.name,
+                  destinationKey: place.key,
+                ),
               ),
             ),
           ),

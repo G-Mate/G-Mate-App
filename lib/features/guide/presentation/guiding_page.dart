@@ -122,8 +122,8 @@ class GuidingPage extends StatelessWidget {
                   ),
           ),
           child: FloorMap(
-            floor: place.floor,
             destination: place.name,
+            destinationKey: place.key,
             progress: state.progress,
           ),
         );

@@ -26,14 +26,17 @@ class $PlacesTable extends Places with TableInfo<$PlacesTable, PlaceRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _floorMeta = const VerificationMeta('floor');
+  static const VerificationMeta _buildingMeta = const VerificationMeta(
+    'building',
+  );
   @override
-  late final GeneratedColumn<int> floor = GeneratedColumn<int>(
-    'floor',
+  late final GeneratedColumn<String> building = GeneratedColumn<String>(
+    'building',
     aliasedName,
     false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('main'),
   );
   static const VerificationMeta _categoryMeta = const VerificationMeta(
     'category',
@@ -103,7 +106,7 @@ class $PlacesTable extends Places with TableInfo<$PlacesTable, PlaceRow> {
   List<GeneratedColumn> get $columns => [
     key,
     name,
-    floor,
+    building,
     category,
     keywords,
     speech,
@@ -139,13 +142,11 @@ class $PlacesTable extends Places with TableInfo<$PlacesTable, PlaceRow> {
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('floor')) {
+    if (data.containsKey('building')) {
       context.handle(
-        _floorMeta,
-        floor.isAcceptableOrUnknown(data['floor']!, _floorMeta),
+        _buildingMeta,
+        building.isAcceptableOrUnknown(data['building']!, _buildingMeta),
       );
-    } else if (isInserting) {
-      context.missing(_floorMeta);
     }
     if (data.containsKey('category')) {
       context.handle(
@@ -216,9 +217,9 @@ class $PlacesTable extends Places with TableInfo<$PlacesTable, PlaceRow> {
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
-      floor: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}floor'],
+      building: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}building'],
       )!,
       category: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -256,7 +257,9 @@ class $PlacesTable extends Places with TableInfo<$PlacesTable, PlaceRow> {
 class PlaceRow extends DataClass implements Insertable<PlaceRow> {
   final String key;
   final String name;
-  final int floor;
+
+  /// 건물 (`PlaceBuilding.name`). 스키마 4에서 층(`floor`) 대신 넣음.
+  final String building;
   final String category;
 
   /// JSON 글자 목록.
@@ -270,7 +273,7 @@ class PlaceRow extends DataClass implements Insertable<PlaceRow> {
   const PlaceRow({
     required this.key,
     required this.name,
-    required this.floor,
+    required this.building,
     required this.category,
     required this.keywords,
     required this.speech,
@@ -283,7 +286,7 @@ class PlaceRow extends DataClass implements Insertable<PlaceRow> {
     final map = <String, Expression>{};
     map['key'] = Variable<String>(key);
     map['name'] = Variable<String>(name);
-    map['floor'] = Variable<int>(floor);
+    map['building'] = Variable<String>(building);
     map['category'] = Variable<String>(category);
     map['keywords'] = Variable<String>(keywords);
     map['speech'] = Variable<String>(speech);
@@ -299,7 +302,7 @@ class PlaceRow extends DataClass implements Insertable<PlaceRow> {
     return PlacesCompanion(
       key: Value(key),
       name: Value(name),
-      floor: Value(floor),
+      building: Value(building),
       category: Value(category),
       keywords: Value(keywords),
       speech: Value(speech),
@@ -319,7 +322,7 @@ class PlaceRow extends DataClass implements Insertable<PlaceRow> {
     return PlaceRow(
       key: serializer.fromJson<String>(json['key']),
       name: serializer.fromJson<String>(json['name']),
-      floor: serializer.fromJson<int>(json['floor']),
+      building: serializer.fromJson<String>(json['building']),
       category: serializer.fromJson<String>(json['category']),
       keywords: serializer.fromJson<String>(json['keywords']),
       speech: serializer.fromJson<String>(json['speech']),
@@ -334,7 +337,7 @@ class PlaceRow extends DataClass implements Insertable<PlaceRow> {
     return <String, dynamic>{
       'key': serializer.toJson<String>(key),
       'name': serializer.toJson<String>(name),
-      'floor': serializer.toJson<int>(floor),
+      'building': serializer.toJson<String>(building),
       'category': serializer.toJson<String>(category),
       'keywords': serializer.toJson<String>(keywords),
       'speech': serializer.toJson<String>(speech),
@@ -347,7 +350,7 @@ class PlaceRow extends DataClass implements Insertable<PlaceRow> {
   PlaceRow copyWith({
     String? key,
     String? name,
-    int? floor,
+    String? building,
     String? category,
     String? keywords,
     String? speech,
@@ -357,7 +360,7 @@ class PlaceRow extends DataClass implements Insertable<PlaceRow> {
   }) => PlaceRow(
     key: key ?? this.key,
     name: name ?? this.name,
-    floor: floor ?? this.floor,
+    building: building ?? this.building,
     category: category ?? this.category,
     keywords: keywords ?? this.keywords,
     speech: speech ?? this.speech,
@@ -369,7 +372,7 @@ class PlaceRow extends DataClass implements Insertable<PlaceRow> {
     return PlaceRow(
       key: data.key.present ? data.key.value : this.key,
       name: data.name.present ? data.name.value : this.name,
-      floor: data.floor.present ? data.floor.value : this.floor,
+      building: data.building.present ? data.building.value : this.building,
       category: data.category.present ? data.category.value : this.category,
       keywords: data.keywords.present ? data.keywords.value : this.keywords,
       speech: data.speech.present ? data.speech.value : this.speech,
@@ -388,7 +391,7 @@ class PlaceRow extends DataClass implements Insertable<PlaceRow> {
     return (StringBuffer('PlaceRow(')
           ..write('key: $key, ')
           ..write('name: $name, ')
-          ..write('floor: $floor, ')
+          ..write('building: $building, ')
           ..write('category: $category, ')
           ..write('keywords: $keywords, ')
           ..write('speech: $speech, ')
@@ -403,7 +406,7 @@ class PlaceRow extends DataClass implements Insertable<PlaceRow> {
   int get hashCode => Object.hash(
     key,
     name,
-    floor,
+    building,
     category,
     keywords,
     speech,
@@ -417,7 +420,7 @@ class PlaceRow extends DataClass implements Insertable<PlaceRow> {
       (other is PlaceRow &&
           other.key == this.key &&
           other.name == this.name &&
-          other.floor == this.floor &&
+          other.building == this.building &&
           other.category == this.category &&
           other.keywords == this.keywords &&
           other.speech == this.speech &&
@@ -429,7 +432,7 @@ class PlaceRow extends DataClass implements Insertable<PlaceRow> {
 class PlacesCompanion extends UpdateCompanion<PlaceRow> {
   final Value<String> key;
   final Value<String> name;
-  final Value<int> floor;
+  final Value<String> building;
   final Value<String> category;
   final Value<String> keywords;
   final Value<String> speech;
@@ -440,7 +443,7 @@ class PlacesCompanion extends UpdateCompanion<PlaceRow> {
   const PlacesCompanion({
     this.key = const Value.absent(),
     this.name = const Value.absent(),
-    this.floor = const Value.absent(),
+    this.building = const Value.absent(),
     this.category = const Value.absent(),
     this.keywords = const Value.absent(),
     this.speech = const Value.absent(),
@@ -452,7 +455,7 @@ class PlacesCompanion extends UpdateCompanion<PlaceRow> {
   PlacesCompanion.insert({
     required String key,
     required String name,
-    required int floor,
+    this.building = const Value.absent(),
     required String category,
     required String keywords,
     required String speech,
@@ -462,7 +465,6 @@ class PlacesCompanion extends UpdateCompanion<PlaceRow> {
     this.rowid = const Value.absent(),
   }) : key = Value(key),
        name = Value(name),
-       floor = Value(floor),
        category = Value(category),
        keywords = Value(keywords),
        speech = Value(speech),
@@ -471,7 +473,7 @@ class PlacesCompanion extends UpdateCompanion<PlaceRow> {
   static Insertable<PlaceRow> custom({
     Expression<String>? key,
     Expression<String>? name,
-    Expression<int>? floor,
+    Expression<String>? building,
     Expression<String>? category,
     Expression<String>? keywords,
     Expression<String>? speech,
@@ -483,7 +485,7 @@ class PlacesCompanion extends UpdateCompanion<PlaceRow> {
     return RawValuesInsertable({
       if (key != null) 'key': key,
       if (name != null) 'name': name,
-      if (floor != null) 'floor': floor,
+      if (building != null) 'building': building,
       if (category != null) 'category': category,
       if (keywords != null) 'keywords': keywords,
       if (speech != null) 'speech': speech,
@@ -497,7 +499,7 @@ class PlacesCompanion extends UpdateCompanion<PlaceRow> {
   PlacesCompanion copyWith({
     Value<String>? key,
     Value<String>? name,
-    Value<int>? floor,
+    Value<String>? building,
     Value<String>? category,
     Value<String>? keywords,
     Value<String>? speech,
@@ -509,7 +511,7 @@ class PlacesCompanion extends UpdateCompanion<PlaceRow> {
     return PlacesCompanion(
       key: key ?? this.key,
       name: name ?? this.name,
-      floor: floor ?? this.floor,
+      building: building ?? this.building,
       category: category ?? this.category,
       keywords: keywords ?? this.keywords,
       speech: speech ?? this.speech,
@@ -529,8 +531,8 @@ class PlacesCompanion extends UpdateCompanion<PlaceRow> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
-    if (floor.present) {
-      map['floor'] = Variable<int>(floor.value);
+    if (building.present) {
+      map['building'] = Variable<String>(building.value);
     }
     if (category.present) {
       map['category'] = Variable<String>(category.value);
@@ -561,7 +563,7 @@ class PlacesCompanion extends UpdateCompanion<PlaceRow> {
     return (StringBuffer('PlacesCompanion(')
           ..write('key: $key, ')
           ..write('name: $name, ')
-          ..write('floor: $floor, ')
+          ..write('building: $building, ')
           ..write('category: $category, ')
           ..write('keywords: $keywords, ')
           ..write('speech: $speech, ')
@@ -1410,7 +1412,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$PlacesTableCreateCompanionBuilder = PlacesCompanion Function({
   required String key,
   required String name,
-  required int floor,
+  Value<String> building,
   required String category,
   required String keywords,
   required String speech,
@@ -1422,7 +1424,7 @@ typedef $$PlacesTableCreateCompanionBuilder = PlacesCompanion Function({
 typedef $$PlacesTableUpdateCompanionBuilder = PlacesCompanion Function({
   Value<String> key,
   Value<String> name,
-  Value<int> floor,
+  Value<String> building,
   Value<String> category,
   Value<String> keywords,
   Value<String> speech,
@@ -1451,8 +1453,8 @@ class $$PlacesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get floor => $composableBuilder(
-    column: $table.floor,
+  ColumnFilters<String> get building => $composableBuilder(
+    column: $table.building,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1506,8 +1508,8 @@ class $$PlacesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get floor => $composableBuilder(
-    column: $table.floor,
+  ColumnOrderings<String> get building => $composableBuilder(
+    column: $table.building,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1557,8 +1559,8 @@ class $$PlacesTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<int> get floor =>
-      $composableBuilder(column: $table.floor, builder: (column) => column);
+  GeneratedColumn<String> get building =>
+      $composableBuilder(column: $table.building, builder: (column) => column);
 
   GeneratedColumn<String> get category =>
       $composableBuilder(column: $table.category, builder: (column) => column);
@@ -1613,7 +1615,7 @@ class $$PlacesTableTableManager
               ({
                 Value<String> key = const Value.absent(),
                 Value<String> name = const Value.absent(),
-                Value<int> floor = const Value.absent(),
+                Value<String> building = const Value.absent(),
                 Value<String> category = const Value.absent(),
                 Value<String> keywords = const Value.absent(),
                 Value<String> speech = const Value.absent(),
@@ -1624,7 +1626,7 @@ class $$PlacesTableTableManager
               }) => PlacesCompanion(
                 key: key,
                 name: name,
-                floor: floor,
+                building: building,
                 category: category,
                 keywords: keywords,
                 speech: speech,
@@ -1637,7 +1639,7 @@ class $$PlacesTableTableManager
               ({
                 required String key,
                 required String name,
-                required int floor,
+                Value<String> building = const Value.absent(),
                 required String category,
                 required String keywords,
                 required String speech,
@@ -1648,7 +1650,7 @@ class $$PlacesTableTableManager
               }) => PlacesCompanion.insert(
                 key: key,
                 name: name,
-                floor: floor,
+                building: building,
                 category: category,
                 keywords: keywords,
                 speech: speech,

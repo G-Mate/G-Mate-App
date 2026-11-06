@@ -16,8 +16,8 @@ void main() {
 
   test('장소 이름이나 검색어를 말하면 그 장소를 고른다', () {
     final script = VoiceScripts.placeSelect(seedPlaces);
-    expect(script.match('과학실로 가 줘')?.id, 'place:science_lab');
-    expect(script.match('전산실')?.id, 'place:computer_lab');
+    expect(script.match('교장실로 가 줘')?.id, 'place:principal_office');
+    expect(script.match('교감 선생님 어디 계세요')?.id, 'place:vice_principal_office');
     expect(script.match('장소 목록 알려 줘')?.id, VoiceScripts.listCommand);
   });
 
@@ -42,8 +42,8 @@ void main() {
   test('투어 코스 선택에서는 코스 이름이나 코스 목록을 알아듣는다', () {
     final script = VoiceScripts.tourSelect(seedTours, seedTours.first);
     expect(script.intro.last.text, VoiceScripts.tourCard(seedTours.first));
-    expect(script.match('수업 공간 코스로 할게')?.id, 'tour:classrooms');
-    expect(script.match('학교 한 바퀴')?.id, 'tour:full_tour');
+    expect(script.match('실습동 코스로 할게')?.id, 'tour:practice_wing');
+    expect(script.match('1층 한 바퀴')?.id, 'tour:full_tour');
     expect(script.match('어떤 코스가 있어')?.id, VoiceScripts.listCommand);
   });
 

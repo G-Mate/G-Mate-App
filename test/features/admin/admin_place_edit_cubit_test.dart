@@ -22,7 +22,7 @@ void main() {
     final cubit = AdminPlaceEditCubit(
       robot: robot,
       places: places,
-      placeKey: 'science_lab',
+      placeKey: 'principal_office',
       imagePicker: picker,
     );
     await cubit.load();
@@ -35,13 +35,13 @@ void main() {
       ..changeName('과학 실험실')
       ..changeKeywords(' 실험 , ,과학 ')
       ..addLine();
-    expect((await places.getPlace('science_lab'))!.name, '과학실');
+    expect((await places.getPlace('principal_office'))!.name, '교장실');
 
     await cubit.save();
-    final saved = (await places.getPlace('science_lab'))!;
+    final saved = (await places.getPlace('principal_office'))!;
     expect(saved.name, '과학 실험실');
     expect(saved.keywords, ['실험', '과학']);
-    expect(saved.speech.descriptionLines, hasLength(4));
+    expect(saved.speech.descriptionLines, hasLength(2));
     expect(cubit.state.isSaved, isTrue);
     await cubit.close();
   });
@@ -70,7 +70,7 @@ void main() {
     expect(cubit.state.lineIds, [ids[0], ...ids.sublist(2)]);
     expect(
       cubit.state.place!.speech.descriptionLines.first,
-      '과학실은 3층 동쪽 끝에 있어요.',
+      '교장실은 행정실 옆에 있어요.',
     );
     await cubit.close();
   });
@@ -82,7 +82,7 @@ void main() {
     cubit.changeLineInterval(const Duration(seconds: 8));
     await cubit.save();
     expect(
-      (await places.getPlace('science_lab'))!.lineInterval,
+      (await places.getPlace('principal_office'))!.lineInterval,
       const Duration(seconds: 8),
     );
     await cubit.close();
