@@ -17,11 +17,13 @@ part 'guide_state.dart';
 /// 화면부터 지도를 그린다 (평면도 Hero가 이어지려면 첫 프레임에 지도가 있어야 한다).
 class GuideBloc extends Bloc<GuideEvent, GuideState> {
   GuideBloc({
-    required this._robot,
-    required this._places,
+    required RobotController robot,
+    required PlaceRepository places,
     required this.placeKey,
     Place? initialPlace,
-  }) : super(GuideState(place: initialPlace)) {
+  }) : _robot = robot,
+       _places = places,
+       super(GuideState(place: initialPlace)) {
     on<GuideStarted>(_onStarted);
     on<GuideStopRequested>(_onStopRequested);
     on<GuideRetryRequested>(_onRetryRequested);

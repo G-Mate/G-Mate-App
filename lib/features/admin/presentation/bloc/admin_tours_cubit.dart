@@ -6,8 +6,12 @@ import 'admin_tours_state.dart';
 
 /// 투어 관리: 코스 목록을 보여 주고 지운다.
 class AdminToursCubit extends Cubit<AdminToursState> {
-  AdminToursCubit({required this._tours, required this._places})
-    : super(const AdminToursState());
+  AdminToursCubit({
+    required TourRepository tours,
+    required PlaceRepository places,
+  }) : _tours = tours,
+       _places = places,
+       super(const AdminToursState());
 
   final TourRepository _tours;
   final PlaceRepository _places;

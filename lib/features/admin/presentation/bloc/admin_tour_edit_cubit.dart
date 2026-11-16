@@ -11,12 +11,15 @@ import 'admin_tour_edit_state.dart';
 /// [tourKey]가 null이면 새 코스를 만든다.
 class AdminTourEditCubit extends Cubit<AdminTourEditState> {
   AdminTourEditCubit({
-    required this._tours,
-    required this._places,
+    required TourRepository tours,
+    required PlaceRepository places,
     required this.tourKey,
-    required this._imagePicker,
+    required PlaceImagePicker imagePicker,
     DateTime Function()? now,
-  }) : _now = now ?? DateTime.now,
+  }) : _tours = tours,
+       _places = places,
+       _imagePicker = imagePicker,
+       _now = now ?? DateTime.now,
        super(const AdminTourEditState());
 
   final TourRepository _tours;

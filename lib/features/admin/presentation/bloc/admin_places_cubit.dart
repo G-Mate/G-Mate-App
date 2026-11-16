@@ -16,10 +16,13 @@ import 'admin_places_state.dart';
 /// 편집에서 채운다).
 class AdminPlacesCubit extends Cubit<AdminPlacesState> {
   AdminPlacesCubit({
-    required this._robot,
-    required this._places,
-    this._templates = const [],
-  }) : super(const AdminPlacesState());
+    required RobotController robot,
+    required PlaceRepository places,
+    List<Place> templates = const [],
+  }) : _robot = robot,
+       _places = places,
+       _templates = templates,
+       super(const AdminPlacesState());
 
   final RobotController _robot;
   final PlaceRepository _places;

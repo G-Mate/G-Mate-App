@@ -1409,30 +1409,32 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ];
 }
 
-typedef $$PlacesTableCreateCompanionBuilder = PlacesCompanion Function({
-  required String key,
-  required String name,
-  Value<String> building,
-  required String category,
-  required String keywords,
-  required String speech,
-  required String originalSpeech,
-  required int lineIntervalMs,
-  Value<String?> imagePath,
-  Value<int> rowid,
-});
-typedef $$PlacesTableUpdateCompanionBuilder = PlacesCompanion Function({
-  Value<String> key,
-  Value<String> name,
-  Value<String> building,
-  Value<String> category,
-  Value<String> keywords,
-  Value<String> speech,
-  Value<String> originalSpeech,
-  Value<int> lineIntervalMs,
-  Value<String?> imagePath,
-  Value<int> rowid,
-});
+typedef $$PlacesTableCreateCompanionBuilder =
+    PlacesCompanion Function({
+      required String key,
+      required String name,
+      Value<String> building,
+      required String category,
+      required String keywords,
+      required String speech,
+      required String originalSpeech,
+      required int lineIntervalMs,
+      Value<String?> imagePath,
+      Value<int> rowid,
+    });
+typedef $$PlacesTableUpdateCompanionBuilder =
+    PlacesCompanion Function({
+      Value<String> key,
+      Value<String> name,
+      Value<String> building,
+      Value<String> category,
+      Value<String> keywords,
+      Value<String> speech,
+      Value<String> originalSpeech,
+      Value<int> lineIntervalMs,
+      Value<String?> imagePath,
+      Value<int> rowid,
+    });
 
 class $$PlacesTableFilterComposer
     extends Composer<_$AppDatabase, $PlacesTable> {
@@ -1660,16 +1662,7 @@ class $$PlacesTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<$PlacesTable, PlaceRow>(table),
-                  BaseReferences<_$AppDatabase, $PlacesTable, PlaceRow>(
-                    db,
-                    table,
-                    e,
-                  ),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -1690,24 +1683,26 @@ typedef $$PlacesTableProcessedTableManager =
       PlaceRow,
       PrefetchHooks Function()
     >;
-typedef $$ToursTableCreateCompanionBuilder = ToursCompanion Function({
-  required String key,
-  required String name,
-  required String description,
-  required int durationMinutes,
-  required String stops,
-  Value<String?> imagePath,
-  Value<int> rowid,
-});
-typedef $$ToursTableUpdateCompanionBuilder = ToursCompanion Function({
-  Value<String> key,
-  Value<String> name,
-  Value<String> description,
-  Value<int> durationMinutes,
-  Value<String> stops,
-  Value<String?> imagePath,
-  Value<int> rowid,
-});
+typedef $$ToursTableCreateCompanionBuilder =
+    ToursCompanion Function({
+      required String key,
+      required String name,
+      required String description,
+      required int durationMinutes,
+      required String stops,
+      Value<String?> imagePath,
+      Value<int> rowid,
+    });
+typedef $$ToursTableUpdateCompanionBuilder =
+    ToursCompanion Function({
+      Value<String> key,
+      Value<String> name,
+      Value<String> description,
+      Value<int> durationMinutes,
+      Value<String> stops,
+      Value<String?> imagePath,
+      Value<int> rowid,
+    });
 
 class $$ToursTableFilterComposer extends Composer<_$AppDatabase, $ToursTable> {
   $$ToursTableFilterComposer({
@@ -1883,16 +1878,7 @@ class $$ToursTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<$ToursTable, TourRow>(table),
-                  BaseReferences<_$AppDatabase, $ToursTable, TourRow>(
-                    db,
-                    table,
-                    e,
-                  ),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -2116,18 +2102,7 @@ class $$SpeechSettingsTableTableTableManager
                 commandWaitMs: commandWaitMs,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<$SpeechSettingsTableTable, SpeechSettingsRow>(
-                    table,
-                  ),
-                  BaseReferences<
-                    _$AppDatabase,
-                    $SpeechSettingsTableTable,
-                    SpeechSettingsRow
-                  >(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: null,
         ),

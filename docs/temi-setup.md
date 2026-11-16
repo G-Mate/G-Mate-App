@@ -35,6 +35,10 @@ temi에 위치를 저장할 때 아래 **위치 이름**을 쓰면, 장소 관�
 
 위치는 방 문 앞 복도에 로봇을 세우고 저장합니다. 멘트와 본 설명은 초안이라 장소 편집에서 고칩니다.
 
+## 개발 환경 (Flutter 3.32)
+
+이 temi(rk3288)는 Android 6(API 23)입니다. Flutter 3.35부터는 API 24 미만 기기를 지원하지 않아 `flutter run`이 "Android version (23) on the target device is too old"로 실패하므로, **Flutter 3.32.8(Dart 3.8)** 로 개발합니다. 최소 SDK는 `android/app/build.gradle.kts`의 `minSdk = 23`입니다. 새 기기가 Android 7 이상이 되면 Flutter를 올려도 됩니다. 패키지는 Dart 3.8과 맞는 버전으로 고정했고(`pubspec.lock`), 비공개 이름 매개변수(`required this._x`) 같은 Dart 3.12 문법은 쓰지 않습니다.
+
 ## 연결 순서
 
 1. temi 기본 앱에서 학교 1층 지도를 만들고, 안내할 장소마다 위 표의 위치 이름으로 위치를 저장합니다. 충전 위치(`home base`)는 temi가 자동으로 둡니다.
