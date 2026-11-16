@@ -14,10 +14,12 @@ import 'arrival_state.dart';
 /// 기다렸다가 다음 줄로 넘어간다. [next]를 누르면 기다리지 않고 바로 넘어간다.
 class ArrivalCubit extends Cubit<ArrivalState> {
   ArrivalCubit({
-    required this._robot,
-    required this._places,
+    required RobotController robot,
+    required PlaceRepository places,
     required this.placeKey,
-  }) : super(const ArrivalState());
+  }) : _robot = robot,
+       _places = places,
+       super(const ArrivalState());
 
   final RobotController _robot;
   final PlaceRepository _places;

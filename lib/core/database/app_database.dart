@@ -71,7 +71,7 @@ typedef DatabaseSeeder = Future<void> Function(AppDatabase db);
 /// `data/` 저장소가 맡는다.
 @DriftDatabase(tables: [Places, Tours, SpeechSettingsTable])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase(super.executor, {this._seed});
+  AppDatabase(super.executor, {DatabaseSeeder? seed}) : _seed = seed;
 
   final DatabaseSeeder? _seed;
 

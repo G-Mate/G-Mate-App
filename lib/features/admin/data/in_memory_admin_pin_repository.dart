@@ -2,7 +2,8 @@ import '../domain/admin_pin_repository.dart';
 
 /// 메모리에만 두는 PIN 저장소. 테스트에서 쓴다.
 class InMemoryAdminPinRepository implements AdminPinRepository {
-  InMemoryAdminPinRepository({this._pin = AdminPinRepository.defaultPin});
+  InMemoryAdminPinRepository({String pin = AdminPinRepository.defaultPin})
+    : _pin = pin;
 
   String _pin;
 

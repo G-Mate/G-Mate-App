@@ -7,8 +7,12 @@ import 'admin_tts_state.dart';
 
 /// 음성 설정: 목소리 값을 바꾸고 미리 들은 뒤 저장한다.
 class AdminTtsCubit extends Cubit<AdminTtsState> {
-  AdminTtsCubit({required this._robot, required this._settings})
-    : super(const AdminTtsState());
+  AdminTtsCubit({
+    required RobotController robot,
+    required SpeechSettingsRepository settings,
+  }) : _robot = robot,
+       _settings = settings,
+       super(const AdminTtsState());
 
   final RobotController _robot;
   final SpeechSettingsRepository _settings;

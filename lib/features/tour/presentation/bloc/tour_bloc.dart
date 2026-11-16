@@ -20,11 +20,14 @@ part 'tour_state.dart';
 /// [다음 장소]를 누를 때까지 기다린다.
 class TourBloc extends Bloc<TourEvent, TourState> {
   TourBloc({
-    required this._robot,
-    required this._tours,
-    required this._getVisits,
+    required RobotController robot,
+    required TourRepository tours,
+    required GetTourVisits getVisits,
     required this.tourKey,
-  }) : super(const TourState()) {
+  }) : _robot = robot,
+       _tours = tours,
+       _getVisits = getVisits,
+       super(const TourState()) {
     on<TourStarted>(_onStarted);
     on<TourArrivalConfirmed>(_onArrivalConfirmed);
     on<TourNextRequested>(_onNextRequested);

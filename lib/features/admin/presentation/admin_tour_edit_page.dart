@@ -188,7 +188,8 @@ class _Stops extends StatelessWidget {
     return ReorderableListView.builder(
       buildDefaultDragHandles: false,
       itemCount: stops.length,
-      onReorderItem: cubit.moveStop,
+      // onReorder는 아래로 옮길 때 목적지 번호가 하나 큰 값으로 온다.
+      onReorder: (from, to) => cubit.moveStop(from, to > from ? to - 1 : to),
       itemBuilder: (context, i) {
         final key = stops[i].placeKey;
         return _StopRow(

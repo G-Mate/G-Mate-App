@@ -8,10 +8,12 @@ import '../../domain/tour_repository.dart';
 /// 코스 하나와 들를 곳을 불러온다. 코스 확인·투어 끝 화면에서 쓴다.
 class TourDetailCubit extends Cubit<TourDetailState> {
   TourDetailCubit({
-    required this._tours,
-    required this._getVisits,
+    required TourRepository tours,
+    required GetTourVisits getVisits,
     required this.tourKey,
-  }) : super(const TourDetailState());
+  }) : _tours = tours,
+       _getVisits = getVisits,
+       super(const TourDetailState());
 
   final TourRepository _tours;
   final GetTourVisits _getVisits;

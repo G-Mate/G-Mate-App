@@ -9,11 +9,14 @@ import 'admin_place_edit_state.dart';
 /// 장소 편집: 장소 정보와 멘트를 고치고 저장한다.
 class AdminPlaceEditCubit extends Cubit<AdminPlaceEditState> {
   AdminPlaceEditCubit({
-    required this._robot,
-    required this._places,
+    required RobotController robot,
+    required PlaceRepository places,
     required this.placeKey,
-    required this._imagePicker,
-  }) : super(const AdminPlaceEditState());
+    required PlaceImagePicker imagePicker,
+  }) : _robot = robot,
+       _places = places,
+       _imagePicker = imagePicker,
+       super(const AdminPlaceEditState());
 
   final RobotController _robot;
   final PlaceRepository _places;

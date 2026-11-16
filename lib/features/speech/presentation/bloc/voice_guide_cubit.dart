@@ -16,10 +16,12 @@ import 'voice_guide_state.dart';
 /// 방문객이 화면을 누르면([interact]) 읽던 말과 듣기를 멈춘다.
 class VoiceGuideCubit extends Cubit<VoiceGuideState> {
   VoiceGuideCubit({
-    required this._robot,
-    required this._settings,
+    required RobotController robot,
+    required SpeechSettingsRepository settings,
     this.commandDelay = defaultCommandDelay,
-  }) : super(const VoiceGuideState());
+  }) : _robot = robot,
+       _settings = settings,
+       super(const VoiceGuideState());
 
   /// 알아들은 명령을 보여 준 뒤 수행하기까지 기다리는 시간.
   static const defaultCommandDelay = Duration(milliseconds: 1200);
